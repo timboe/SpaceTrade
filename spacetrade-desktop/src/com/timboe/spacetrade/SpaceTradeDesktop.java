@@ -8,8 +8,8 @@ public class SpaceTradeDesktop {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "SpaceTrade";
 		cfg.useGL20 = false;
-		cfg.width = 1000;
-		cfg.height = 600;
+		cfg.width = 1280;
+		cfg.height = 800;
 		new LwjglApplication(new SpaceTrade(), cfg);
 	}
 }

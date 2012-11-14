@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>libgdx</name>
+			<type>2</type>
+			<location>C:/Users/Tim/JavaWorkspace/libgdx</location>
+		</link>
+	</linkedResources>
 </projectDescription>

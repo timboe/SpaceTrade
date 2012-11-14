@@ -3,7 +3,7 @@ package com.timboe.spacetrade.world;
 import java.util.HashSet;
 
 import com.badlogic.gdx.math.Vector2;
-import com.timboe.spacetrade.settings.Utility;
+import com.timboe.spacetrade.utility.Utility;
 
 public class Starmap {
 	
@@ -11,7 +11,7 @@ public class Starmap {
 
 	private final int starBuffer = 20;
 	private final int nStars = 256;
-	public final HashSet<Vector2> theStars = new HashSet<Vector2>(); 
+	public final HashSet<Planet> thePlanets = new HashSet<Planet>(); 
 	
 	
 	public Starmap() {
@@ -19,16 +19,16 @@ public class Starmap {
 	}
 	
 	private void populate() {
-		while (theStars.size() < nStars) {
-			int _x = util.getRandI( (int) (Utility.CAMERA_WIDTH  - (2 * starBuffer)) ) + starBuffer;
-			int _y = util.getRandI( (int) (Utility.CAMERA_HEIGHT - (2 * starBuffer)) ) + starBuffer;
+		while (thePlanets.size() < nStars) {
+			int _x = util.getRandI( (int) (Utility.GAME_WIDTH  - (2 * starBuffer)) ) + starBuffer;
+			int _y = util.getRandI( (int) (Utility.GAME_HEIGHT - (2 * starBuffer)) ) + starBuffer;
 			//Check we're not too close
 			boolean tooClose = false;
-			for (Vector2 s : theStars) {
-				if (s.dst(_x, _y) < starBuffer) tooClose = true;
+			for (Planet p : thePlanets) {
+				if (p.dist(_x, _y) < starBuffer) tooClose = true;
 			}
 			if (tooClose == false) {
-				theStars.add( new Vector2(_x, _y) );
+				thePlanets.add( new Planet(_x, _y) );
 			}
 		}
 	}

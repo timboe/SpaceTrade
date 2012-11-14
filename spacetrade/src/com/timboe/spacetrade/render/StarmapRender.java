@@ -1,56 +1,64 @@
 package com.timboe.spacetrade.render;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
-import com.timboe.spacetrade.settings.Utility;
+import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 
-public class StarmapRender {
+public class StarmapRender extends Render {
 	
 	private Starmap theStarmap;
 	
 	private OrthographicCamera cam;
+	private OrthographicCamera cam2;
+
 	//Base Res 1000x600
 
-	private int width;
-	private int height;
-	private float pper_Wunit; //pixel per unit width
-	private float pper_Hunit; //pixel per unit height
-	
 	private ShapeRenderer g2 = new ShapeRenderer();
 
 	public StarmapRender() {
-		cam = new OrthographicCamera(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT);
-		cam.position.set(Utility.CAMERA_WIDTH / 2f, Utility.CAMERA_HEIGHT / 2f, 0);
-		cam.update();
+		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+		cam = new OrthographicCamera(Utility.GAME_WIDTH, Utility.GAME_HEIGHT);
+//		cam.position.set(250, (Utility.CAMERA_HEIGHT) / 2f, 0);
+//		cam.update();
+//		
+//		cam2 = new OrthographicCamera(Utility.GAME_WIDTH, Utility.GAME_HEIGHT);
+//		cam2.position.set(0, (Utility.CAMERA_HEIGHT) / 2f, 0);
+//		cam2.update();
 		
 		theStarmap = new Starmap();
 	}
 	
 	public void render(float delta) {
-		System.out.println("InRndr");
-//		g2.setProjectionMatrix(cam.combined);
+
+		//g2.setProjectionMatrix( cam.combined);
 		g2.begin(ShapeType.FilledCircle);
 		g2.setColor(0f, 1f, 0f, 0f);
-		for (Vector2 s : theStarmap.theStars) {
-			g2.filledCircle(s.x, s.y, 5);
+		for (Planet p : theStarmap.thePlanets) {
+			g2.filledCircle(p.getX(), p.getY(), 5);
 		}
 		g2.end();
-		g2.begin(ShapeType.Rectangle);
-		g2.setColor(new Color(1, 0, 0, 1));
-		g2.rect(0, 0, 300, 300);
-		g2.end();
+		
+		//g2.setProjectionMatrix( cam2.combined);
+
 
 	}
 
 	public void resize(int _width, int _height) {
+		System.out.println("W:"+_width+" H:"+_height);
 		width = _width;
 		height = _height;
 		pper_Wunit = (float)width / Utility.CAMERA_WIDTH;
 		pper_Hunit = (float)height / Utility.CAMERA_HEIGHT;
+		
+		System.out.println("W:"+_width+" ppW:"+pper_Wunit+" H:"+_height);
+
 	}
+
 	
 }
