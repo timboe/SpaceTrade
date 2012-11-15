@@ -8,10 +8,10 @@ public class AdLib {
 	public AdLib() {
 		planets.add("Magrathea");
 		planets.add("Bernards");
-		planets.add("Xarquest β");
-		planets.add("Spongiform V");
+		planets.add("Xarquest");
+		planets.add("Spongiform");
 		planets.add("Little Biddlington");
-		planets.add("Eugenia I");
+		planets.add("Eugenia");
 		planets.add("Sponde");
 		planets.add("Hegemone");
 		planets.add("Aoede");
@@ -35,7 +35,7 @@ public class AdLib {
 		planets.add("Hellvetica");
 		planets.add("Eternium");
 		planets.add("Wormulon");
-		planets.add("Nylar IV");
+		planets.add("Nylar");
 		planets.add("Vinci");
 		planets.add("Aldebaran");
 		planets.add("Algol");
@@ -72,8 +72,8 @@ public class AdLib {
 		planets.add("Kobol");
 		planets.add("Arkology");
 		planets.add("Tarazed");
-		planets.add("Lundmark ");
-		planets.add("Empyrium ");
+		planets.add("Lundmark");
+		planets.add("Empyrium");
 		planets.add("Almagest");
 		planets.add("Pythia");
 		planets.add("Herwig");
@@ -179,7 +179,7 @@ public class AdLib {
 		planets.add("Norfolk");
 		planets.add("Ramen");
 		planets.add("Hijonda");
-		planets.add("Oncier ");
+		planets.add("Oncier");
 		planets.add("Alturas");
 		planets.add("Galt");
 		planets.add("Comptor");
@@ -200,74 +200,18 @@ public class AdLib {
 		planets.add("Palma");
 		planets.add("Synchrony");
 		planets.add("Zanovar");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
-		planets.add("");
+		planets.add("Saint Genis");
+		planets.add("Ferney");
 	
 		
 		fornames.add("Farquar");
 		fornames.add("Cuthbert");
 		fornames.add("Sybil");
 		fornames.add("Cynthia");
-
+		fornames.add("Horatio");
+		fornames.add("Giles");
+		fornames.add("Pamela");
+		fornames.add("Reginald");
 
 	}
 }

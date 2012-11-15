@@ -2,6 +2,7 @@ package com.timboe.spacetrade.utility;
 
 import java.util.Random;
 
+import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.render.RightBar;
 
 public class Utility {
@@ -12,12 +13,13 @@ public class Utility {
 	public static final float GAME_HEIGHT = 800;
 	public static final float GAME_WIDTH = 1200;
 	public static final float GUI_WIDTH = 80;
-
 	
 	private static final Utility singleton = new Utility(); 
 	private final Random rand;
 	private final RightBar rightBar;
 	private final AdLib adLib;
+	private SpaceTrade spaceTrade;
+	private int starDate = 0;
 
 	public RightBar getRightBar() {
 		return rightBar;
@@ -39,6 +41,10 @@ public class Utility {
 	}
 	
 	
+	public SpaceTrade getSpaceTrade() {
+		return spaceTrade;
+	}
+	
 	public float getRandF() {
 		return rand.nextFloat();
 	}
@@ -51,8 +57,24 @@ public class Utility {
 		return rand.nextInt(_n);
 	}
 	
+	public float getRandG(float _m, float _s) {
+		return (float) (_m + (rand.nextGaussian() * _s));
+	}
+	
 	public boolean getRandChance(float _c) {
 		return (getRandF() < _c);
+	}
+	
+	public int getStarDate() {
+		return starDate;
+	}
+	
+	public void newYear(int _n_years) {
+		starDate += _n_years;
+	}
+	
+	public void setSpaceTrade(SpaceTrade _st) {
+		spaceTrade = _st;
 	}
 	
 }

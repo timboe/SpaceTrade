@@ -2,7 +2,6 @@ package com.timboe.spacetrade.world;
 
 import java.util.HashSet;
 
-import com.badlogic.gdx.math.Vector2;
 import com.timboe.spacetrade.utility.Utility;
 
 public class Starmap {
@@ -16,6 +15,13 @@ public class Starmap {
 	
 	public Starmap() {
 		populate();
+	}
+	
+	public void newYear(int _n_years) {
+		for (Planet _p : thePlanets) {
+			_p.newYear(_n_years);
+		}
+		util.newYear(_n_years);
 	}
 	
 	private void populate() {

@@ -23,7 +23,6 @@ public enum Government {
 	Theocracy; //The religious
 	
 	private static final Utility util = Utility.getUtility();
-	
 	private static final List<Government> content = Collections.unmodifiableList(Arrays.asList(values()));
 	private static final int size = content.size();
 

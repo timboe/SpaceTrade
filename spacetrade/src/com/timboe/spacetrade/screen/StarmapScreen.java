@@ -1,11 +1,13 @@
 package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
 import com.timboe.spacetrade.render.StarmapRender;
 import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.world.Planet;
 
 public class StarmapScreen implements Screen, InputProcessor {
 
@@ -48,6 +50,10 @@ public class StarmapScreen implements Screen, InputProcessor {
 //		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 //		//texture.setFilter(TextureFilter.MipMap, TextureFilter.Linear);
 
+		theStarmapRenderer.theStarmap.newYear(10);
+		for (Planet _p : theStarmapRenderer.theStarmap.thePlanets) {
+			_p.printStat();
+		}
 
 	}
 	
@@ -122,7 +128,9 @@ public class StarmapScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
+		if (button == Buttons.LEFT) {
+			util.getRightBar().handleClick(screenX, screenY);
+		}
 		return false;
 	}
 

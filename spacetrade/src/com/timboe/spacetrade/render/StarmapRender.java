@@ -11,7 +11,7 @@ import com.timboe.spacetrade.world.Starmap;
 
 public class StarmapRender extends Render {
 	
-	private Starmap theStarmap;
+	public Starmap theStarmap;
 	
 	private OrthographicCamera cam;
 	private OrthographicCamera cam2;
