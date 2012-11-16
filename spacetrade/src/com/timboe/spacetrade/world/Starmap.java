@@ -1,5 +1,6 @@
 package com.timboe.spacetrade.world;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import com.timboe.spacetrade.utility.Utility;
@@ -10,7 +11,7 @@ public class Starmap {
 
 	private final int starBuffer = 20;
 	private final int nStars = 256;
-	public final HashSet<Planet> thePlanets = new HashSet<Planet>(); 
+	public final ArrayList<Planet> thePlanets = new ArrayList<Planet>(); 
 	
 	
 	public Starmap() {

@@ -1,6 +1,7 @@
 package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input.Buttons;
@@ -35,9 +36,6 @@ public class PlanetScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (button == Buttons.LEFT) {
-			util.getRightBar().handleClick(screenX, screenY);
-		}
 		return false;
 	}
 
@@ -69,7 +67,6 @@ public class PlanetScreen implements Screen, InputProcessor {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		util.getRightBar().render();		
 	}
 
 	@Override
@@ -80,7 +77,7 @@ public class PlanetScreen implements Screen, InputProcessor {
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(this);
+		Gdx.input.setInputProcessor( new InputMultiplexer(this) );
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
@@ -10,9 +11,8 @@ import com.timboe.spacetrade.utility.Utility;
 import com.timboe.spacetrade.world.Planet;
 
 public class StarmapScreen implements Screen, InputProcessor {
-
-	StarmapRender theStarmapRenderer;
 	private Utility util = Utility.getUtility();
+	StarmapRender theStarmapRenderer;
 	
 //	private ShapeRenderer g2 = new ShapeRenderer();
 //    private Mesh mesh;
@@ -61,9 +61,8 @@ public class StarmapScreen implements Screen, InputProcessor {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		theStarmapRenderer.render(delta);
-		util.getRightBar().render();
-		
+		theStarmapRenderer.render();
+	
 		
 //		 Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 //		 Gdx.graphics.getGL10().glEnable(GL10.GL_TEXTURE_2D);
@@ -77,12 +76,11 @@ public class StarmapScreen implements Screen, InputProcessor {
 	@Override
 	public void resize(int width, int height) {
 		theStarmapRenderer.resize(width, height);
-		util.getRightBar().resize(width, height);
 	}
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(this);
+		Gdx.input.setInputProcessor( new InputMultiplexer(this, theStarmapRenderer.getStage()) );
 	}
 
 	@Override
@@ -105,6 +103,7 @@ public class StarmapScreen implements Screen, InputProcessor {
 	@Override
 	public void dispose() {
 		Gdx.input.setInputProcessor(null);
+		theStarmapRenderer.dispose();
 	}
 
 	//Input processor
@@ -128,9 +127,6 @@ public class StarmapScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (button == Buttons.LEFT) {
-			util.getRightBar().handleClick(screenX, screenY);
-		}
 		return false;
 	}
 

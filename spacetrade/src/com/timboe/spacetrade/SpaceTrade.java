@@ -28,7 +28,7 @@ public class SpaceTrade extends Game {
 		thePlanetScreen = new PlanetScreen();
 		theSellScreen = new SellScreen();
 		
-		setScreen(theStarmap);
+		setScreen(theSellScreen);
 
 	}
 	

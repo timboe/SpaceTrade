@@ -1,67 +1,116 @@
 package com.timboe.spacetrade.render;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.timboe.spacetrade.utility.Utility;
 
-public class RightBar extends Render {
+public class RightBar {
 
-	private OrthographicCamera cam;
-	private ShapeRenderer g2 = new ShapeRenderer();
+	public final Table rightTable;
+	public final TextButton galaxyButton;
+	public final TextButton planetButton;
+	public final TextButton shipButton;
+	public final TextButton sellButton;
+	public final Skin skin;
 	
-	private int bar_height = 50;
+	private static final RightBar singleton = new RightBar();
+	public static RightBar getRightBar() {
+		return singleton;
+	}
+	
+	public static Table getRightBarTable() {
+		return singleton.rightTable;
+	}
+	
+	private RightBar() {
+		skin = new Skin(Gdx.files.internal("data/skin/uiskin.json"));
 
-	public RightBar() {
-		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-//		cam = new OrthographicCamera(Utility.GUI_WIDTH * pper_Wunit, Utility.CAMERA_HEIGHT * pper_Hunit);
-//		cam.position.set(((Utility.GUI_WIDTH * pper_Hunit) / 2f) - ((Utility.CAMERA_WIDTH * pper_Hunit) / 2f), (Utility.CAMERA_HEIGHT * pper_Hunit) / 2f, 0);
-//		cam.update();
+		rightTable = new Table();
+		rightTable.debug();
+		rightTable.align(Align.top | Align.center );
+		rightTable.setSize(Utility.GUI_WIDTH, Utility.GAME_HEIGHT);
+
+//		final TextButton galaxyButton = new TextButton("GALAXY", skin.get("toggle", TextButtonStyle.class));
+		galaxyButton = new TextButton("GALAXY", skin);
+		planetButton = new TextButton("WORLD", skin);
+		shipButton = new TextButton("SHIP", skin);
+		sellButton = new TextButton("SELL", skin);
 		
-	}
-	
-	public void render() {
+		galaxyButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				if (button != Buttons.LEFT) return false;
+				planetButton.setChecked(false);
+				shipButton.setChecked(false);
+				sellButton.setChecked(false);
+				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().theStarmap );
+				return false;
+			}
+		});
 		
-		//g2.setProjectionMatrix(cam.combined);
-		g2.begin(ShapeType.Rectangle);
-		g2.setColor(1f, 0f, 1f, 0f);
-		g2.rect(Utility.GAME_WIDTH, Utility.GAME_HEIGHT - (1*bar_height), Utility.GUI_WIDTH, bar_height);
-		g2.rect(Utility.GAME_WIDTH, Utility.GAME_HEIGHT - (2*bar_height), Utility.GUI_WIDTH, bar_height);
-		g2.rect(Utility.GAME_WIDTH, Utility.GAME_HEIGHT - (3*bar_height), Utility.GUI_WIDTH, bar_height);
-		g2.rect(Utility.GAME_WIDTH, Utility.GAME_HEIGHT - (4*bar_height), Utility.GUI_WIDTH, bar_height);
-		g2.end();
+		
+		planetButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				if (button != Buttons.LEFT) return false;
+
+				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().thePlanetScreen );
+				
+				galaxyButton.setChecked(false);
+				shipButton.setChecked(false);
+				sellButton.setChecked(false);
+				return false;
+			}
+		});		
+		
+		
+		shipButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				if (button != Buttons.LEFT) return false;
+
+				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().theShipScreen );
+				galaxyButton.setChecked(false);
+				planetButton.setChecked(false);
+				sellButton.setChecked(false);
+				return false;
+			}
+		});
+		
+		sellButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				if (button != Buttons.LEFT) return false;
+
+				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().theSellScreen  );
+				galaxyButton.setChecked(false);
+				shipButton.setChecked(false);
+				planetButton.setChecked(false);
+				return false;
+			}
+		});
+		
+		rightTable.add(galaxyButton);
+		rightTable.row();
+		rightTable.add(planetButton);
+		rightTable.row();		
+		rightTable.add(shipButton);
+		rightTable.row();		
+		rightTable.add(sellButton);
+
 	}
 	
-	public boolean handleClick(int _screenX, int _screenY) {
-		Utility util = Utility.getUtility();
-		Gdx.app.log("Touch", "X:"+_screenX+" Y:"+_screenY);
-		if (_screenX < Utility.GAME_WIDTH) return false;
-		if (_screenY < (1*bar_height)) {
-			Gdx.app.log("Touch", "Change to Ship");
-			util.getSpaceTrade().setScreen( util.getSpaceTrade().theShipScreen  );
-			return true;
-		} else if (_screenY < (2*bar_height)) {
-			Gdx.app.log("Touch", "Change to Star");
-			util.getSpaceTrade().setScreen( util.getSpaceTrade().theStarmap  );
-			return true;
-		} else if (_screenY < (3*bar_height)) {
-			Gdx.app.log("Touch", "Change to Planet");
-			util.getSpaceTrade().setScreen( util.getSpaceTrade().thePlanetScreen  );
-			return true;
-		} else if (_screenY < (4*bar_height)) {
-			Gdx.app.log("Touch", "Change to Sell ");
-			util.getSpaceTrade().setScreen( util.getSpaceTrade().theSellScreen  );
-			return true;
-		}
-		return false;
-	}
-	
-	public void resize(int _width, int _height) {
-		width = _width;
-		height = _height;
-		pper_Wunit = (float)width / Utility.GUI_WIDTH;
-		pper_Hunit = (float)height / Utility.CAMERA_HEIGHT;
-	}
+
 	
 }

@@ -2,13 +2,23 @@ package com.timboe.spacetrade.utility;
 
 import java.util.Random;
 
+import com.badlogic.gdx.Gdx;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.render.RightBar;
+import com.timboe.spacetrade.world.Starmap;
 
 public class Utility {
 	
 	public static final float CAMERA_WIDTH = 1280;
 	public static final float CAMERA_HEIGHT = 800;
+	
+	public static int getGameWidthPix() {
+		return (int) (GAME_WIDTH * ((float)Gdx.graphics.getWidth() / (float)CAMERA_WIDTH));
+	}
+	
+	public static int getGameHeightPix() {
+		return (int) (GAME_HEIGHT * ((float)Gdx.graphics.getHeight() / (float)CAMERA_HEIGHT));
+	}
 
 	public static final float GAME_HEIGHT = 800;
 	public static final float GAME_WIDTH = 1200;
@@ -16,14 +26,15 @@ public class Utility {
 	
 	private static final Utility singleton = new Utility(); 
 	private final Random rand;
-	private final RightBar rightBar;
+	//private final RightBar rightBar;
 	private final AdLib adLib;
 	private SpaceTrade spaceTrade;
+	private Starmap starMap;
 	private int starDate = 0;
 
-	public RightBar getRightBar() {
-		return rightBar;
-	}
+//	public RightBar getRightBar() {
+//		return rightBar;
+//	}
 	
 	public final AdLib getAdLib() {
 		return adLib;
@@ -37,7 +48,6 @@ public class Utility {
 	private Utility() {
 		rand = new Random(0);
 		adLib = new AdLib();
-		rightBar = new RightBar();
 	}
 	
 	
@@ -69,12 +79,20 @@ public class Utility {
 		return starDate;
 	}
 	
+	public Starmap getStarmap() {
+		return starMap;
+	}
+	
 	public void newYear(int _n_years) {
 		starDate += _n_years;
 	}
 	
 	public void setSpaceTrade(SpaceTrade _st) {
 		spaceTrade = _st;
+	}
+	
+	public void setStarmap(Starmap _sm) {
+		starMap = _sm;
 	}
 	
 }
