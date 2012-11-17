@@ -79,10 +79,6 @@ public class Utility {
 		return starDate;
 	}
 	
-	public Starmap getStarmap() {
-		return starMap;
-	}
-	
 	public void newYear(int _n_years) {
 		starDate += _n_years;
 	}
@@ -91,8 +87,5 @@ public class Utility {
 		spaceTrade = _st;
 	}
 	
-	public void setStarmap(Starmap _sm) {
-		starMap = _sm;
-	}
 	
 }

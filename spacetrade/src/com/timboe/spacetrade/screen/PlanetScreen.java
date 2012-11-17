@@ -4,17 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.GL10;
+import com.timboe.spacetrade.render.PlanetScreenRender;
 import com.timboe.spacetrade.utility.Utility;
 
 public class PlanetScreen implements Screen, InputProcessor {
 	Utility util = Utility.getUtility();
+	PlanetScreenRender thePlanetScreen;
 	
 	public PlanetScreen() {
-		
+		thePlanetScreen = new PlanetScreenRender();
 	}
-
 	
 	@Override
 	public boolean keyDown(int keycode) {
@@ -67,17 +67,18 @@ public class PlanetScreen implements Screen, InputProcessor {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		thePlanetScreen.render();
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
+		thePlanetScreen.resize(width, height);
 	}
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor( new InputMultiplexer(this) );
+		Gdx.input.setInputProcessor( new InputMultiplexer(this, thePlanetScreen.getStage()) );
+		thePlanetScreen.init();		
 	}
 
 	@Override
@@ -100,6 +101,7 @@ public class PlanetScreen implements Screen, InputProcessor {
 	@Override
 	public void dispose() {
 		Gdx.input.setInputProcessor(null);
+		thePlanetScreen.dispose();
 	}
 
 }

@@ -4,13 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.GL10;
 import com.timboe.spacetrade.render.SellScreenRender;
-import com.timboe.spacetrade.utility.Utility;
 
 public class SellScreen  implements Screen, InputProcessor {
-	private Utility util = Utility.getUtility();	
 	SellScreenRender theSellScreen;
 	
 	public SellScreen() {
@@ -80,6 +77,7 @@ public class SellScreen  implements Screen, InputProcessor {
 	@Override
 	public void show() {
 		Gdx.input.setInputProcessor( new InputMultiplexer(this, theSellScreen.getStage() ) );
+		theSellScreen.init();
 	}
 
 	@Override

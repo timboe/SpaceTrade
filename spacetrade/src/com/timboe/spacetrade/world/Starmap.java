@@ -1,22 +1,35 @@
 package com.timboe.spacetrade.world;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-
 import com.timboe.spacetrade.utility.Utility;
 
 public class Starmap {
 	
+	private static final Starmap singleton = new Starmap();
+	
+	public static final Starmap getStarmap() {
+		return singleton;
+	}
+	
+	private Starmap() {
+		populate();
+
+	}
+	
+	
 	private Utility util = Utility.getUtility();
 
+	
+	
 	private final int starBuffer = 20;
 	private final int nStars = 256;
-	public final ArrayList<Planet> thePlanets = new ArrayList<Planet>(); 
+	private final ArrayList<Planet> thePlanets = new ArrayList<Planet>(); 
 	
 	
-	public Starmap() {
-		populate();
+	public synchronized ArrayList<Planet> getPlanets() {
+		return thePlanets;
 	}
+	
 	
 	public void newYear(int _n_years) {
 		for (Planet _p : thePlanets) {

@@ -4,13 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.GL10;
 import com.timboe.spacetrade.render.ShipScreenRender;
 import com.timboe.spacetrade.utility.Utility;
 
 public class ShipScreen implements Screen, InputProcessor {
-
 	Utility util = Utility.getUtility();
 	ShipScreenRender theShipScreen;
 	
@@ -75,12 +73,12 @@ public class ShipScreen implements Screen, InputProcessor {
 	@Override
 	public void resize(int width, int height) {
 		theShipScreen.resize(width, height);
-		
 	}
 
 	@Override
 	public void show() {
 		Gdx.input.setInputProcessor( new InputMultiplexer(this, theShipScreen.getStage() ) );
+		theShipScreen.init();
 	}
 
 	@Override
@@ -103,6 +101,7 @@ public class ShipScreen implements Screen, InputProcessor {
 	@Override
 	public void dispose() {
 		Gdx.input.setInputProcessor(null);
+		theShipScreen.dispose();
 	}
 
 }

@@ -1,19 +1,11 @@
 package com.timboe.spacetrade.render;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.utility.Utility;
-
-
 
 public class Render {
 	
@@ -23,6 +15,11 @@ public class Render {
 	protected Stage stage;
 	
 	public Render() {
+		masterTable = new Table();
+		masterTable.debug();
+		masterTable.align(Align.bottom | Align.left);
+		masterTable.setSize(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT);
+		
 		skin = new Skin(Gdx.files.internal("data/skin/uiskin.json"));
 		stage = new Stage();
 
@@ -31,17 +28,14 @@ public class Render {
 		leftTable.align( Align.center);
 		leftTable.setSize(Utility.GAME_WIDTH, Utility.GAME_HEIGHT);
 		
-
+		//init(); should be caller after superclass constructor
 	}
 	
-	protected void init() {
-		masterTable = new Table();
-		masterTable.debug();
-		masterTable.align(Align.bottom | Align.left);
-		masterTable.setSize(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT);
-		//masterTable.pad(10);
+	public void init() {
+		masterTable.clear();
 		masterTable.add(leftTable).width(Utility.GAME_WIDTH).height(Utility.GAME_HEIGHT);
 		masterTable.add(RightBar.getRightBarTable()).width(Utility.GUI_WIDTH).height(Utility.GAME_HEIGHT);
+		stage.clear();
 		stage.addActor(masterTable);
 	}
 	

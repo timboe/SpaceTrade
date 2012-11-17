@@ -1,17 +1,15 @@
 package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
 import com.timboe.spacetrade.render.StarmapRender;
-import com.timboe.spacetrade.utility.Utility;
 import com.timboe.spacetrade.world.Planet;
+import com.timboe.spacetrade.world.Starmap;
 
 public class StarmapScreen implements Screen, InputProcessor {
-	private Utility util = Utility.getUtility();
 	StarmapRender theStarmapRenderer;
 	
 //	private ShapeRenderer g2 = new ShapeRenderer();
@@ -50,8 +48,8 @@ public class StarmapScreen implements Screen, InputProcessor {
 //		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 //		//texture.setFilter(TextureFilter.MipMap, TextureFilter.Linear);
 
-		theStarmapRenderer.theStarmap.newYear(10);
-		for (Planet _p : theStarmapRenderer.theStarmap.thePlanets) {
+		Starmap.getStarmap().newYear(10);
+		for (Planet _p : Starmap.getStarmap().getPlanets()) {
 			_p.printStat();
 		}
 
@@ -81,6 +79,7 @@ public class StarmapScreen implements Screen, InputProcessor {
 	@Override
 	public void show() {
 		Gdx.input.setInputProcessor( new InputMultiplexer(this, theStarmapRenderer.getStage()) );
+		theStarmapRenderer.init();
 	}
 
 	@Override

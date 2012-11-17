@@ -2,7 +2,6 @@ package com.timboe.spacetrade.world;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.badlogic.gdx.Gdx;
@@ -23,6 +22,7 @@ public class Planet {
 	
 	private final EnumMap<Goods, Boolean> goodsSold = new EnumMap<Goods, Boolean>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
+	private final EnumMap<Goods, AtomicInteger> stockTarget = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> volitility = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, ArrayList<AtomicInteger> > price = new EnumMap<Goods, ArrayList<AtomicInteger> >(Goods.class);
 
@@ -37,6 +37,7 @@ public class Planet {
 		for (Goods _g : Goods.values()) {
 			goodsSold.put(_g, new Boolean(true));
 			stock.put(_g, new AtomicInteger(util.getRandI(_g.getBaseAmount()))); //have up to base amount
+			stockTarget.put(_g, new AtomicInteger(_g.getBaseAmount())); 
 			volitility.put(_g, new AtomicInteger(20)); //base volatility in % //TODO check
 			price.put(_g, new ArrayList<AtomicInteger>() );
 			price.get(_g).add( new AtomicInteger( _g.getBasePrice() ));
@@ -327,6 +328,14 @@ public class Planet {
 				final float sigma = (float)current * ((float)volitility.get(_g).get() / 100f);
 				final int _new = Math.abs( Math.round( util.getRandG(current, sigma) ) );
 				price.get(_g).add( new AtomicInteger(_new) );
+				//Mod stock
+				final int _stock = stock.get(_g).get();
+				final int _stockTarget = stockTarget.get(_g).get();
+				if (_stock > _stockTarget) {	//TODO add something to do with size of planet
+					stock.get(_g).decrementAndGet();
+				} else if (_stock < _stockTarget) {
+					stock.get(_g).incrementAndGet();
+				}
 			}
 		}
 	}
@@ -337,7 +346,7 @@ public class Planet {
 		price.get(_g).get(util.getStarDate()).set(updated);
 	}
 	
-	private void changeVolatility(Goods _g, Fluctuate _f) {
+	private void changeVolatility(Goods _g, Fluctuate _f) { //TODO change volatility
 		final int current = volitility.get(_g).get();
 		final int updated = Math.round(current * _f.get());
 		volitility.get(_g).set(updated);
@@ -367,6 +376,14 @@ public class Planet {
 		return  price.get(_g).get(_starDate).get();
 	}
 	
+	public int getStock(Goods _g) {
+		return stock.get(_g).get();
+	}
+	
+	public void modStock(Goods _g, int _amount) {
+		stock.get(_g).getAndAdd(_amount);
+	}
+	
 	public void printStat() {
 		Gdx.app.log("Planet", "---------- "+name+" is a "+civ_type+" "+gov_type+" ----------");
 		Gdx.app.log("Planet", "\tGRN\tTEX\tMIN\tMAC\tH20\tCOM\tCRK\tMED\tAI\tSNG");
@@ -382,6 +399,10 @@ public class Planet {
 			Gdx.app.log("Planet", _s);
 		}
 		Gdx.app.log("Planet", "---------- ---------- ---------- ---------- ---------- ----------");
+	}
+
+	public boolean getSells(Goods _g) {
+		return goodsSold.get(_g).booleanValue();
 	}
 
 }

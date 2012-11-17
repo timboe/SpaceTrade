@@ -13,12 +13,10 @@ import com.timboe.spacetrade.world.Starmap;
 
 public class StarmapRender extends Render {
 	
-	public Starmap theStarmap;
+	private Starmap theStarmap = Starmap.getStarmap();
 	private ShapeRenderer g2 = new ShapeRenderer();
 
 	public StarmapRender() {
-		theStarmap = new Starmap();
-		Utility.getUtility().setStarmap(theStarmap);
 		
 		Label titleLabelA = new Label("AAAAA", skin);
 		Label titleLabelB = new Label("BBBB", skin);
@@ -34,7 +32,7 @@ public class StarmapRender extends Render {
 	public void render() {
 		g2.begin(ShapeType.FilledCircle);
 		g2.setColor(0f, 1f, 0f, 0f);
-		for (Planet p : theStarmap.thePlanets) {
+		for (Planet p : theStarmap.getPlanets()) {
 			g2.filledCircle(p.getX(), p.getY(), 5);
 		}
 		g2.end();
