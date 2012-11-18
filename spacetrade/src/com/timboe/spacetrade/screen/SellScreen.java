@@ -1,106 +1,254 @@
 package com.timboe.spacetrade.screen;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL10;
-import com.timboe.spacetrade.render.SellScreenRender;
+import java.util.EnumMap;
 
-public class SellScreen  implements Screen, InputProcessor {
-	SellScreenRender theSellScreen;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.SplitPane;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.timboe.spacetrade.enumerator.Goods;
+import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.SpaceTradeRender;
+import com.timboe.spacetrade.world.Planet;
+import com.timboe.spacetrade.world.Starmap;
+import com.timboe.spacetrade.world.TextButtonGoods;
+import com.timboe.spacetrade.world.Textures;
+
+public class SellScreen extends SpaceTradeRender {
+	
+	private final EnumMap<Goods, Label> labelPrice = new EnumMap<Goods, Label>(Goods.class);
+	private final EnumMap<Goods, Label> labelPricePaid = new EnumMap<Goods, Label>(Goods.class);
+	private final EnumMap<Goods, Slider> sliderStock = new EnumMap<Goods, Slider>(Goods.class);
+	private final EnumMap<Goods, Label> labelStock = new EnumMap<Goods, Label>(Goods.class);
+	private final EnumMap<Goods, TextButton> buttonSell = new EnumMap<Goods, TextButton>(Goods.class);
+
+	
+	ChangeListener sellClik;
+	
+	private Planet currentPlanet;
+	
+	private void updateList(boolean _intial) {
+		for (Goods _g : Goods.values()) {
+			if (currentPlanet.getSells(_g) == false) {
+				labelPrice.get(_g).setText( "---" );
+				sliderStock.get(_g).setRange(0, 1);
+				sliderStock.get(_g).setTouchable(Touchable.disabled);
+				sliderStock.get(_g).setVisible(false);
+				labelPricePaid.get(_g).setText("---");
+				labelStock.get(_g).setText( Integer.toString(Player.getPlayer().getStock(_g)) );
+				buttonSell.get(_g).setTouchable(Touchable.disabled);
+				buttonSell.get(_g).setVisible(false);
+				continue;
+			} else {
+				if (Player.getPlayer().getStock(_g) == 0) {
+					sliderStock.get(_g).setTouchable(Touchable.disabled);
+				} else {
+					sliderStock.get(_g).setTouchable(Touchable.enabled);
+				}
+				buttonSell.get(_g).setTouchable(Touchable.enabled);
+				buttonSell.get(_g).setVisible(true);
+				sliderStock.get(_g).setVisible(true);
+			}
+			
+			int cost = currentPlanet.getPrice(_g);
+			labelPrice.get(_g).setText( Integer.toString(cost) );
+			
+			if (_intial == true) {
+				int toSell = Player.getPlayer().getStock(_g);
+				if (toSell == 0) {
+					sliderStock.get(_g).setRange(0, 1);
+					sliderStock.get(_g).setTouchable(Touchable.disabled);
+				}
+				sliderStock.get(_g).setRange(0, toSell);
+				sliderStock.get(_g).setValue(toSell);
+				sliderStock.get(_g).setTouchable(Touchable.enabled);
+			}
+			
+			int avPaid = Player.getPlayer().getAvPaidPrice(_g);
+			if (avPaid < cost) {
+				labelPricePaid.get(_g).setColor(0f, 1f, 0f, 1f);
+			} else {
+				labelPricePaid.get(_g).setColor(1f, 0f, 0f, 1f);
+			}
+			labelPricePaid.get(_g).setText(Integer.toString(cost - avPaid));
+
+			int chosen = (int) sliderStock.get(_g).getValue();
+			labelStock.get(_g).setText( Integer.toString(chosen) );
+		}
+
+	}
 	
 	public SellScreen() {
-		theSellScreen = new SellScreenRender();
+		Skin _skin = Textures.getTextures().getSkin();
 		
+		sellClik = new  ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				Gdx.app.log("SellButton","Interact:"+event.toString()+" "+((TextButtonGoods)actor).getGoods());
+				final Goods _g = ((TextButtonGoods)actor).getGoods();
+				final int _amount = (int) sliderStock.get(_g).getValue();
+				final int _profit = currentPlanet.getPrice(_g) * _amount;
+				Player.getPlayer().modCredz(_profit);
+				Player.getPlayer().removeStock(_g, _amount);
+				currentPlanet.modStock(_g, _amount);
+				final int _remainingStock = Player.getPlayer().getStock(_g);
+				if (_remainingStock == 0) {
+					sliderStock.get(_g).setRange(0, 1);
+				} else {
+					sliderStock.get(_g).setRange(0, _remainingStock);
+					if (_amount > _remainingStock) {
+						sliderStock.get(_g).setValue(_remainingStock);
+					} else {
+						sliderStock.get(_g).setValue(_amount);
+					}
+				}
+			}
+		};
+		
+		Label titleLabelA = new Label("GOODS", _skin);
+		Label titleLabelB = new Label("PRICE PER\nUNIT", _skin);
+		titleLabelB.setAlignment(Align.center);
+		Label titleLabelC = new Label("PROFIT PER\nUNIT", _skin);
+		titleLabelC.setAlignment(Align.center);
+		Label titleLabelD = new Label("STOCK", _skin);
+		Label titleLabelE = new Label("SELL", _skin);
+
+		currentPlanet = Starmap.getStarmap().getPlanets().get(0);
+		
+		leftTable.defaults().pad(10);
+		leftTable.add(titleLabelA);
+		leftTable.add(titleLabelB);
+		leftTable.add(titleLabelC);
+		leftTable.add(titleLabelD).colspan(2);
+		leftTable.add(titleLabelE);
+		leftTable.row();
+		for (Goods _g : Goods.values()) {
+			leftTable.add( new Label( _g.toString(), _skin ) );
+			
+			Label temp = new Label( "10", _skin );
+			labelPrice.put(_g, temp);
+			leftTable.add( temp );
+			
+			temp = new Label( "100", _skin );
+			labelPricePaid.put(_g, temp);
+			leftTable.add( temp ).pad(10);
+			
+			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
+			sliderStock.put(_g, sliderTemp);
+			leftTable.add(sliderTemp);
+			
+			temp = new Label( "1000", _skin );
+			labelStock.put(_g, temp);
+			leftTable.add( temp ).width(50);	
+			
+			TextButtonGoods buttonTemp = new TextButtonGoods("SELL", _skin, _g);
+			buttonTemp.addListener(sellClik);
+			buttonSell.put(_g, buttonTemp);
+			leftTable.add( buttonTemp );	
+			
+			leftTable.row();
+		}
+//		Label SPA = new Label("ASIDE", Textures.getTextures().getSkin());
+//		Label SPB = new Label("BSIDE", Textures.getTextures().getSkin());
+//		SPA.setWidth(200);
+//		SplitPane _sp = new SplitPane(SPA, SPB, false, _skin);
+//		_sp.size(400, 50);
+//		leftTable.add(_sp).colspan(6);
+		updateList(true);
+		
+//		leftTable.row();
+//		leftTable.add(nameText).width(100);
+//		leftTable.row();
+//		leftTable.add(addressLabel);
+//		leftTable.add(addressText).width(100);
+		
+		
+//		final TextButton flickButton = new TextButton("Flick Scroll", skin.get("toggle", TextButtonStyle.class));
+//		flickButton.setChecked(true);
+//		flickButton.addListener(new ChangeListener() {
+//			public void changed (ChangeEvent event, Actor actor) {
+//				scroll.setFlickScroll(flickButton.isChecked());
+//			}
+//		});
+//
+//		final TextButton fadeButton = new TextButton("Fade Scrollbars", skin.get("toggle", TextButtonStyle.class));
+//		fadeButton.setChecked(true);
+//		fadeButton.addListener(new ChangeListener() {
+//			public void changed (ChangeEvent event, Actor actor) {
+//				scroll.setFadeScrollBars(fadeButton.isChecked());
+//			}
+//		});
+//
+//		final TextButton smoothButton = new TextButton("Smooth Scrolling", skin.get("toggle", TextButtonStyle.class));
+//		smoothButton.setChecked(true);
+//		smoothButton.addListener(new ChangeListener() {
+//			public void changed (ChangeEvent event, Actor actor) {
+//				scroll.setSmoothScrolling(smoothButton.isChecked());
+//			}
+//		});
+//
+//		final TextButton onTopButton = new TextButton("Scrollbars On Top", skin.get("toggle", TextButtonStyle.class));
+//		onTopButton.addListener(new ChangeListener() {
+//			public void changed (ChangeEvent event, Actor actor) {
+//				scroll.setScrollbarsOnTop(onTopButton.isChecked());
+//			}
+//		});
+//		
+//
+//		table.add(slider);
+//		table.row();
+//		table.add(scroll).expand().fill().colspan(4);
+//		table.row().space(10).padBottom(10);
+//		table.add(flickButton).right().expandX();
+//		table.add(onTopButton);
+//		table.add(smoothButton);
+//		table.add(fadeButton).left().expandX();
+//		
+//		TextureRegion upRegion = skin.getRegion("default-slider-knob");
+//		TextureRegion downRegion = skin.getRegion("default-slider-knob");
+//		BitmapFont buttonFont = skin.getFont("default-font");
+		
+
+		
+	
+//		Table table2 = new Table();
+//		stage.addActor(table2);
+//		table2.setFillParent(true);
+//		table2.bottom();
+//
+//		TextButton button2 = new TextButton("Button 2", skin);
+//		button2.addListener(new ChangeListener() {
+//			public void changed (ChangeEvent event, Actor actor) {
+//				System.out.println("2!");
+//			}
+//		});
+//		button2.addListener(new InputListener() {
+//			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+//				System.out.println("touchDown 2");
+//				return false;
+//			}
+//		});
+//		table2.add(button2);
+		
+		init();
 	}
 	
 	@Override
-	public boolean keyDown(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
+	public void init() {
+		updateList(true);
+		super.init();
 	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		theSellScreen.render();
+		updateList(false);
+		super.render(delta);
 	}
-
-	@Override
-	public void resize(int width, int height) {
-		theSellScreen.resize(width, height);
-	}
-
-	@Override
-	public void show() {
-		Gdx.input.setInputProcessor( new InputMultiplexer(this, theSellScreen.getStage() ) );
-		theSellScreen.init();
-	}
-
-	@Override
-	public void hide() {
-		Gdx.input.setInputProcessor(null);
-	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void dispose() {
-		Gdx.input.setInputProcessor(null);
-		theSellScreen.dispose();
-	}
-
+	
+	
 }

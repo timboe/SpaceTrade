@@ -3,9 +3,6 @@ package com.timboe.spacetrade.utility;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
-import com.timboe.spacetrade.SpaceTrade;
-import com.timboe.spacetrade.render.RightBar;
-import com.timboe.spacetrade.world.Starmap;
 
 public class Utility {
 	
@@ -26,20 +23,7 @@ public class Utility {
 	
 	private static final Utility singleton = new Utility(); 
 	private final Random rand;
-	//private final RightBar rightBar;
-	private final AdLib adLib;
-	private SpaceTrade spaceTrade;
-	private Starmap starMap;
 	private int starDate = 0;
-
-//	public RightBar getRightBar() {
-//		return rightBar;
-//	}
-	
-	public final AdLib getAdLib() {
-		return adLib;
-	}
-	
 	
 	public static Utility getUtility() {
 		return singleton;
@@ -47,12 +31,6 @@ public class Utility {
 	
 	private Utility() {
 		rand = new Random(0);
-		adLib = new AdLib();
-	}
-	
-	
-	public SpaceTrade getSpaceTrade() {
-		return spaceTrade;
 	}
 	
 	public float getRandF() {
@@ -83,9 +61,6 @@ public class Utility {
 		starDate += _n_years;
 	}
 	
-	public void setSpaceTrade(SpaceTrade _st) {
-		spaceTrade = _st;
-	}
 	
 	
 }

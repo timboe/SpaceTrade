@@ -9,6 +9,7 @@ import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.ship.Ship;
 import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.world.Planet;
 
 public class Player {
 	
@@ -16,6 +17,7 @@ public class Player {
 	private final EnumMap<Goods, AtomicInteger> avPrice = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private int credz;
 	private Ship ship;
+	private Planet currentLocation;
 	
 	
 	private static final Player singleton = new Player();
@@ -43,6 +45,10 @@ public class Player {
 	
 	public int getCredz() {
 		return credz;
+	}
+	
+	public int getWorth() {
+		return credz; //TODO
 	}
 	
 	public void modCredz(int _m) {

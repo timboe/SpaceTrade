@@ -10,7 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.world.Textures;
 
 public class RightBar {
 
@@ -19,7 +21,6 @@ public class RightBar {
 	public final TextButton planetButton;
 	public final TextButton shipButton;
 	public final TextButton sellButton;
-	public final Skin skin;
 	
 	private static final RightBar singleton = new RightBar();
 	public static RightBar getRightBar() {
@@ -31,8 +32,8 @@ public class RightBar {
 	}
 	
 	private RightBar() {
-		skin = new Skin(Gdx.files.internal("data/skin/uiskin.json"));
-
+		Skin skin = Textures.getTextures().getSkin();
+		
 		rightTable = new Table();
 		rightTable.debug();
 		rightTable.align(Align.top | Align.center );
@@ -50,7 +51,7 @@ public class RightBar {
 		galaxyButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().theStarmap );
+				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theStarmap );
 				return false;
 			}
 		});
@@ -58,7 +59,7 @@ public class RightBar {
 		planetButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().thePlanetScreen );
+				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().thePlanetScreen );
 				return false;
 			}
 		});		
@@ -66,7 +67,7 @@ public class RightBar {
 		shipButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().theShipScreen );
+				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theShipScreen );
 				return false;
 			}
 		});
@@ -74,7 +75,7 @@ public class RightBar {
 		sellButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				Utility.getUtility().getSpaceTrade().setScreen( Utility.getUtility().getSpaceTrade().theSellScreen  );
+				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theSellScreen  );
 				return false;
 			}
 		});

@@ -8,7 +8,7 @@ public class OneOffRandName extends RandName {
 	@Override
 	public String get() {
 		if (content.size() == 0) {
-			System.out.println("Empty");
+			//System.out.println("Empty");
 			return "Empty";
 		}
 		return content.remove( rand.nextInt( content.size() ) );

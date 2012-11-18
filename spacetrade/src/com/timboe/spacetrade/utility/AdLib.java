@@ -4,10 +4,15 @@ import com.badlogic.gdx.Gdx;
 
 public class AdLib {
 
+	public static final AdLib singleton = new AdLib();
+	public static final AdLib getAdLib() {
+		return singleton;
+	}
+	
 	public OneOffRandName planets = new OneOffRandName();
 	public RandName fornames = new RandName();
 	
-	public AdLib() {
+	private AdLib() {
 		planets.add("Magrathea");
 		planets.add("Bernards");
 		planets.add("Xarquest");

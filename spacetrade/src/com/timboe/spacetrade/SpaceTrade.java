@@ -15,12 +15,15 @@ public class SpaceTrade extends Game {
 	public ShipScreen theShipScreen;
 	public PlanetScreen thePlanetScreen;
 	public SellScreen theSellScreen;
-	Utility util;
+	
+	private static SpaceTrade self;
+	public static SpaceTrade getSpaceTrade() {
+		return self;
+	}
 	
 	@Override
 	public void create() {
-		util = Utility.getUtility();
-		util.setSpaceTrade(this);
+		self = this;
 		
 		theTitle = new TitleScreen();
 		theStarmap = new StarmapScreen();

@@ -1,26 +1,32 @@
 package com.timboe.spacetrade.render;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.timboe.spacetrade.utility.Serialiser;
 import com.timboe.spacetrade.utility.Utility;
 
-public class Render {
-	
+public class SpaceTradeRender implements Screen {
+	protected Utility util = Utility.getUtility();
 	protected Table leftTable;
 	protected Table masterTable;
-	protected Skin skin;
 	protected Stage stage;
+	protected Stage frontStage = null;
+	private InputMultiplexer inputMultiplex = null;
+
 	
-	public Render() {
+	public SpaceTradeRender() {
 		masterTable = new Table();
 		masterTable.debug();
 		masterTable.align(Align.bottom | Align.left);
 		masterTable.setSize(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT);
 		
-		skin = new Skin(Gdx.files.internal("data/skin/uiskin.json"));
 		stage = new Stage();
 
 		leftTable = new Table();
@@ -43,6 +49,10 @@ public class Render {
 		return stage;
 	}
 	
+	public Stage getFrontStage() {
+		return frontStage;
+	}
+	
 	public boolean needsGL20 () {
 		return true;
 	}
@@ -51,10 +61,16 @@ public class Render {
 		stage.dispose();
 	}
 	
-	public void render() {
-		stage.act(Gdx.graphics.getDeltaTime());
+	public void render(float delta) {
+		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		stage.act(delta);
 		stage.draw();
 		Table.drawDebug(stage);
+		if (frontStage != null) {
+			frontStage.act(delta);
+			frontStage.draw();
+		}
 	}
 	
 	
@@ -64,5 +80,34 @@ public class Render {
 		stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
 	}
 	
+	@Override
+	public void show() {
+		if (frontStage == null) {
+			Gdx.input.setInputProcessor( getStage() );
+		} else {
+			if (inputMultiplex == null) {
+				inputMultiplex = new InputMultiplexer( getFrontStage(), getStage() );
+			}
+			Gdx.input.setInputProcessor( inputMultiplex );
+		}
+		init();
+	}
 
+	@Override
+	public void hide() {
+		Gdx.input.setInputProcessor(null);		
+	}
+	
+
+	@Override
+	public void pause() {
+		Serialiser.saveState();
+	}
+
+	@Override
+	public void resume() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

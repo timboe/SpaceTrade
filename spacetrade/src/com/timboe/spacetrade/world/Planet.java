@@ -1,62 +1,65 @@
 package com.timboe.spacetrade.world;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import sun.net.www.content.audio.x_aiff;
+import sun.awt.windows.ThemeReader;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Fluctuate;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
+import com.timboe.spacetrade.enumerator.WorldSize;
+import com.timboe.spacetrade.utility.AdLib;
 import com.timboe.spacetrade.utility.Utility;
 
 public class Planet extends Actor {
 	
-	private Utility util = Utility.getUtility();
-	Vector2 position;
-	String name;
+	private final Vector2 v2 = new Vector2();
+	private final String name;
 	private final Government gov_type;
 	private final Civilisation civ_type;
 	private final Sprite sprite;
-	private final Texture texture;
+	private final WorldSize worldSize;
+	private int diameter;
 	
 	private final EnumMap<Goods, Boolean> goodsSold = new EnumMap<Goods, Boolean>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> stockTarget = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> volitility = new EnumMap<Goods, AtomicInteger>(Goods.class);
-	private final EnumMap<Goods, ArrayList<AtomicInteger> > price = new EnumMap<Goods, ArrayList<AtomicInteger> >(Goods.class);
+	private final EnumMap<Goods, Array<AtomicInteger> > price = new EnumMap<Goods, Array<AtomicInteger> >(Goods.class);
 
 	
 	Planet(int _x, int _y) {
-		position = new Vector2(_x, _y);
+		diameter = Textures.getTextures().getStar().getWidth();
+		worldSize = WorldSize.random();
+		diameter = (int)(diameter * worldSize.getSizeMod());
 		setPosition(_x, _y); //Actor
-		setWidth(50);
-		setHeight(50);
-		name = util.getAdLib().planets.get();
+		setWidth(diameter);
+		setHeight(diameter);
+		setTouchable(Touchable.enabled);
+		name = AdLib.getAdLib().planets.get();
 		gov_type = Government.random();
 		civ_type = Civilisation.random();
-		texture = new Texture(Gdx.files.internal("data/star.png"));
-		sprite = new Sprite(texture);
-		sprite.setScale(2);
+		sprite = new Sprite(Textures.getTextures().getStar());
+		sprite.setScale(worldSize.getSizeMod());
 		sprite.setPosition(_x, _y);
-		setTouchable(Touchable.enabled);
 		
 		//Setup maps
 		for (Goods _g : Goods.values()) {
 			goodsSold.put(_g, new Boolean(true));
-			stock.put(_g, new AtomicInteger(util.getRandI(_g.getBaseAmount()))); //have up to base amount
+			stock.put(_g, new AtomicInteger(Utility.getUtility().getRandI(_g.getBaseAmount()))); //have up to base amount
 			stockTarget.put(_g, new AtomicInteger(_g.getBaseAmount())); 
 			volitility.put(_g, new AtomicInteger(20)); //base volatility in % //TODO check
-			price.put(_g, new ArrayList<AtomicInteger>() );
+			price.put(_g, new Array<AtomicInteger>() );
 			price.get(_g).add( new AtomicInteger( _g.getBasePrice() ));
 		}
 		
@@ -67,7 +70,10 @@ public class Planet extends Actor {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		sprite.draw(batch, parentAlpha);
-		//if (is)
+	}
+	
+	public void drawBasic(ShapeRenderer g2) {
+		g2.circle(sprite.getX()+(diameter/2), sprite.getY()+(diameter/2), (diameter/2));
 	}
 	
 	private void init() {
@@ -347,9 +353,9 @@ public class Planet extends Actor {
 	public void newYear(int _n_years) {
 		while (_n_years-- > 0) {
 			for (Goods _g : Goods.values()) {
-				final int current = price.get(_g).get(util.getStarDate()).get();
+				final int current = price.get(_g).get(Utility.getUtility().getStarDate()).get();
 				final float sigma = (float)current * ((float)volitility.get(_g).get() / 100f);
-				final int _new = Math.abs( Math.round( util.getRandG(current, sigma) ) );
+				final int _new = Math.abs( Math.round( Utility.getUtility().getRandG(current, sigma) ) );
 				price.get(_g).add( new AtomicInteger(_new) );
 				//Mod stock
 				final int _stock = stock.get(_g).get();
@@ -364,9 +370,9 @@ public class Planet extends Actor {
 	}
 	
 	private void changePrice(Goods _g, Fluctuate _f) {
-		final int current = price.get(_g).get(util.getStarDate()).get();
+		final int current = price.get(_g).get(Utility.getUtility().getStarDate()).get();
 		final int updated = Math.round(current * _f.get());
-		price.get(_g).get(util.getStarDate()).set(updated);
+		price.get(_g).get(Utility.getUtility().getStarDate()).set(updated);
 	}
 	
 	private void changeVolatility(Goods _g, Fluctuate _f) { //TODO change volatility
@@ -375,24 +381,18 @@ public class Planet extends Actor {
 		volitility.get(_g).set(updated);
 	}
 	
-	public float getX() {
-		return position.x;
+	
+	public float dst(Vector2 _comp) {
+		return dst(_comp.x, _comp.y);
 	}
 	
-	public float getY() {
-		return position.y;
-	}
-	
-	public float dist(Vector2 _comp) {
-		return dist(_comp.x, _comp.y);
-	}
-	
-	public float dist(float _x, float _y) {
-		return position.dst(_x, _y);
+	public float dst(float _x, float _y) {
+		v2.set(getX(), getY());
+		return v2.dst(_x, _y);
 	}
 	
 	public int getPrice(Goods _g) {
-		return getPrice(_g, util.getStarDate());
+		return getPrice(_g, Utility.getUtility().getStarDate());
 	}
 	
 	public int getPrice(Goods _g, int _starDate) {
@@ -415,7 +415,7 @@ public class Planet extends Actor {
 	public void printStat() {
 		Gdx.app.log("Planet", "---------- "+name+" is a "+civ_type+" "+gov_type+" ----------");
 		Gdx.app.log("Planet", "\tGRN\tTEX\tMIN\tMAC\tH20\tCOM\tCRK\tMED\tAI\tSNG");
-		for (int Y=0; Y < util.getStarDate(); ++Y) {
+		for (int Y=0; Y < Utility.getUtility().getStarDate(); ++Y) {
 			String _s = Y+")\t";
 			for (Goods _g : Goods.values()) {
 				if (goodsSold.get(_g) == true) {
@@ -432,5 +432,6 @@ public class Planet extends Actor {
 	public boolean getSells(Goods _g) {
 		return goodsSold.get(_g).booleanValue();
 	}
+
 
 }
