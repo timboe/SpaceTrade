@@ -38,7 +38,7 @@ public class Player {
 		return stock.get(_g).get();
 	}
 	public int getAvPaidPrice(Goods _g) {
-		return stock.get(_g).get();
+		return avPrice.get(_g).get();
 	}
 	
 	public int getCredz() {

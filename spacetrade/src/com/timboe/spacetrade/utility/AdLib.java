@@ -1,5 +1,7 @@
 package com.timboe.spacetrade.utility;
 
+import com.badlogic.gdx.Gdx;
+
 public class AdLib {
 
 	public OneOffRandName planets = new OneOffRandName();
@@ -212,6 +214,9 @@ public class AdLib {
 		fornames.add("Giles");
 		fornames.add("Pamela");
 		fornames.add("Reginald");
+		
+		Gdx.app.log("AdLib","There are:"+planets.getSize()+" planets,  "+fornames.getSize()+" fornames");
+
 
 	}
 }

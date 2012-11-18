@@ -1,6 +1,16 @@
 package com.timboe.spacetrade.world;
 
 import java.util.ArrayList;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.timboe.spacetrade.enumerator.Goods;
+import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.utility.Utility;
 
 public class Starmap {
@@ -11,25 +21,19 @@ public class Starmap {
 		return singleton;
 	}
 	
-	private Starmap() {
-		populate();
-
-	}
-	
-	
 	private Utility util = Utility.getUtility();
-
-	
-	
 	private final int starBuffer = 20;
 	private final int nStars = 256;
 	private final ArrayList<Planet> thePlanets = new ArrayList<Planet>(); 
 	
+	private Starmap() {
+		populate();
+	}
+
 	
 	public synchronized ArrayList<Planet> getPlanets() {
 		return thePlanets;
 	}
-	
 	
 	public void newYear(int _n_years) {
 		for (Planet _p : thePlanets) {
@@ -48,7 +52,16 @@ public class Starmap {
 				if (p.dist(_x, _y) < starBuffer) tooClose = true;
 			}
 			if (tooClose == false) {
-				thePlanets.add( new Planet(_x, _y) );
+				final Planet newPlanet = new Planet(_x, _y);
+				newPlanet.addListener(new ClickListener() {
+			        @Override
+			        public void clicked(InputEvent event, float x, float y) {
+			        	if (isOver() == true) {
+			        		Gdx.app.log("PlanetButton","Interact:"+event.toString()+" "+newPlanet.getName());
+			        	}
+			        }
+			    });
+				thePlanets.add( newPlanet );
 			}
 		}
 	}

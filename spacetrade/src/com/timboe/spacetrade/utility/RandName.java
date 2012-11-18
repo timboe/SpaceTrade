@@ -19,4 +19,8 @@ public class RandName {
 		return content.get( rand.nextInt( content.size() ) );
 	}
 	
+	public int getSize() {
+		return content.size();
+	}
+	
 }

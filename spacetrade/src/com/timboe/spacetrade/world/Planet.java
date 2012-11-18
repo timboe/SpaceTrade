@@ -4,21 +4,30 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import sun.net.www.content.audio.x_aiff;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Fluctuate;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
 import com.timboe.spacetrade.utility.Utility;
 
-public class Planet {
+public class Planet extends Actor {
 	
 	private Utility util = Utility.getUtility();
 	Vector2 position;
 	String name;
 	private final Government gov_type;
 	private final Civilisation civ_type;
+	private final Sprite sprite;
+	private final Texture texture;
 	
 	private final EnumMap<Goods, Boolean> goodsSold = new EnumMap<Goods, Boolean>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
@@ -29,9 +38,17 @@ public class Planet {
 	
 	Planet(int _x, int _y) {
 		position = new Vector2(_x, _y);
+		setPosition(_x, _y); //Actor
+		setWidth(50);
+		setHeight(50);
 		name = util.getAdLib().planets.get();
 		gov_type = Government.random();
 		civ_type = Civilisation.random();
+		texture = new Texture(Gdx.files.internal("data/star.png"));
+		sprite = new Sprite(texture);
+		sprite.setScale(2);
+		sprite.setPosition(_x, _y);
+		setTouchable(Touchable.enabled);
 		
 		//Setup maps
 		for (Goods _g : Goods.values()) {
@@ -45,6 +62,12 @@ public class Planet {
 		
 		//Setup planet 
 		init();
+	}
+	
+	@Override
+	public void draw(SpriteBatch batch, float parentAlpha) {
+		sprite.draw(batch, parentAlpha);
+		//if (is)
 	}
 	
 	private void init() {
@@ -382,6 +405,11 @@ public class Planet {
 	
 	public void modStock(Goods _g, int _amount) {
 		stock.get(_g).getAndAdd(_amount);
+	}
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 	
 	public void printStat() {

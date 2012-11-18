@@ -53,8 +53,13 @@ public class SellScreenRender extends Render {
 			
 			if (_intial == true) {
 				int toSell = Player.getPlayer().getStock(_g);
+				if (toSell == 0) {
+					sliderStock.get(_g).setRange(0, 1);
+					sliderStock.get(_g).setTouchable(Touchable.disabled);
+				}
 				sliderStock.get(_g).setRange(0, toSell);
 				sliderStock.get(_g).setValue(toSell);
+				sliderStock.get(_g).setTouchable(Touchable.enabled);
 			}
 			
 			int avPaid = Player.getPlayer().getAvPaidPrice(_g);
@@ -82,7 +87,18 @@ public class SellScreenRender extends Render {
 				Player.getPlayer().modCredz(_profit);
 				Player.getPlayer().removeStock(_g, _amount);
 				currentPlanet.modStock(_g, _amount);
-				updateList(true);
+				final int _remainingStock = Player.getPlayer().getStock(_g);
+				if (_remainingStock == 0) {
+					sliderStock.get(_g).setRange(0, 1);
+					sliderStock.get(_g).setTouchable(Touchable.disabled);
+				} else {
+					sliderStock.get(_g).setRange(0, _remainingStock);
+					if (_amount > _remainingStock) {
+						sliderStock.get(_g).setValue(_remainingStock);
+					} else {
+						sliderStock.get(_g).setValue(_amount);
+					}
+				}
 			}
 		};
 		

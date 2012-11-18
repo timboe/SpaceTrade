@@ -78,7 +78,7 @@ public class StarmapScreen implements Screen, InputProcessor {
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor( new InputMultiplexer(this, theStarmapRenderer.getStage()) );
+		Gdx.input.setInputProcessor( new InputMultiplexer(this, theStarmapRenderer.starStage, theStarmapRenderer.getStage()) );
 		theStarmapRenderer.init();
 	}
 
