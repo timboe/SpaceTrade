@@ -21,16 +21,18 @@ public class Utility {
 	public static final float GAME_WIDTH = 1200;
 	public static final float GUI_WIDTH = 80;
 	
-	private static final Utility singleton = new Utility(); 
-	private final Random rand;
-	private int starDate = 0;
+	private static Utility singleton = new Utility(true); 
+	private final Random rand = new Random(0);;
 	
 	public static Utility getUtility() {
 		return singleton;
 	}
 	
-	private Utility() {
-		rand = new Random(0);
+	private Utility(boolean _new) {
+		rand.setSeed(0);
+	}
+	
+	public Utility() {
 	}
 	
 	public float getRandF() {
@@ -52,15 +54,14 @@ public class Utility {
 	public boolean getRandChance(float _c) {
 		return (getRandF() < _c);
 	}
-	
-	public int getStarDate() {
-		return starDate;
+
+	public static void setUtility(Utility _u) {
+		singleton = _u;
 	}
 	
-	public void newYear(int _n_years) {
-		starDate += _n_years;
+	public static float acosh(float _v) {
+		return (float) Math.log(_v + Math.sqrt(_v * _v - 1));
 	}
-	
 	
 	
 }

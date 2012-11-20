@@ -5,12 +5,17 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.timboe.spacetrade.SpaceTrade;
+import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.utility.Serialiser;
 import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.world.Planet;
+import com.timboe.spacetrade.world.Starmap;
 
 public class SpaceTradeRender implements Screen {
 	protected Utility util = Utility.getUtility();
@@ -23,14 +28,14 @@ public class SpaceTradeRender implements Screen {
 	
 	public SpaceTradeRender() {
 		masterTable = new Table();
-		masterTable.debug();
+		if (SpaceTrade.debug == true) masterTable.debug();
 		masterTable.align(Align.bottom | Align.left);
 		masterTable.setSize(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT);
 		
 		stage = new Stage();
 
 		leftTable = new Table();
-		leftTable.debug();
+		if (SpaceTrade.debug == true) leftTable.debug();
 		leftTable.align( Align.center);
 		leftTable.setSize(Utility.GAME_WIDTH, Utility.GAME_HEIGHT);
 		
@@ -43,6 +48,17 @@ public class SpaceTradeRender implements Screen {
 		masterTable.add(RightBar.getRightBarTable()).width(Utility.GUI_WIDTH).height(Utility.GAME_HEIGHT);
 		stage.clear();
 		stage.addActor(masterTable);
+	}
+	
+	public void hookStage() {
+		//Overrider
+	}
+	
+	//CAN (not must) be overriden
+	public void unHookStage() {
+		if (frontStage != null) {
+			frontStage.clear();
+		}
 	}
 	
 	public Stage getStage() {
@@ -66,18 +82,22 @@ public class SpaceTradeRender implements Screen {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		stage.act(delta);
 		stage.draw();
-		Table.drawDebug(stage);
+		if (SpaceTrade.debug == true) Table.drawDebug(stage);
 		if (frontStage != null) {
 			frontStage.act(delta);
 			frontStage.draw();
 		}
 	}
+
 	
 	
 	public void resize (int width, int height) {
 		Gdx.app.log("Resize", "ReSize in Render ["+this+"] ("+width+","+height+")");
 		stage.setViewport(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT, true);
 		stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
+		if (frontStage != null) {
+			frontStage.setCamera(stage.getCamera());
+		}
 	}
 	
 	@Override
@@ -90,24 +110,29 @@ public class SpaceTradeRender implements Screen {
 			}
 			Gdx.input.setInputProcessor( inputMultiplex );
 		}
+		hookStage();
 		init();
 	}
 
 	@Override
 	public void hide() {
-		Gdx.input.setInputProcessor(null);		
+		Gdx.input.setInputProcessor(null);
+		unHookStage();
 	}
 	
 
 	@Override
 	public void pause() {
+		unHookStage();
+		Starmap.getStarmap().unHookListners();
 		Serialiser.saveState();
 	}
 
 	@Override
 	public void resume() {
 		// TODO Auto-generated method stub
-		
+		//ADD RESTORE LINE
+		hookStage();		
 	}
 	
 }

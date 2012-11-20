@@ -8,7 +8,7 @@ import com.timboe.spacetrade.utility.Utility;
 
 public enum Civilisation {
 	Agricultural,
-	Enlightenment,
+	Renaissance,
 	Industrial,
 	Technological,
 	Cybernetic,

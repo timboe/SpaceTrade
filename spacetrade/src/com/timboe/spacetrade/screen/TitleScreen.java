@@ -1,99 +1,56 @@
 package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.timboe.spacetrade.SpaceTrade;
+import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.RightBar;
+import com.timboe.spacetrade.render.SpaceTradeRender;
+import com.timboe.spacetrade.utility.Serialiser;
+import com.timboe.spacetrade.world.Starmap;
+import com.timboe.spacetrade.render.Textures;
 
-public class TitleScreen implements Screen, InputProcessor {
+public class TitleScreen extends SpaceTradeRender {
 	
 	public TitleScreen() {
+		
+		TextButton newGame = new TextButton("New Game", Textures.getTextures().getSkin());
+		newGame.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				RightBar.getRightBar().setTouchable(Touchable.enabled);
+				//new!
+				Starmap.newStarmap();
+				Player.newPlayer();
+				//
+				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theShipScreen );
+				Gdx.app.log("NewGame", "Player Credz:"+Player.getPlayer().getCredz());
+				Player.getPlayer().modCredz(555);
+				Gdx.app.log("NewGame", "Player Credz:"+Player.getPlayer().getCredz());
+			}
+		});
+		
+		TextButton resumeGame = new TextButton("Resume Game", Textures.getTextures().getSkin());
+		resumeGame.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				RightBar.getRightBar().setTouchable(Touchable.enabled);
+				Serialiser.loadState();
+				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theShipScreen );
+				Gdx.app.log("LoadGame", "Player Credz:"+Player.getPlayer().getCredz());
+			}
+		});
+		
+		leftTable.defaults().pad(20);
+		leftTable.add(newGame).width(400).height(50);
+		leftTable.row();
+		leftTable.add(resumeGame).width(400).height(50);
+		
+		RightBar.getRightBar().setTouchable(Touchable.disabled);
+		
+		init();
 	}
 
-	@Override
-	public void render(float delta) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void show() {
-		Gdx.input.setInputProcessor(this);
-	}
-
-	@Override
-	public void hide() {
-		Gdx.input.setInputProcessor(null);
-	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dispose() {
-		Gdx.input.setInputProcessor(null);
-	}
-
-	@Override
-	public boolean keyDown(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }

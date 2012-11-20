@@ -48,7 +48,7 @@ public class AdLib {
 		planets.add("Algol");
 		planets.add("Altair");
 		planets.add("Antares");
-		planets.add("Betelgeuse V");
+		planets.add("Betelgeuse");
 		planets.add("Folfanga");
 		planets.add("Frogstar");
 		planets.add("Hastromil");
@@ -209,6 +209,9 @@ public class AdLib {
 		planets.add("Zanovar");
 		planets.add("Saint Genis");
 		planets.add("Ferney");
+		planets.add("Brimingham");
+		planets.add("Coventry");
+
 	
 		
 		fornames.add("Farquar");

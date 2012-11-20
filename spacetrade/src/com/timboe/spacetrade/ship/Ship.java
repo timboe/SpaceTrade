@@ -12,6 +12,9 @@ public class Ship {
 	ShipProperty property;
 	ArrayList<Weapon> weapon_loadout = new ArrayList<Weapon>();
 	
+	public Ship() {
+	}
+	
 	public Ship(ShipTemplate _st) {
 		
 	}

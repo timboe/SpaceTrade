@@ -1,39 +1,67 @@
 package com.timboe.spacetrade.player;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
+import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.ship.Ship;
 import com.timboe.spacetrade.utility.Utility;
 import com.timboe.spacetrade.world.Planet;
+import com.timboe.spacetrade.world.Starmap;
 
-public class Player {
+public class Player extends Actor {
 	
-	private final EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
-	private final EnumMap<Goods, AtomicInteger> avPrice = new EnumMap<Goods, AtomicInteger>(Goods.class);
+	private EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
+	private EnumMap<Goods, AtomicInteger> avPrice = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private int credz;
 	private Ship ship;
-	private Planet currentLocation;
-	
-	
-	private static final Player singleton = new Player();
+	private int currentLocationID;
+
+	private static Player singleton;
 	public static final Player getPlayer () {
 		return singleton;
 	}
+	public static final void setPlayer(Player _p) {
+		singleton = _p;
+	}
+	public static final void newPlayer() {
+		singleton = new Player();
+	}
 	
-	private Player() {
+	public Player() { //Only to be called externally when loading a game!
 		credz = 1000;
 		ship = new Ship(ShipTemplate.Player, ShipClass.ClassB);
+		move( Starmap.getStarmap().getRandomPlanet() );
+		setOrigin(0, 0);
 		
 		//Setup maps
 		for (Goods _g : Goods.values()) {
 			avPrice.put(_g, new AtomicInteger(Utility.getUtility().getRandI(500)) );
 			stock.put(_g, new AtomicInteger(Utility.getUtility().getRandI(500)) );
 		}
+		
+		Gdx.app.log("Player", "InConstructor stock:" + stock);
+	}
+	
+	public void refresh() { //Call after loading game
+		move( Starmap.getStarmap().getPlanet(currentLocationID) );
+	}
+	
+	@Override
+	public void draw(SpriteBatch batch, float parentAlpha) {
+		Sprites.getSprites().getPlayerSprite().draw(batch, parentAlpha);
+	}
+	
+	public void move(Planet _p) {
+		currentLocationID = _p.getID();
+		Sprites.getSprites().getPlayerSprite().setPosition(_p.getX(), _p.getY());
+		setPosition(_p.getX(), _p.getY());
 	}
 	
 	public int getStock(Goods _g) {
@@ -72,6 +100,10 @@ public class Player {
 	
 	public void setCredz(int _s) {
 		credz = _s;
+	}
+
+	public Planet getPlanet() {
+		return Starmap.getStarmap().getPlanet(currentLocationID);
 	}
 	
 }

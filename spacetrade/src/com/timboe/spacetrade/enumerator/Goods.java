@@ -29,8 +29,9 @@ public enum Goods {
 		return basePrice;
 	}
 	
-	@Override
-	public String toString() {
+	public String toDisplayString() {
 		return displayText;
 	}
+	
+	
 }

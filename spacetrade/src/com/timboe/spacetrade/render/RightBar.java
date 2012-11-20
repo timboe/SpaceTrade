@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -12,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.utility.Utility;
-import com.timboe.spacetrade.world.Textures;
+import com.timboe.spacetrade.render.Textures;
 
 public class RightBar {
 
@@ -31,11 +32,18 @@ public class RightBar {
 		return singleton.rightTable;
 	}
 	
+	public void setTouchable(Touchable _t) {
+		galaxyButton.setTouchable(_t);
+		planetButton.setTouchable(_t);
+		shipButton.setTouchable(_t);
+		sellButton.setTouchable(_t);
+	}
+	
 	private RightBar() {
 		Skin skin = Textures.getTextures().getSkin();
 		
 		rightTable = new Table();
-		rightTable.debug();
+		if (SpaceTrade.debug == true) rightTable.debug();
 		rightTable.align(Align.top | Align.center );
 		rightTable.setSize(Utility.GUI_WIDTH, Utility.GAME_HEIGHT);
 

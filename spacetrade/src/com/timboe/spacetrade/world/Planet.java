@@ -3,10 +3,7 @@ package com.timboe.spacetrade.world;
 import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import sun.awt.windows.ThemeReader;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -18,18 +15,20 @@ import com.timboe.spacetrade.enumerator.Fluctuate;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
 import com.timboe.spacetrade.enumerator.WorldSize;
+import com.timboe.spacetrade.render.Sprites;
+import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.utility.AdLib;
 import com.timboe.spacetrade.utility.Utility;
 
 public class Planet extends Actor {
-	
-	private final Vector2 v2 = new Vector2();
-	private final String name;
-	private final Government gov_type;
-	private final Civilisation civ_type;
-	private final Sprite sprite;
-	private final WorldSize worldSize;
-	private int diameter;
+		
+	private Vector2 v2 = new Vector2();
+	private String name = AdLib.getAdLib().planets.get();
+	private Government govType = Government.random();
+	private Civilisation civType = Civilisation.random();
+	private WorldSize worldSize = WorldSize.random();
+	private int diameter = (int) (Textures.getTextures().getStar().getWidth() * worldSize.getSizeMod());
+	private int ID;
 	
 	private final EnumMap<Goods, Boolean> goodsSold = new EnumMap<Goods, Boolean>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
@@ -37,21 +36,13 @@ public class Planet extends Actor {
 	private final EnumMap<Goods, AtomicInteger> volitility = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, Array<AtomicInteger> > price = new EnumMap<Goods, Array<AtomicInteger> >(Goods.class);
 
-	
-	Planet(int _x, int _y) {
-		diameter = Textures.getTextures().getStar().getWidth();
-		worldSize = WorldSize.random();
-		diameter = (int)(diameter * worldSize.getSizeMod());
-		setPosition(_x, _y); //Actor
+	//serialiser
+	public Planet() {
+		Gdx.app.log("Planet", "In Serealise Constructor");
+		setOrigin(0, 0);
 		setWidth(diameter);
 		setHeight(diameter);
 		setTouchable(Touchable.enabled);
-		name = AdLib.getAdLib().planets.get();
-		gov_type = Government.random();
-		civ_type = Civilisation.random();
-		sprite = new Sprite(Textures.getTextures().getStar());
-		sprite.setScale(worldSize.getSizeMod());
-		sprite.setPosition(_x, _y);
 		
 		//Setup maps
 		for (Goods _g : Goods.values()) {
@@ -64,20 +55,52 @@ public class Planet extends Actor {
 		}
 		
 		//Setup planet 
+		refresh();
 		init();
+	}
+	
+	public Planet(int _x, int _y, int _ID) {
+		ID = _ID;
+		setPosition(_x, _y); //Actor
+		setOrigin(0, 0);
+		setWidth(diameter);
+		setHeight(diameter);
+		setTouchable(Touchable.enabled);
+
+		
+		//Setup maps
+		for (Goods _g : Goods.values()) {
+			goodsSold.put(_g, new Boolean(true));
+			stock.put(_g, new AtomicInteger(Utility.getUtility().getRandI(_g.getBaseAmount()))); //have up to base amount
+			stockTarget.put(_g, new AtomicInteger(_g.getBaseAmount())); 
+			volitility.put(_g, new AtomicInteger(20)); //base volatility in % //TODO check
+			price.put(_g, new Array<AtomicInteger>() );
+			price.get(_g).add( new AtomicInteger( _g.getBasePrice() ));
+		}
+		
+		//Setup planet 
+		refresh();
+		init();
+	}
+	
+	public void refresh() {
+		//call on loading me
+		Sprites.getSprites().getPlanetSprite(ID).setScale(worldSize.getSizeMod());
+		Sprites.getSprites().getPlanetSprite(ID).setPosition(getX(), getY());
 	}
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		sprite.draw(batch, parentAlpha);
+		Sprites.getSprites().getPlanetSprite(ID).draw(batch, parentAlpha);
+		Textures.getTextures().getFont().draw(batch, name, getX(), getY() + (1.7f*diameter));
 	}
 	
 	public void drawBasic(ShapeRenderer g2) {
-		g2.circle(sprite.getX()+(diameter/2), sprite.getY()+(diameter/2), (diameter/2));
+		g2.circle(getX()+(diameter/2), getY()+(diameter/2), (diameter/2));
 	}
 	
 	private void init() {
-		switch (civ_type) {
+		switch (civType) {
 		//Have matching pair of up and down fluctuations per type
 		case Agricultural:
 //			goodsSold.put(Goods.Grain, 		new Boolean(true));
@@ -95,7 +118,7 @@ public class Planet extends Actor {
 			changePrice(Goods.Minerals, 	Fluctuate.upSmall);
 			changePrice(Goods.Machinery,	Fluctuate.upSmall);
 			break;
-		case Enlightenment:
+		case Renaissance:
 //			goodsSold.put(Goods.Grain, 		new Boolean(true));
 //			goodsSold.put(Goods.Textiles, 	new Boolean(true));
 //			goodsSold.put(Goods.Minerals, 	new Boolean(true));
@@ -178,7 +201,7 @@ public class Planet extends Actor {
 			changePrice(Goods.Singularity,	Fluctuate.upSmall);
 		}
 		
-		switch (gov_type) {
+		switch (govType) {
 		case Aristocracy:
 			changePrice(Goods.Grain, 		Fluctuate.upSmall);
 			changePrice(Goods.Textiles, 	Fluctuate.upLarge);
@@ -353,26 +376,28 @@ public class Planet extends Actor {
 	public void newYear(int _n_years) {
 		while (_n_years-- > 0) {
 			for (Goods _g : Goods.values()) {
-				final int current = price.get(_g).get(Utility.getUtility().getStarDate()).get();
+				final int current = getPrice(_g);
 				final float sigma = (float)current * ((float)volitility.get(_g).get() / 100f);
 				final int _new = Math.abs( Math.round( Utility.getUtility().getRandG(current, sigma) ) );
 				price.get(_g).add( new AtomicInteger(_new) );
 				//Mod stock
-				final int _stock = stock.get(_g).get();
-				final int _stockTarget = stockTarget.get(_g).get();
+				final int _stock = getStock(_g);
+				final int _stockTarget = getStockTarget(_g);
 				if (_stock > _stockTarget) {	//TODO add something to do with size of planet
-					stock.get(_g).decrementAndGet();
+					modStock(_g, -1);
 				} else if (_stock < _stockTarget) {
-					stock.get(_g).incrementAndGet();
+					modStock(_g, +1);
 				}
 			}
 		}
 	}
 	
 	private void changePrice(Goods _g, Fluctuate _f) {
-		final int current = price.get(_g).get(Utility.getUtility().getStarDate()).get();
+		final int current = getPrice(_g);
 		final int updated = Math.round(current * _f.get());
-		price.get(_g).get(Utility.getUtility().getStarDate()).set(updated);
+		setPrice(_g, updated);
+		Starmap.getStarmap();
+		price.get(_g).get(Starmap.getStarDate()).set(updated);
 	}
 	
 	private void changeVolatility(Goods _g, Fluctuate _f) { //TODO change volatility
@@ -382,8 +407,8 @@ public class Planet extends Actor {
 	}
 	
 	
-	public float dst(Vector2 _comp) {
-		return dst(_comp.x, _comp.y);
+	public float dst(Planet _remote) {
+		return dst(_remote.getX(), _remote.getY());
 	}
 	
 	public float dst(float _x, float _y) {
@@ -392,19 +417,37 @@ public class Planet extends Actor {
 	}
 	
 	public int getPrice(Goods _g) {
-		return getPrice(_g, Utility.getUtility().getStarDate());
+		Starmap.getStarmap();
+		return getPrice(_g, Starmap.getStarDate());
 	}
 	
 	public int getPrice(Goods _g, int _starDate) {
 		return  price.get(_g).get(_starDate).get();
 	}
 	
+	public void setPrice(Goods _g, int _price) {
+		Starmap.getStarmap();
+		setPrice(_g, _price, Starmap.getStarDate());
+	}
+	
+	public void setPrice(Goods _g, int _price, int _starDate) {
+		price.get(_g).get(_starDate).set(_price);
+	}
+	
 	public int getStock(Goods _g) {
 		return stock.get(_g).get();
 	}
 	
+	public int getStockTarget(Goods _g) {
+		return stockTarget.get(_g).get();
+	}
+	
 	public void modStock(Goods _g, int _amount) {
 		stock.get(_g).getAndAdd(_amount);
+	}
+	
+	public void setStock(Goods _g, int _amount) {
+		stock.get(_g).set(_amount);
 	}
 	
 	@Override
@@ -413,9 +456,10 @@ public class Planet extends Actor {
 	}
 	
 	public void printStat() {
-		Gdx.app.log("Planet", "---------- "+name+" is a "+civ_type+" "+gov_type+" ----------");
+		Gdx.app.log("Planet", "---------- "+name+" is a "+civType+" "+govType+" ----------");
 		Gdx.app.log("Planet", "\tGRN\tTEX\tMIN\tMAC\tH20\tCOM\tCRK\tMED\tAI\tSNG");
-		for (int Y=0; Y < Utility.getUtility().getStarDate(); ++Y) {
+		Starmap.getStarmap();
+		for (int Y=0; Y < Starmap.getStarDate(); ++Y) {
 			String _s = Y+")\t";
 			for (Goods _g : Goods.values()) {
 				if (goodsSold.get(_g) == true) {
@@ -431,6 +475,30 @@ public class Planet extends Actor {
 
 	public boolean getSells(Goods _g) {
 		return goodsSold.get(_g).booleanValue();
+	}
+
+	public WorldSize getSize() {
+		return worldSize;
+	}
+	
+	public Civilisation getCiv() {
+		return civType;
+	}
+	
+	public Government getGov() {
+		return govType;
+	}
+
+	public int getID() {
+		return ID;
+	}
+
+	public String getFullName() {
+		return getName() 
+		+ ", the " 
+		+ getSize() 
+		+ " " + getCiv() 
+		+ " " + getGov();
 	}
 
 
