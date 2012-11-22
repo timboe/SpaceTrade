@@ -16,12 +16,11 @@ public enum Fluctuate {
 		fluctuate = _f;
 	}
 	
-	private static final Utility util = Utility.getUtility();
 	public float get() {
 		if (Math.abs(fluctuate - 1f) < 0.001f) {
-			if (util.getRandChance(0.33f) == true) {
+			if (Utility.getRandChance(0.33f) == true) {
 				return Fluctuate.downSmall.get();
-			} else if (util.getRandChance(0.33f) == true) {
+			} else if (Utility.getRandChance(0.33f) == true) {
 				return Fluctuate.upSmall.get();
 			}
 		}

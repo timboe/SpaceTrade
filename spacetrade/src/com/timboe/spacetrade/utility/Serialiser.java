@@ -52,8 +52,8 @@ public class Serialiser {
 
 		//alternate is json.toJson
 		FileHandle saveHandle = Gdx.files.local("data/SpaceTradeSave.json");
-		saveHandle.writeString(json.toJson(Utility.getUtility()) + "\n", false);
-		saveHandle.writeString(json.toJson(Starmap.getStarmap()) + "\n", true);
+		//saveHandle.writeString(json.toJson(Utility.getUtility()) + "\n", false);
+		//saveHandle.writeString(json.toJson(Starmap.getStarmap()) + "\n", true);
 		saveHandle.writeString(json.toJson(Player.getPlayer()) + "\n", true);
 		Gdx.app.log("Serialiser","SavedTo:"+saveHandle.path());
 
@@ -92,12 +92,12 @@ public class Serialiser {
 		FileHandle loadHandle = Gdx.files.local("data/SpaceTradeSave.json");
 		String lines[] = loadHandle.readString().split("\\r?\\n");
 		
-		Utility _u = json.fromJson(Utility.class, lines[0] );
-		Utility.setUtility(_u);
+		//Utility _u = json.fromJson(Utility.class, lines[0] );
+		//Utility.setUtility(_u);
 		
-		Starmap _s = json.fromJson(Starmap.class, lines[1] );
-		Starmap.setStarmap(_s);
-		Starmap.getStarmap().refresh();
+		//Starmap _s = json.fromJson(Starmap.class, lines[1] );
+		//Starmap.setStarmap(_s);
+		//Starmap.getStarmap().refresh();
 		
 		Player _p = json.fromJson(Player.class, lines[2] );
 		Player.setPlayer(_p);

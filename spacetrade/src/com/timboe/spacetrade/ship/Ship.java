@@ -11,6 +11,8 @@ public class Ship {
 	
 	ShipProperty property;
 	ArrayList<Weapon> weapon_loadout = new ArrayList<Weapon>();
+	private int range = 100;
+	private float acceleration = 5;
 	
 	public Ship() {
 	}
@@ -29,4 +31,11 @@ public class Ship {
 		}
 	}
 	
+	public int getRange() {
+		return range;
+	}
+	
+	public float getAcc() {
+		return acceleration;
+	}
 }

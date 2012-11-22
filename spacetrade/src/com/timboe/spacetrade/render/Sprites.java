@@ -18,7 +18,7 @@ public class Sprites {
 		shipSprite = new Sprite(Textures.getTextures().getShip());
 		shipSprite.setOrigin(0, 0);
 		
-		for (int _p = 0; _p < Starmap.getStarmap().getNPlanets(); ++_p) {
+		for (int _p = 0; _p < Starmap.getNPlanets(); ++_p) {
 			Sprite _ps = new Sprite(Textures.getTextures().getStar());
 			_ps.setOrigin(0, 0);
 			planetSprites.add( _ps );

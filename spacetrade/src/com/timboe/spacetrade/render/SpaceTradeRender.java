@@ -18,7 +18,6 @@ import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 
 public class SpaceTradeRender implements Screen {
-	protected Utility util = Utility.getUtility();
 	protected Table leftTable;
 	protected Table masterTable;
 	protected Stage stage;
@@ -50,16 +49,16 @@ public class SpaceTradeRender implements Screen {
 		stage.addActor(masterTable);
 	}
 	
-	public void hookStage() {
-		//Overrider
-	}
+//	public void hookStage() {
+//		//Overrider
+//	}
 	
 	//CAN (not must) be overriden
-	public void unHookStage() {
-		if (frontStage != null) {
-			frontStage.clear();
-		}
-	}
+//	public void unHookStage() {
+//		if (frontStage != null) {
+//			frontStage.clear();
+//		}
+//	}
 	
 	public Stage getStage() {
 		return stage;
@@ -106,25 +105,25 @@ public class SpaceTradeRender implements Screen {
 			Gdx.input.setInputProcessor( getStage() );
 		} else {
 			if (inputMultiplex == null) {
-				inputMultiplex = new InputMultiplexer( getFrontStage(), getStage() );
+				inputMultiplex = new InputMultiplexer( getStage(), getFrontStage() );
 			}
 			Gdx.input.setInputProcessor( inputMultiplex );
 		}
-		hookStage();
+//		hookStage();
 		init();
 	}
 
 	@Override
 	public void hide() {
 		Gdx.input.setInputProcessor(null);
-		unHookStage();
+//		unHookStage();
 	}
 	
 
 	@Override
 	public void pause() {
-		unHookStage();
-		Starmap.getStarmap().unHookListners();
+//		unHookStage();
+//		Starmap.unHookListners();
 		Serialiser.saveState();
 	}
 
@@ -132,7 +131,7 @@ public class SpaceTradeRender implements Screen {
 	public void resume() {
 		// TODO Auto-generated method stub
 		//ADD RESTORE LINE
-		hookStage();		
+//		hookStage();		
 	}
 	
 }

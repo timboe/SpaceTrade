@@ -1,7 +1,5 @@
 package com.timboe.spacetrade.screen;
 
-import java.util.EnumMap;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,26 +9,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.utils.Align;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.SpaceTrade;
-import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.BuyWindow;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
-import com.timboe.spacetrade.world.TextButtonGoods;
 
 public class StarmapScreen extends SpaceTradeRender {
 	
@@ -39,26 +28,11 @@ public class StarmapScreen extends SpaceTradeRender {
 	private ParticleEffectPool effectPool;
 	private Array<PooledEffect> effects = new Array<PooledEffect>();
 	private SpriteBatch _sb = new SpriteBatch();
-	private boolean buyWindowPopulated = false;
-	
-	private ChangeListener buyClick;
-	private Window buyWindow;
-	private Label disclaimer;
-	private TextButton prevPlanet;
-	private TextButton nextPlanet;
-	private TextButton warp;
-	private Label warpInfo;
-	private final EnumMap<Goods, Label> labelLocalPrice = new EnumMap<Goods, Label>(Goods.class);
-	private final EnumMap<Goods, Label> labelRemotePrice = new EnumMap<Goods, Label>(Goods.class);
-	private final EnumMap<Goods, Slider> sliderStock = new EnumMap<Goods, Slider>(Goods.class);
-	private final EnumMap<Goods, Label> labelStock = new EnumMap<Goods, Label>(Goods.class);
-	private final EnumMap<Goods, Label> labelCargo = new EnumMap<Goods, Label>(Goods.class);
-	private final EnumMap<Goods, TextButton> buttonBuy = new EnumMap<Goods, TextButton>(Goods.class);
 	
 	static int planetClickedID = -1;
 	public static void setPlanetClickedID(int _id) {
 		planetClickedID = _id;
-		fullRefresh = true;
+		if (_id >= 0) fullRefresh = true;
 	}
 	static boolean fullRefresh = false;
 	
@@ -67,233 +41,31 @@ public class StarmapScreen extends SpaceTradeRender {
 		
 		ParticleEffect pEffect = new ParticleEffect();
 		pEffect.load(Gdx.files.internal("data/galaxyEffect"), Gdx.files.internal("data/"));
-		effectPool = new ParticleEffectPool(pEffect, 50, 100);
+		effectPool = new ParticleEffectPool(pEffect, 50, 250);
 		
 		PooledEffect effect = effectPool.obtain();
 		effect.setPosition(0, 0);
-		effects.add(effect);
-		
+		effects.add(effect);		
 		
 		init();
 	}
 	
-	public void populateBuyWindow() {
-		if (buyWindowPopulated == true) return;
-		buyWindowPopulated = true;
-		
-		Skin _skin = Textures.getTextures().getSkin();
-		
-		buyClick = new  ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-//				Gdx.app.log("SellButton","Interact:"+event.toString()+" "+((TextButtonGoods)actor).getGoods());
-//				final Goods _g = ((TextButtonGoods)actor).getGoods();
-//				final int _amount = (int) sliderStock.get(_g).getValue();
-//				final int _profit = curPlanet.getPrice(_g) * _amount;
-//				Player.getPlayer().modCredz(_profit);
-//				Player.getPlayer().removeStock(_g, _amount);
-//				curPlanet.modStock(_g, _amount);
-//				final int _remainingStock = Player.getPlayer().getStock(_g);
-//				if (_remainingStock == 0) {
-//					sliderStock.get(_g).setRange(0, 1);
-//				} else {
-//					sliderStock.get(_g).setRange(0, _remainingStock);
-//					if (_amount > _remainingStock) {
-//						sliderStock.get(_g).setValue(_remainingStock);
-//					} else {
-//						sliderStock.get(_g).setValue(_amount);
-//					}
-//				}
-			}
-		};
-		
-		buyWindow = new Window("MyWindow", _skin);
-		if (SpaceTrade.debug == true) buyWindow.debug();
-		Table innerTable = new Table();
-		if (SpaceTrade.debug == true) innerTable.debug();
-		innerTable.defaults().pad(5);
-		
-		Label titleLabelA = new Label("GOODS", _skin);
-		Label titleLabelB = new Label("LOCAL PRICE\nPER UNIT", _skin);
-		titleLabelB.setAlignment(Align.center);
-		Label titleLabelC = new Label("REMOTE PRICE\nPER UNIT", _skin);
-		titleLabelC.setAlignment(Align.center);
-		Label titleLabelD = new Label("STOCK", _skin);
-		Label titleLabelE = new Label("CARGO", _skin);
-		Label titleLabelF = new Label("BUY", _skin);
-		disclaimer = new Label("", _skin);
-		disclaimer.setAlignment(Align.center);
-		
-		innerTable.add(disclaimer).colspan(7);
-		innerTable.row();
-		innerTable.add(titleLabelA);
-		innerTable.add(titleLabelB);
-		innerTable.add(titleLabelC);
-		innerTable.add(titleLabelD).colspan(2);
-		innerTable.add(titleLabelE);
-		innerTable.add(titleLabelF);
-		innerTable.row();
-		for (Goods _g : Goods.values()) {
-			innerTable.add( new Label( _g.toDisplayString(), _skin ) );
-			
-			Label temp = new Label( "10", _skin );
-			labelLocalPrice.put(_g, temp);
-			innerTable.add( temp );
-			
-			temp = new Label( "101", _skin );
-			labelRemotePrice.put(_g, temp);
-			innerTable.add( temp );
-			
-			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
-			sliderStock.put(_g, sliderTemp);
-			innerTable.add(sliderTemp);
-			
-			temp = new Label( "1000", _skin );
-			labelStock.put(_g, temp);
-			innerTable.add( temp ).width(50);	
-			
-			temp = new Label( "1000", _skin );
-			labelCargo.put(_g, temp);
-			innerTable.add( temp ).width(50);	
-			
-			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin, _g);
-			buttonTemp.addListener(buyClick);
-			buttonBuy.put(_g, buttonTemp);
-			innerTable.add( buttonTemp );	
-			
-			innerTable.row();
-		}
-		
-		buyWindow.add(innerTable).colspan(4);
-		buyWindow.row();
-		
-		prevPlanet = new TextButton("<---", _skin);
-		prevPlanet.addListener(new  ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				Gdx.app.log("PrevButton","Click");
-			}
-		});
-		buyWindow.add(prevPlanet).left();
-		
-		nextPlanet = new TextButton("--->", _skin);
-		nextPlanet.addListener(new  ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				Gdx.app.log("nextButton","Click");
-			}
-		});
-		buyWindow.add(nextPlanet).left();
 
-		warpInfo = new Label("", _skin);
-		warpInfo.setAlignment(Align.center);
-		buyWindow.add(warpInfo).center();
-		
-		warp = new TextButton("ENGAGE!", _skin);
-		warp.getLabel().setFontScale(3);
-		warp.addListener(new  ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				Gdx.app.log("warp","Click");
-			}
-		});
-		buyWindow.add(warp).right();
-		
-		leftTable.add(buyWindow);
-		
-		updateList(true);
-	}
 	
-	private void updateList(boolean _intial) {
-		fullRefresh = false;
-		if (planetClickedID < 0) return;
-		
-		Planet curPlanet = Player.getPlayer().getPlanet();
-		Planet targetPlanet = Starmap.getStarmap().getPlanet(planetClickedID);
-		
-		final String _titleStr = "Buying from "+curPlanet.getFullName();
-		buyWindow.setTitle(_titleStr);
-		buyWindow.setMovable(true);
-		Starmap.getStarmap();
-		final int _ly = (int) Math.floor( Starmap.getDistanceLightyear(curPlanet, targetPlanet) );
-		disclaimer.setText("Comparing prices to "+targetPlanet.getFullName()
-				+".\n Caution: Prices correct as of Stardate "+(Starmap.getStarDate() - _ly) 
-				+" (" + _ly + " years ago).");
-		
-		warpInfo.setText(targetPlanet.getName() + " is " + _ly + " lightyears away from " + curPlanet.getName()
-				+".\nTravel will take "+String.format("%.2f",Starmap.getTravelTimeGalactic(curPlanet,targetPlanet,2f))
-				+" GalacticYears and "+String.format("%.2f",Starmap.getTravelTimeShip(curPlanet, targetPlanet, 2f))
-				+" ShipYears.");
-		for (Goods _g : Goods.values()) {
-
-			final int _localPrice = curPlanet.getPrice(_g);
-			final int _remotePrice = targetPlanet.getPrice(_g, _ly);
-			
-			if (targetPlanet.getSells(_g) == false) {
-				labelRemotePrice.get(_g).setText( "---" );
-			} else {
-				labelRemotePrice.get(_g).setText(Integer.toString(_remotePrice));
-			}
-			
-			if (curPlanet.getSells(_g) == false || targetPlanet.getSells(_g) == false) {
-				labelRemotePrice.get(_g).setColor(1f, 1f, 1f, 1f);
-			} else if (_remotePrice < _localPrice) {
-				labelRemotePrice.get(_g).setColor(1f, 0f, 0f, 1f);
-			} else {
-				labelRemotePrice.get(_g).setColor(0f, 1f, 0f, 1f);
-			}
-
-			if (curPlanet.getSells(_g) == false) {
-				labelLocalPrice.get(_g).setText( "---" );
-				sliderStock.get(_g).setRange(0, 1);
-				sliderStock.get(_g).setVisible(false);
-				labelStock.get(_g).setText("---");
-				sliderStock.get(_g).setTouchable(Touchable.disabled);
-				buttonBuy.get(_g).setTouchable(Touchable.disabled);
-				buttonBuy.get(_g).setVisible(false);
-				continue;
-			} else {
-				if (curPlanet.getStock(_g) == 0) {
-					sliderStock.get(_g).setTouchable(Touchable.disabled);
-				} else {
-					sliderStock.get(_g).setTouchable(Touchable.enabled);
-				}
-				labelLocalPrice.get(_g).setText( Integer.toString(_localPrice) );
-				buttonBuy.get(_g).setTouchable(Touchable.enabled);
-				buttonBuy.get(_g).setVisible(true);
-				sliderStock.get(_g).setVisible(true);
-			}
-			
-			if (_intial == true) {
-				int toSell = curPlanet.getStock(_g);
-				if (toSell == 0) {
-					sliderStock.get(_g).setRange(0, 1);
-					sliderStock.get(_g).setTouchable(Touchable.disabled);
-				} else {
-					sliderStock.get(_g).setRange(0, toSell);
-					sliderStock.get(_g).setValue(toSell);
-					sliderStock.get(_g).setTouchable(Touchable.enabled);
-				}
-			}
-			
-			int _chosen = (int) sliderStock.get(_g).getValue();
-			labelStock.get(_g).setText( Integer.toString(_chosen) );
-			
-			int _cargo = Player.getPlayer().getStock(_g);
-			labelCargo.get(_g).setText( Integer.toString(_cargo) );
-		}
-		
-
-	}
-	
-	public void hookStage() {
-		for (Planet _p : Starmap.getStarmap().getPlanets()) {
-			frontStage.addActor(_p);
-		}
-		frontStage.addActor(Player.getPlayer());
-	}
+//	@Override
+//	public void hookStage() {
+//		for (Planet _p : Starmap.getStarmap().getPlanets()) {
+//			frontStage.addActor(_p);
+//		}
+//		frontStage.addActor(Player.getPlayer());
+//	}
 	
 	
 	@Override
 	public void render(float delta) {
-		updateList(fullRefresh);
-
+		BuyWindow.updateList(fullRefresh, planetClickedID);
+		fullRefresh = false;
+		
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
@@ -319,7 +91,7 @@ public class StarmapScreen extends SpaceTradeRender {
 			g2.setProjectionMatrix(getStage().getCamera().combined);
 			g2.begin(ShapeType.Circle);
 			g2.setColor(0f, 1f, 0f, 0f);
-			for (Planet _p : Starmap.getStarmap().getPlanets()) {
+			for (Planet _p : Starmap.getPlanets()) {
 				_p.drawBasic(g2);
 			}
 			g2.end();
@@ -328,7 +100,7 @@ public class StarmapScreen extends SpaceTradeRender {
 		//Draw range
 		final float _sx = Player.getPlayer().getX();
 		final float _sy = Player.getPlayer().getY();
-		final float _r = 100;
+		final float _r = Player.getPlayer().getShip().getRange();
 		final int _stepSize = 36; //degree
 		final float _miniStep = (float)_stepSize/8f;
 		for (int _step = 0; _step <= 360; _step += _stepSize) {
@@ -346,7 +118,7 @@ public class StarmapScreen extends SpaceTradeRender {
 			g2.end();
 		}
 		
-		if (planetClickedID >= 0) {
+		if (planetClickedID >= 0 && Player.getPlayer().getActions().size == 0) {
 			leftTable.setVisible(true);
 		} else {
 			leftTable.setVisible(false);
@@ -364,9 +136,21 @@ public class StarmapScreen extends SpaceTradeRender {
 
 	@Override 
 	public void show() {
-		populateBuyWindow();
-		updateList(true);
+		BuyWindow.addToTable(leftTable);
+		BuyWindow.updateList(true, planetClickedID);
+		if (frontStage.getActors().size == 0) {
+			for (Planet _p : Starmap.getPlanets()) {
+				frontStage.addActor(_p);
+			}
+			frontStage.addActor(Player.getPlayer());
+		}
 		super.show();
+	}
+
+
+
+	public static int getPlanetClickedID() {
+		return planetClickedID;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.timboe.spacetrade.enumerator.Goods;
@@ -37,31 +38,33 @@ public class Player extends Actor {
 	public Player() { //Only to be called externally when loading a game!
 		credz = 1000;
 		ship = new Ship(ShipTemplate.Player, ShipClass.ClassB);
-		move( Starmap.getStarmap().getRandomPlanet() );
+		move( Starmap.getRandomPlanet() );
 		setOrigin(0, 0);
 		
 		//Setup maps
 		for (Goods _g : Goods.values()) {
-			avPrice.put(_g, new AtomicInteger(Utility.getUtility().getRandI(500)) );
-			stock.put(_g, new AtomicInteger(Utility.getUtility().getRandI(500)) );
+			avPrice.put(_g, new AtomicInteger(0) );
+			stock.put(_g, new AtomicInteger(0) );
 		}
 		
 		Gdx.app.log("Player", "InConstructor stock:" + stock);
 	}
 	
 	public void refresh() { //Call after loading game
-		move( Starmap.getStarmap().getPlanet(currentLocationID) );
+		move( Starmap.getPlanet(currentLocationID) );
 	}
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
-		Sprites.getSprites().getPlayerSprite().draw(batch, parentAlpha);
+		Sprite _ps = Sprites.getSprites().getPlayerSprite();
+		_ps.setPosition(getX(), getY());
+		_ps.setRotation(getRotation());
+		_ps.draw(batch, parentAlpha);
 	}
 	
 	public void move(Planet _p) {
 		currentLocationID = _p.getID();
-		Sprites.getSprites().getPlayerSprite().setPosition(_p.getX(), _p.getY());
-		setPosition(_p.getX(), _p.getY());
+		setPosition(_p.getX() + _p.radius, _p.getY() + _p.radius);
 	}
 	
 	public int getStock(Goods _g) {
@@ -103,7 +106,11 @@ public class Player extends Actor {
 	}
 
 	public Planet getPlanet() {
-		return Starmap.getStarmap().getPlanet(currentLocationID);
+		return Starmap.getPlanet(currentLocationID);
+	}
+	
+	public Ship getShip() {
+		return ship;
 	}
 	
 }

@@ -22,11 +22,10 @@ public enum Government {
 	Plutocracy, //The wealthy
 	Theocracy; //The religious
 	
-	private static final Utility util = Utility.getUtility();
 	private static final List<Government> content = Collections.unmodifiableList(Arrays.asList(values()));
 	private static final int size = content.size();
 
 	public static Government random()  {
-		return content.get( util.getRandI(size) );
+		return content.get( Utility.getRandI(size) );
 	}
 }

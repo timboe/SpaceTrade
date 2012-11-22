@@ -21,44 +21,29 @@ public class Utility {
 	public static final float GAME_WIDTH = 1200;
 	public static final float GUI_WIDTH = 80;
 	
-	private static Utility singleton = new Utility(true); 
-	private final Random rand = new Random(0);;
-	
-	public static Utility getUtility() {
-		return singleton;
-	}
-	
-	private Utility(boolean _new) {
-		rand.setSeed(0);
-	}
-	
-	public Utility() {
-	}
-	
-	public float getRandF() {
+	private static final Random rand = new Random(0);
+
+
+	public static float getRandF() {
 		return rand.nextFloat();
 	}
 	
-	public int getRandI() {
+	public static int getRandI() {
 		return rand.nextInt();
 	}
 	
-	public int getRandI(int _n) {
+	public static int getRandI(int _n) {
 		return rand.nextInt(_n);
 	}
 	
-	public float getRandG(float _m, float _s) {
+	public static float getRandG(float _m, float _s) {
 		return (float) (_m + (rand.nextGaussian() * _s));
 	}
 	
-	public boolean getRandChance(float _c) {
+	public static boolean getRandChance(float _c) {
 		return (getRandF() < _c);
 	}
 
-	public static void setUtility(Utility _u) {
-		singleton = _u;
-	}
-	
 	public static float acosh(float _v) {
 		return (float) Math.log(_v + Math.sqrt(_v * _v - 1));
 	}
