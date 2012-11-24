@@ -1,7 +1,6 @@
 package com.timboe.spacetrade.world;
 
 import java.util.EnumMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.badlogic.gdx.Gdx;
@@ -12,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.enumerator.Civilisation;
-import com.timboe.spacetrade.enumerator.Fluctuate;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
 import com.timboe.spacetrade.enumerator.WorldSize;
@@ -29,7 +27,7 @@ public class Planet extends Actor {
 	private Government govType = Government.random();
 	private Civilisation civType = Civilisation.random();
 	private WorldSize worldSize = WorldSize.random();
-	private int diameter = (int) (Textures.getTextures().getStar().getWidth() * worldSize.getSizeMod());
+	private int diameter = (int) (Textures.getStar().getWidth() * worldSize.getSizeMod());
 	public int radius = Math.round(diameter/2f);
 	private int ID;
 	
@@ -65,7 +63,7 @@ public class Planet extends Actor {
 	public Planet(int _x, int _y, int _ID) {
 		ID = _ID;
 		setPosition(_x, _y); //Actor
-		setOrigin(0, 0);
+		setOrigin(radius, radius);
 		setWidth(diameter);
 		setHeight(diameter);
 		setTouchable(Touchable.enabled);
@@ -94,7 +92,7 @@ public class Planet extends Actor {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		Sprites.getSprites().getPlanetSprite(ID).draw(batch, parentAlpha);
-		Textures.getTextures().getFont().draw(batch, name, getX(), getY() + (1.7f*diameter));
+		Textures.getFont().draw(batch, name, getX(), getY() + (1.7f*diameter));
 	}
 	
 	public void drawBasic(ShapeRenderer g2) {

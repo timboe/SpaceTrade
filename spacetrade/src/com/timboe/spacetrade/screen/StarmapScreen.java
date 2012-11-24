@@ -5,13 +5,11 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
@@ -27,7 +25,6 @@ public class StarmapScreen extends SpaceTradeRender {
 	private float offset = 0f;
 	private ParticleEffectPool effectPool;
 	private Array<PooledEffect> effects = new Array<PooledEffect>();
-	private SpriteBatch _sb = new SpriteBatch();
 	
 	static int planetClickedID = -1;
 	public static void setPlanetClickedID(int _id) {
@@ -69,23 +66,29 @@ public class StarmapScreen extends SpaceTradeRender {
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
-		Texture _gt = Textures.getTextures().getGalaxyTexture();
-		_sb.setProjectionMatrix(getStage().getCamera().combined);
+		//modify camera!
+		//getStage().getCamera().translate(SpaceTrade.GAME_WIDTH/2, SpaceTrade.GAME_HEIGHT/2, 0);
+		//getStage().getCamera().rotate(delta, 0, 0, 1);
+		//getStage().getCamera().translate(-SpaceTrade.GAME_WIDTH/2, -SpaceTrade.GAME_HEIGHT/2, 0);
+
+		
+		Texture _gt = Textures.getGalaxyTexture();
+		spriteBatch.setProjectionMatrix(getStage().getCamera().combined);
 		//_sb.getProjectionMatrix().translate(0, Utility.GAME_HEIGHT, 0);
 		//_sb.getProjectionMatrix().rotate(0f, 0f, 1f, offset);
-		_sb.begin();
+		spriteBatch.begin();
 		//_sb.draw(_gt,-1200, -Utility.GAME_HEIGHT - 70);
-		_sb.draw(_gt,0,0);
+		spriteBatch.draw(_gt,0,0);
 
 		for (int i = effects.size - 1; i >= 0; i--) {
 	        PooledEffect effect = effects.get(i);
-	        effect.draw(_sb, delta);
+	        effect.draw(spriteBatch, delta);
 	        if (effect.isComplete()) {
 	                effect.free();
 	                effects.removeIndex(i);
 	        }
 		}
-		_sb.end();
+		spriteBatch.end();
 		
 		if (SpaceTrade.debug == true) {
 			g2.setProjectionMatrix(getStage().getCamera().combined);

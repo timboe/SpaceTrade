@@ -3,7 +3,6 @@ package com.timboe.spacetrade.render;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -49,7 +48,7 @@ public class BuyWindow {
 
 	private static void populateBuyWindow() {
 		
-		Skin _skin = Textures.getTextures().getSkin();
+		Skin _skin = Textures.getSkin();
 		
 		buyClick = new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
@@ -62,22 +61,15 @@ public class BuyWindow {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
 					return;
 				}
+				if (_amount > Player.getPlayer().getFreeCargo()) {
+					Gdx.app.log("BuyButton", "Buy Failed, insufficient cargo holds!");
+					return;
+				}
 				
 				Player.getPlayer().modCredz(-_price); //note minus
 				Player.getPlayer().addStock(_g, _amount, _price_per_unit);
 				curPlanet.modStock(_g, -_amount); //note minus
-				
-//				final int _remainingStock = curPlanet.getStock(_g);
-//				if (_remainingStock == 0) {
-//					sliderStock.get(_g).setRange(0, 1);
-//				} else {
-//					sliderStock.get(_g).setRange(0, _remainingStock);
-//					if (_amount > _remainingStock) {
-//						sliderStock.get(_g).setValue(_remainingStock);
-//					} else {
-//						sliderStock.get(_g).setValue(_amount);
-//					}
-//				}
+
 				updateList(true);
 			}
 		};
@@ -244,6 +236,9 @@ public class BuyWindow {
 			} else {
 				labelRemotePrice.get(_g).setColor(0f, 1f, 0f, 1f);
 			}
+			
+			int _cargo = Player.getPlayer().getStock(_g);
+			labelCargo.get(_g).setText( Integer.toString(_cargo) );
 
 			if (curPlanet.getSells(_g) == false) {
 				labelLocalPrice.get(_g).setText( "---" );
@@ -266,7 +261,9 @@ public class BuyWindow {
 				sliderStock.get(_g).setVisible(true);
 			}
 			
-			int canAfford = (int)Math.floor( (float)Player.getPlayer().getCredz() / (float)_localPrice);
+			int canAffordPrice = (int)Math.floor( (float)Player.getPlayer().getCredz() / (float)_localPrice);
+			int canAffordSpace = Player.getPlayer().getFreeCargo();
+			int canAfford = Math.min(canAffordPrice, canAffordSpace);
 			canAfford = Math.max(canAfford, 0);
 			if (_intial == true) {
 				int toSell = curPlanet.getStock(_g);
@@ -287,12 +284,7 @@ public class BuyWindow {
 			} else {
 				labelStock.get(_g).setColor(1f, 1f, 1f, 1f);
 			}
-			
-			int _cargo = Player.getPlayer().getStock(_g);
-			labelCargo.get(_g).setText( Integer.toString(_cargo) );
 		}
-		
-
 	}
 
 	public static void addToTable(Table leftTable) {

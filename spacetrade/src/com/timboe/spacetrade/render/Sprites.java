@@ -15,11 +15,11 @@ public class Sprites {
 	private final Array<Sprite> planetSprites = new Array<Sprite>();
 	
 	private Sprites() {
-		shipSprite = new Sprite(Textures.getTextures().getShip());
+		shipSprite = new Sprite(Textures.getShip());
 		shipSprite.setOrigin(0, 0);
 		
 		for (int _p = 0; _p < Starmap.getNPlanets(); ++_p) {
-			Sprite _ps = new Sprite(Textures.getTextures().getStar());
+			Sprite _ps = new Sprite(Textures.getStar());
 			_ps.setOrigin(0, 0);
 			planetSprites.add( _ps );
 		}

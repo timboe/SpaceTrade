@@ -16,6 +16,13 @@ public class SpaceTrade extends Game {
 	public PlanetScreen thePlanetScreen;
 	public SellScreen theSellScreen;
 	
+	public static final float CAMERA_WIDTH = 1280;
+	public static final float CAMERA_HEIGHT = 800;
+	
+	public static final float GUI_WIDTH = 80;
+	public static final float GAME_HEIGHT = 800;
+	public static final float GAME_WIDTH = CAMERA_WIDTH - GUI_WIDTH;
+	
 	public static boolean debug = true;
 	
 	private static SpaceTrade self;
@@ -33,7 +40,9 @@ public class SpaceTrade extends Game {
 		thePlanetScreen = new PlanetScreen();
 		theSellScreen = new SellScreen();
 		
-		setScreen(theTitle);
+		Illumination2D i2d = new Illumination2D();
+		
+		setScreen(i2d);
 	}
 	
 	@Override
@@ -43,7 +52,7 @@ public class SpaceTrade extends Game {
 		theShipScreen.dispose();
 		thePlanetScreen.dispose();
 		theSellScreen.dispose();
-		Textures.getTextures().dispose();
+		Textures.dispose();
 	}
 
 }

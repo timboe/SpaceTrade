@@ -13,6 +13,8 @@ public class Ship {
 	ArrayList<Weapon> weapon_loadout = new ArrayList<Weapon>();
 	private int range = 100;
 	private float acceleration = 5;
+	private int cargo = 10;
+	private int worth = 10000;
 	
 	public Ship() {
 	}
@@ -37,5 +39,14 @@ public class Ship {
 	
 	public float getAcc() {
 		return acceleration;
+	}
+	
+	public int getCargo() {
+		return cargo;
+	}
+
+	public int getWorth() {
+		// TODO add equipment
+		return worth;
 	}
 }

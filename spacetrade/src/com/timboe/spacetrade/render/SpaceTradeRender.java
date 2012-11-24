@@ -2,20 +2,14 @@ package com.timboe.spacetrade.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.SpaceTrade;
-import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.utility.Serialiser;
-import com.timboe.spacetrade.utility.Utility;
-import com.timboe.spacetrade.world.Planet;
-import com.timboe.spacetrade.world.Starmap;
 
 public class SpaceTradeRender implements Screen {
 	protected Table leftTable;
@@ -23,28 +17,28 @@ public class SpaceTradeRender implements Screen {
 	protected Stage stage;
 	protected Stage frontStage = null;
 	private InputMultiplexer inputMultiplex = null;
-
+	protected SpriteBatch spriteBatch = new SpriteBatch();
 	
 	public SpaceTradeRender() {
 		masterTable = new Table();
 		if (SpaceTrade.debug == true) masterTable.debug();
 		masterTable.align(Align.bottom | Align.left);
-		masterTable.setSize(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT);
+		masterTable.setSize(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT);
 		
 		stage = new Stage();
 
 		leftTable = new Table();
 		if (SpaceTrade.debug == true) leftTable.debug();
 		leftTable.align( Align.center);
-		leftTable.setSize(Utility.GAME_WIDTH, Utility.GAME_HEIGHT);
+		leftTable.setSize(SpaceTrade.GAME_WIDTH, SpaceTrade.GAME_HEIGHT);
 		
 		//init(); should be caller after superclass constructor
 	}
 	
 	public void init() {
 		masterTable.clear();
-		masterTable.add(leftTable).width(Utility.GAME_WIDTH).height(Utility.GAME_HEIGHT);
-		masterTable.add(RightBar.getRightBarTable()).width(Utility.GUI_WIDTH).height(Utility.GAME_HEIGHT);
+		masterTable.add(leftTable).width(SpaceTrade.GAME_WIDTH).height(SpaceTrade.GAME_HEIGHT);
+		masterTable.add(RightBar.getRightBarTable()).width(SpaceTrade.GUI_WIDTH).height(SpaceTrade.GAME_HEIGHT);
 		stage.clear();
 		stage.addActor(masterTable);
 	}
@@ -77,6 +71,7 @@ public class SpaceTradeRender implements Screen {
 	}
 	
 	public void render(float delta) {
+		delta = Math.max(delta, 30);
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		stage.act(delta);
@@ -92,7 +87,7 @@ public class SpaceTradeRender implements Screen {
 	
 	public void resize (int width, int height) {
 		Gdx.app.log("Resize", "ReSize in Render ["+this+"] ("+width+","+height+")");
-		stage.setViewport(Utility.CAMERA_WIDTH, Utility.CAMERA_HEIGHT, true);
+		stage.setViewport(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT, true);
 		stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
 		if (frontStage != null) {
 			frontStage.setCamera(stage.getCamera());

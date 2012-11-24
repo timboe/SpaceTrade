@@ -1,51 +1,56 @@
 package com.timboe.spacetrade.render;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.SpaceTrade;
-import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
 
 public class RightBar {
 
-	public final Table rightTable;
-	public final TextButton galaxyButton;
-	public final TextButton planetButton;
-	public final TextButton shipButton;
-	public final TextButton sellButton;
+	public static Table rightTable = null;
+	public static TextButton galaxyButton;
+	public static TextButton planetButton;
+	public static TextButton shipButton;
+	public static TextButton sellButton;
+	public static Label credz;
+	public static Label cargo;
 	
-	private static final RightBar singleton = new RightBar();
-	public static RightBar getRightBar() {
-		return singleton;
-	}
+
 	
 	public static Table getRightBarTable() {
-		return singleton.rightTable;
+		if (rightTable == null) {
+			populate();
+		}
+		return rightTable;
 	}
 	
-	public void setTouchable(Touchable _t) {
+	public static void setTouchable(Touchable _t) {
+		if (rightTable == null) {
+			populate();
+		}
 		galaxyButton.setTouchable(_t);
 		planetButton.setTouchable(_t);
 		shipButton.setTouchable(_t);
 		sellButton.setTouchable(_t);
 	}
 	
-	private RightBar() {
-		Skin skin = Textures.getTextures().getSkin();
+	private static void populate() {
+		Skin skin = Textures.getSkin();
 		
 		rightTable = new Table();
 		if (SpaceTrade.debug == true) rightTable.debug();
 		rightTable.align(Align.top | Align.center );
-		rightTable.setSize(Utility.GUI_WIDTH, Utility.GAME_HEIGHT);
+		rightTable.setSize(SpaceTrade.GUI_WIDTH, SpaceTrade.GAME_HEIGHT);
 
 //		final TextButton galaxyButton = new TextButton("GALAXY", skin.get("toggle", TextButtonStyle.class));
 		
@@ -88,6 +93,11 @@ public class RightBar {
 			}
 		});
 		
+		credz = new Label("", skin);
+		credz.setAlignment(Align.center);
+		cargo = new Label("", skin);
+		cargo.setAlignment(Align.center);
+		
 		rightTable.add(galaxyButton);
 		rightTable.row();
 		rightTable.add(planetButton);
@@ -95,9 +105,18 @@ public class RightBar {
 		rightTable.add(shipButton);
 		rightTable.row();		
 		rightTable.add(sellButton);
+		rightTable.row();		
+		rightTable.add(credz);
+		rightTable.row();
+		rightTable.add(cargo);
 
 	}
 	
+	
+	public static void update() {
+		credz.setText("Credz:\n"+Player.getPlayer().getCredz());
+		cargo.setText("Cargo:\n"+Player.getPlayer().getTotalCargo()+"/"+Player.getPlayer().getShip().getCargo());
+	}
 
 	
 }

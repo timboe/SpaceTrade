@@ -6,51 +6,43 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class Textures {
-	public static final Textures singelton = new Textures();
 
-	public static final Textures getTextures() {
-		return singelton;
-	}
-	
-	private final Texture starTexture;
-	private final Texture shipTexture;
-	private final Texture galaxyTexture;
+	private static final Texture starTexture = new Texture(Gdx.files.internal("data/star.png"));
+	private static final Texture shipTexture = new Texture(Gdx.files.internal("data/ship.png"));
+	private static final Texture galaxyTexture = new Texture(Gdx.files.internal("data/galaxy.jpg"));
+	private static final Texture nebula1Texture =  new Texture(Gdx.files.internal("data/nebula_1.jpg"));
+	private static final Skin mainSkin = new Skin(Gdx.files.internal("data/skin/uiskin.json"));;
 
-	private final Skin mainSkin;
 	
-	private Textures() {
-		starTexture = new Texture(Gdx.files.internal("data/star.png"));
-		mainSkin = new Skin(Gdx.files.internal("data/skin/uiskin.json"));
-		shipTexture = new Texture(Gdx.files.internal("data/ship.png"));
-		galaxyTexture = new Texture(Gdx.files.internal("data/galaxy.jpg"));
-
-	}
-	
-	public Texture getStar() {
+	public static Texture getStar() {
 		return starTexture;
 	}
 	
-	public Skin getSkin() {
+	public static Skin getSkin() {
 		return mainSkin;
 	}
 	
-	public BitmapFont getFont() {
+	public static BitmapFont getFont() {
 		return mainSkin.getFont("default-font");
 	}
 
-	public Texture getShip() {
+	public static Texture getShip() {
 		return shipTexture;
 	}
 	
-	public Texture getGalaxyTexture() {
+	public static Texture getGalaxyTexture() {
 		return galaxyTexture;
 	}
 	
-	public void dispose() {
+	public static void dispose() {
 		starTexture.dispose();
 		shipTexture.dispose();
 		mainSkin.dispose();
 		galaxyTexture.dispose();
+	}
+
+	public static Texture getNebulaTexture(int _i) {
+		return nebula1Texture;
 	}
 	
 	

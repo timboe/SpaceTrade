@@ -80,12 +80,18 @@ public class SellWindow {
 			}
 			
 			int avPaid = Player.getPlayer().getAvPaidPrice(_g);
-			if (avPaid < cost) {
-				labelPricePaid.get(_g).setColor(0f, 1f, 0f, 1f);
+			if (avPaid == 0) {
+				labelPricePaid.get(_g).setColor(1f, 1f, 1f, 1f);
+				labelPricePaid.get(_g).setText("0");
 			} else {
-				labelPricePaid.get(_g).setColor(1f, 0f, 0f, 1f);
+				if (avPaid < cost) {
+					labelPricePaid.get(_g).setColor(0f, 1f, 0f, 1f);
+				} else {
+					labelPricePaid.get(_g).setColor(1f, 0f, 0f, 1f);
+				}
+				labelPricePaid.get(_g).setText(Integer.toString(cost - avPaid));
 			}
-			labelPricePaid.get(_g).setText(Integer.toString(cost - avPaid));
+
 
 			int chosen = (int) sliderStock.get(_g).getValue();
 			labelStock.get(_g).setText( Integer.toString(chosen) );
@@ -95,7 +101,7 @@ public class SellWindow {
 	
 	private static void populateSellWindow() {
 		
-		Skin _skin = Textures.getTextures().getSkin();
+		Skin _skin = Textures.getSkin();
 		
 		sellClik = new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {

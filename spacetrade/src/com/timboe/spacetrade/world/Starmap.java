@@ -1,11 +1,11 @@
 package com.timboe.spacetrade.world;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
+import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.StarmapScreen;
@@ -13,7 +13,7 @@ import com.timboe.spacetrade.utility.Utility;
 
 public class Starmap {
 	
-	private static int starBuffer = Textures.getTextures().getStar().getWidth() * 2;
+	private static int starBuffer = Textures.getStar().getWidth() * 2;
 	private static final int nPlanets = 128;
 	private static final float toLightYears = 4.2f;
 	private static Array<Planet> thePlanets = new Array<Planet>();
@@ -46,8 +46,8 @@ public class Starmap {
 
 		int ID = 0;
 		while (thePlanets.size < getNPlanets()) {
-			int _x = Utility.getRandI( (int) (Utility.GAME_WIDTH  - (2 * starBuffer)) ) + starBuffer;
-			int _y = Utility.getRandI( (int) (Utility.GAME_HEIGHT - (2 * starBuffer)) ) + starBuffer;
+			int _x = Utility.getRandI( (int) (SpaceTrade.GAME_WIDTH  - (2 * starBuffer)) ) + starBuffer;
+			int _y = Utility.getRandI( (int) (SpaceTrade.GAME_HEIGHT - (2 * starBuffer)) ) + starBuffer;
 			//Check we're not too close
 			boolean tooClose = false;
 			for (Planet p : thePlanets) {
@@ -72,7 +72,7 @@ public class Starmap {
 			}
 		}
 		//Get the economy going!
-		newYear(1000);
+		newYear(200);
 	}
 	
 	public static float getDistanceLightyear(Planet _local, Planet _remote) {

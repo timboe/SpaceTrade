@@ -2,27 +2,8 @@ package com.timboe.spacetrade.utility;
 
 import java.util.Random;
 
-import com.badlogic.gdx.Gdx;
-
-public class Utility {
-	
-	public static final float CAMERA_WIDTH = 1280;
-	public static final float CAMERA_HEIGHT = 800;
-	
-	public static int getGameWidthPix() {
-		return (int) (GAME_WIDTH * ((float)Gdx.graphics.getWidth() / (float)CAMERA_WIDTH));
-	}
-	
-	public static int getGameHeightPix() {
-		return (int) (GAME_HEIGHT * ((float)Gdx.graphics.getHeight() / (float)CAMERA_HEIGHT));
-	}
-
-	public static final float GAME_HEIGHT = 800;
-	public static final float GAME_WIDTH = 1200;
-	public static final float GUI_WIDTH = 80;
-	
+public class Utility {	
 	private static final Random rand = new Random(0);
-
 
 	public static float getRandF() {
 		return rand.nextFloat();

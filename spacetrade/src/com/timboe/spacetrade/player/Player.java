@@ -10,9 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
+import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.ship.Ship;
-import com.timboe.spacetrade.utility.Utility;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 
@@ -22,24 +22,18 @@ public class Player extends Actor {
 	private EnumMap<Goods, AtomicInteger> avPrice = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private int credz;
 	private Ship ship;
+	private int totalCargo;
 	private int currentLocationID;
 
-	private static Player singleton;
+	private static Player singleton = new Player();
 	public static final Player getPlayer () {
 		return singleton;
 	}
-	public static final void setPlayer(Player _p) {
-		singleton = _p;
-	}
-	public static final void newPlayer() {
-		singleton = new Player();
-	}
-	
+
 	public Player() { //Only to be called externally when loading a game!
-		credz = 1000;
 		ship = new Ship(ShipTemplate.Player, ShipClass.ClassB);
 		move( Starmap.getRandomPlanet() );
-		setOrigin(0, 0);
+		setOrigin(Sprites.getSprites().getPlayerSprite().getWidth()/2f, Sprites.getSprites().getPlayerSprite().getHeight()/2f);
 		
 		//Setup maps
 		for (Goods _g : Goods.values()) {
@@ -78,12 +72,34 @@ public class Player extends Actor {
 		return credz;
 	}
 	
+	public int getFreeCargo() {
+		return ship.getCargo() - totalCargo;
+	}
+	
 	public int getWorth() {
-		return credz; //TODO
+		int worth = credz;
+		worth += ship.getWorth();
+		for (Goods _g : Goods.values()) {
+			worth += (stock.get(_g).get() * avPrice.get(_g).get());
+		}
+		return worth;
 	}
 	
 	public void modCredz(int _m) {
 		credz += _m;
+		updateTotals();
+	}
+	
+	public void updateTotals() {
+		totalCargo = 0;
+		for (Goods _g : Goods.values()) {
+			totalCargo += stock.get(_g).get();
+		}
+		RightBar.update();
+	}
+	
+	public int getTotalCargo() {
+		return totalCargo;
 	}
 	
 	public void addStock(Goods _g, int _newStock, int _price_per_unit) {
@@ -95,14 +111,19 @@ public class Player extends Actor {
 		final int _newAveragePrice = Math.round( (float)_totalValue / (float)(_totalStock)  );
 		stock.get(_g).getAndAdd(_newStock);
 		avPrice.get(_g).set(_newAveragePrice);
+		updateTotals();
 	}
 	
 	public void removeStock(Goods _g, int _amount) {
-		stock.get(_g).getAndAdd(-_amount); //Note sign flip
+		if (stock.get(_g).addAndGet(-_amount) == 0) {	//Note sign flip
+			avPrice.get(_g).set(0);
+		}
+		updateTotals();
 	}
 	
 	public void setCredz(int _s) {
 		credz = _s;
+		updateTotals();
 	}
 
 	public Planet getPlanet() {

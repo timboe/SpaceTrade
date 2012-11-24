@@ -1,17 +1,9 @@
 package com.timboe.spacetrade.utility;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.timboe.spacetrade.player.Player;
-import com.timboe.spacetrade.screen.StarmapScreen;
-import com.timboe.spacetrade.world.Starmap;
 
 public class Serialiser {
 	
@@ -99,9 +91,9 @@ public class Serialiser {
 		//Starmap.setStarmap(_s);
 		//Starmap.getStarmap().refresh();
 		
-		Player _p = json.fromJson(Player.class, lines[2] );
-		Player.setPlayer(_p);
-		Player.getPlayer().refresh();
+	//	Player _p = json.fromJson(Player.class, lines[2] );
+		//Player.setPlayer(_p);
+	//	Player.getPlayer().refresh();
 
 
 	}
