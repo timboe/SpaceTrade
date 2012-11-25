@@ -28,6 +28,10 @@ public class Utility {
 	public static float acosh(float _v) {
 		return (float) Math.log(_v + Math.sqrt(_v * _v - 1));
 	}
+
+	public static void setSeed(int x) {
+		rand.setSeed(x);
+	}
 	
 	
 }

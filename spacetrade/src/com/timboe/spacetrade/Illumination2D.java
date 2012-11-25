@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.Random;
  
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -29,6 +30,8 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.timboe.spacetrade.utility.SimplexNoise;
+import com.timboe.spacetrade.utility.Utility;
  
 /**
  * Simple illumination model with shaders in LibGDX.
@@ -59,11 +62,14 @@ public class Illumination2D implements Screen {
         // position of our light
         final Vector3 DEFAULT_LIGHT_POS = new Vector3(0f, 0f, 0.07f);
         // the color of our light
-        final Vector3 DEFAULT_LIGHT_COLOR = new Vector3(1f, 0.7f, 0.6f);
+//        Sun at sunrise or sunset  .71, .49, .36
+//        Direct sun at noon        .75, .75, .68
+//        Sun through clouds/haze   .74, .75, .75
+        final Vector3 DEFAULT_LIGHT_COLOR = new Vector3(0.75f, 0.75f, 0.68f);
         // the ambient color (color to use when unlit)
-        final Vector3 DEFAULT_AMBIENT_COLOR = new Vector3(0.3f, 0.3f, 1f);
+        final Vector3 DEFAULT_AMBIENT_COLOR = new Vector3(1f, 1f, 1f);
         // the attenuation factor: x=constant, y=linear, z=quadratic
-        final Vector3 DEFAULT_ATTENUATION = new Vector3(0.4f, 3f, 20f);
+        final Vector3 DEFAULT_ATTENUATION = new Vector3(0.1f, 1f, 1f);
         // the ambient intensity (brightness to use when unlit)
         final float DEFAULT_AMBIENT_INTENSITY = 0.6f;
         final float DEFAULT_STRENGTH = 1f;
@@ -91,7 +97,20 @@ public class Illumination2D implements Screen {
         ShaderProgram program;
         ShaderProgram texShader;
 
- 
+		//NOISE VARS
+		float persistence = 0.6f;
+		float frequency = 2f*(1f/512f);
+		float amplitude  = 1f;
+		int octaves = 6;
+		int randomseed = 2 + 1*1;
+		
+		int random_r = 0;
+		
+		float waterHeight = 0.1f;
+		float maxU = 512f;
+		float maxV = 256f;
+		float repeat = 256f;
+		
         BitmapFont font;
        
         private int texWidth, texHeight;
@@ -246,20 +265,18 @@ public class Illumination2D implements Screen {
 //
             final int IMG_Y = 0;
 //           
-//            batch.begin();
-//
-//            //let's first simulate our resulting normal map by blending a blue square atop it
-//            //we also could have achieved this with glTexEnv in the fixed function pipeline
-//            batch.draw(worldHeight, 300, 800-256);
-//            batch.draw(worldTexture, 300+512, 800-256);
-//            batch.draw(worldNormal, 300, 800-512);
-//            
-//            batch.draw(texture_n, texWidth + 10, IMG_Y);
-//            batch.setColor(NORMAL_VCOLOR);
-//            batch.draw(normalBase, texWidth + 10, IMG_Y, texWidth, texHeight);
-//            batch.setColor(Color.WHITE);
-//            batch.draw(texture, 0, IMG_Y);
-//            batch.end();
+            batch.begin();
+            //let's first simulate our resulting normal map by blending a blue square atop it
+            //we also could have achieved this with glTexEnv in the fixed function pipeline
+            batch.draw(worldHeight, 230, 800-270, 512, 256);
+            batch.draw(worldTexture, 230+520, 800-270,  512, 256);
+            batch.draw(worldNormal, 230, 800-530,  512, 256);
+          //  batch.draw(texture_n, texWidth + 10, IMG_Y);
+           // batch.setColor(NORMAL_VCOLOR);
+           //batch.draw(normalBase, texWidth + 10, IMG_Y, texWidth, texHeight);
+           // batch.setColor(Color.WHITE);
+           // batch.draw(texture, 0, IMG_Y);
+            batch.end();
 //
 //            //now let's simulate how our normal map will be sampled using strength
 //            //we can do this simply by blending a blue fill overtop
@@ -328,27 +345,27 @@ public class Illumination2D implements Screen {
            // fxBatch.draw(worldTexture, 500+270, 400);
 
             fxBatch.end();			
-//            
-//            //second render
-//            fxBatch.begin();
-//            // get y-down light position based on mouse/touch
-//            lightPos.x = Gdx.input.getX();
-//            lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
-//            program.setUniformf("ambientIntensity", ambientIntensity);
-//            program.setUniformf("attenuation", attenuation);
-//            program.setUniformf("light", lightPos);
-//            program.setUniformi("useNormals", useNormals ? 1 : 0);
-//            program.setUniformi("useShadow", useShadow ? 1 : 0);
-//            program.setUniformf("strength", strength);
-//            worldNormal.bind(1);
-//            worldTexture.bind(0);
-//            fxBatch.draw(worldTexture,300+512, 800-512);
-//            fxBatch.end();
+            
+            //second render
+            fxBatch.begin();
+            // get y-down light position based on mouse/touch
+            lightPos.x = Gdx.input.getX();
+            lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
+            program.setUniformf("ambientIntensity", ambientIntensity);
+            program.setUniformf("attenuation", attenuation);
+            program.setUniformf("light", lightPos);
+            program.setUniformi("useNormals", useNormals ? 1 : 0);
+            program.setUniformi("useShadow", useShadow ? 1 : 0);
+            program.setUniformf("strength", strength);
+            worldNormal.bind(1);
+            worldTexture.bind(0);
+            fxBatch.draw(worldTexture,230+520, 800-530, 512, 256);
+            fxBatch.end();
             
             
     		GLCommon gl = Gdx.gl;
 //    		gl.glEnable(GL20.GL_DEPTH_TEST);
-//    		gl.glEnable(GL20.GL_CULL_FACE);
+    		gl.glEnable(GL20.GL_CULL_FACE);
 //    		gl.glEnable(GL20.GL_TEXTURE_2D);
             //third render
             Delta += delta;
@@ -356,10 +373,11 @@ public class Illumination2D implements Screen {
     		Matrix4 transform_FG = new Matrix4();
     		transform_FG = cam.combined.cpy();
     		transform_FG.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
-    		transform_FG.translate(-50, 0f, 0f);
+    		transform_FG.translate(-330, -60, 0);
     		//transform_FG.rotate(0, 0, 1, 180);
+    		transform_FG.rotate(1, 0, 0, -10);
     		transform_FG.rotate(0, 1, 0, Delta*10f);
-    		transform_FG.rotate(0, 1, 0, -Gdx.input.getX()/5f);
+    		transform_FG.rotate(0, 1, 0, -Gdx.input.getX()/2f);
     		program.begin();
             lightPos.x = Gdx.input.getX();
             lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
@@ -376,10 +394,10 @@ public class Illumination2D implements Screen {
             worldNormal.bind(1);
             worldTexture.bind(0);
 //    		earthTexture.bind();
-    		sphereMesh.render(program, GL10.GL_TRIANGLES);
-    		program.end();
+            sphereMesh.render(program, GL20.GL_TRIANGLES);
+            program.end();
 //    		gl.glDisable(GL20.GL_DEPTH_TEST);
-//    		gl.glDisable(GL20.GL_CULL_FACE);
+    		gl.glDisable(GL20.GL_CULL_FACE);
 //    		gl.glDisable(GL20.GL_TEXTURE_2D);
             
             batch.begin();
@@ -388,9 +406,9 @@ public class Illumination2D implements Screen {
                             strength, lightPos.z);
             font.drawMultiLine(batch, str, 10, Gdx.graphics.getHeight()-10);
            
-            font.draw(batch, "Diffuse Color", 10, IMG_Y+texHeight + 30);
-            font.draw(batch, "Normal Map", texWidth+20, IMG_Y+texHeight + 30);
-            font.draw(batch, "Final Color", texWidth*2+30, IMG_Y+texHeight + 30);
+            //font.draw(batch, "Diffuse Color", 10, IMG_Y+texHeight + 30);
+            //font.draw(batch, "Normal Map", texWidth+20, IMG_Y+texHeight + 30);
+            //font.draw(batch, "Final Color", texWidth*2+30, IMG_Y+texHeight + 30);
             batch.end();
            
 
@@ -409,6 +427,14 @@ public class Illumination2D implements Screen {
             rock_n = new Texture(Gdx.files.internal("data/teapot_n.png"));
             teapot = new Texture(Gdx.files.internal("data/rock.png"));
             teapot_n = new Texture(Gdx.files.internal("data/rock_n.png"));
+            
+            if (Gdx.app.getType() == ApplicationType.Android) {
+            	maxU = 512;
+            	maxV = 256;
+            } else {
+            	maxU = 1024;
+            	maxV = 512;
+            }
            
             texture = teapot;
             texture_n = teapot_n;
@@ -506,99 +532,391 @@ public class Illumination2D implements Screen {
                             }
                             return false;
                     }
+                    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                    	genWorld();
+                    	return false;
+                    }
             });
            
             font = new BitmapFont();
             
-            Pixmap worldPixOcean = new Pixmap(512, 256, Format.RGBA8888);
-            Pixmap worldPixLand = new Pixmap(512, 256, Format.RGBA8888);
-            Pixmap worldPixHeight = new Pixmap(512, 256, Format.RGB888);
-            Pixmap worldPixNormal = new Pixmap(512, 256, Format.RGB888);
 
+
+            
     		earthTexture = new Texture(Gdx.files.internal("data/sphereMesh.jpg"), Format.RGB565, true);
     		earthTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-            
-            worldPixOcean.setColor(0f, 0.3f, 1f, 1f);
-            worldPixOcean.fill();
-            
-            worldPixLand.setColor(0f, 1f, 0f, 0f);
-            worldPixLand.fill();
-            
+
             //Do noise!
             //http://stackoverflow.com/questions/4753055/perlin-noise-generation-for-terrain
-            float min=0;
-            float max=0;
-            for (int _x = 0; _x < 512; ++_x) {
-                for (int _y = 0; _y < 256; ++_y) {
-                	float h = getHeight(_x,_y);
-
-                	min = Math.min(min, h);
-                	max = Math.max(max,h);
-                	//Gdx.app.log("Noise",""+h);
-                	
-                	float height = toHeight(h);
-                	worldPixHeight.setColor(height, height, height, 1f);
-                	worldPixHeight.drawPixel(_x, _y);
-                	
-                	float green = 1f;
-                	if (h > waterHeight) green = 1f;
-                	else if (h > 0f) green = h * 10f;
-                	else if (h < 0f) green = 0;
-                	worldPixLand.setColor(0f, 1f, 0f, green);
-                	worldPixLand.drawPixel(_x, _y);
-                }
-            }
-            worldPixOcean.drawPixmap(worldPixLand, 0, 0);
-            
-        	Gdx.app.log("Noise","Min:"+min+" max:"+max);
+//            float min=999;
+//            float max=-999;
+//            
+//
+//            float[][] data, dataTmp;
+//            data = new float[(int) maxU][(int) maxV];
 
             
-            //make normal map
-        	//http://www.gamedev.net/topic/586973-how-to-generate-normal-map-from-texture/
-            for (int _x = 1; _x < (512)-1; ++_x) {
-                for (int _y = 1; _y < (256)-1; ++_y) {
-                	float hxm = toNormHeight(getHeight(_x-1,_y  ));
-                	float hxp = toNormHeight(getHeight(_x+1,_y  ));
-                	float hym = toNormHeight(getHeight(_x  ,_y-1));
-                	float hyp = toNormHeight(getHeight(_x  ,_y+1));
+//            float theta = 0 ;
+//            float r = maxV;
+//            float phi = 0;
+//            for (int _y = (int) (-maxV/2); _y < maxV/2; ++_y) {
+//                for (int _x = 0; _x < maxU; ++_x) {
+//                  	//float _x2 = mapToSphere(_x, _y);
+//                	//at 1, x goes from 0 to maxU
+//                	//at 0, x goes from maxV to maxV
+//                	
+//                	phi = (float) (((float)_x / maxU) * 2 * Math.PI);
+//                	
+//                	//float _Y = _y - maxV/2;
+//                    theta = (float) (2 * Math.atan( Math.exp((float)(_y) / (maxV/Math.PI)) ) - (Math.PI/2f));
+//
+//                	
+//                	
+//                	
+////                	if (_y < maxV/2) {
+////                   	 theta = (float) (2 * Math.atan( Math.exp((float)(_y*2) / (r/Math.PI)) ) - (Math.PI/2f));
+////                	} else {
+////                		float _Y = _y - maxV/2f;
+////                      	 theta = (float) (2 * Math.atan( Math.exp((float)((_Y*2) - maxV) / (r/Math.PI)) ) );
+////                      	 theta +=  (Math.PI/2f);
+////                	}
+//                	
+//                	
+//                	float X = (float) (r * Math.sin(theta) * Math.cos(phi));
+//                	float Y = (float) (r * Math.cos(theta));
+//                	float Z = (float) (r * Math.sin(theta) * Math.sin(phi));
+//            	
+//      
+//                	
+//                	float h = getHeight(X,Y,Z);
+//                	min = Math.min(min, theta);
+//                	max = Math.max(max,theta);
+//                	if (h > 1) h = 1;
+//                	if (h < -1) h = -1;
+//                	
+//                	int y_coord = (int) (_y +  maxV);
+//                	if (y_coord >= maxV) y_coord -= maxV;
+//                	data[_x][y_coord] = h;
+//                }
+//        		Gdx.app.log("toSphere", "V:"+_y+" -> theta:"+Math.toDegrees(theta)+" phi:"+Math.toDegrees(phi));
+//
+//            }
+            
+            
 
+            
+//            for (int _y = 0; _y < maxV; ++_y) {
+//                for (int _x = 0; _x < maxU; ++_x) {
+//                	                	
+//                	//Gdx.app.log("Noise",""+h);
+//                	
+//                	float h = data[_x][_y];
+//                	float height = toHeight(h); //map 0 to 1
+//                	worldPixHeight.setColor(height, height, height, 1f);
+//                	worldPixHeight.drawPixel(_x, _y);
+//                	
+//                	
+//                	Color world = getWorldColor();
+//                	Color ocean = getWorldColor();
+//                	
+//                	worldPixLand.setColor(world.r * height, world.g * height, world.b * height, 1f);
+//                	worldPixLand.drawPixel(_x, _y);
+//
+//                	
+//                	float opaque = 1f;
+//        			if (height > waterHeight) opaque = 1f;
+//                	else if (height > -waterHeight) opaque = ((height + waterHeight)/2f) * 10f;
+//                	else opaque = 0;
+//                	worldPixOcean.setColor(ocean.r, ocean.g, ocean.b, opaque);
+//                	worldPixOcean.drawPixel(_x, _y);
+                	
+                	
+//               	 theta = (float) Math.toRadians(70);
+//                	if (Math.toDegrees(theta) > 140 || Math.toDegrees(theta) < 40) {
+//                		worldPixLand.setColor(1f*green, 1f*green, 1f*green, greenAlpha);
+//                	} else if (Math.toDegrees(theta) < 95 && Math.toDegrees(theta) > 85) {
+//                    		worldPixLand.setColor(1f*green, 1f*green, 0f, greenAlpha);
+//                	} else if (Math.toDegrees(theta) < 100 && Math.toDegrees(theta) > 80) {
+//                		if (Math.toDegrees(theta) < 90) {
+//                    		float amount =  (float)Math.toDegrees(theta) - 80;
+//                    		if (Utility.getRandChance(amount * 0.2f) == true) {
+//                        		worldPixLand.setColor(1f*green, 1f*green, 0f, greenAlpha);
+//                    		} else {
+//                        		worldPixLand.setColor(0f, green, 0f, greenAlpha);
+//                    		}
+//                		} else {
+//                    		float amount =  100 - (float)Math.toDegrees(theta);
+//                    		if (Utility.getRandChance(amount * 0.2f) == true) {
+//                        		worldPixLand.setColor(1f*green, 1f*green, 0f, greenAlpha);
+//                    		} else {
+//                        		worldPixLand.setColor(0f, green, 0f, greenAlpha);
+//                    		}
+//                		} 
+//                	} else if (Math.toDegrees(theta) > 130) {
+//                		float amount = (float) Math.abs(Math.toDegrees(theta)) - 130;
+//                		if (Utility.getRandChance(amount * 0.1f) == true) {
+//                    		worldPixLand.setColor(1f*green, 1f*green, 1f*green, greenAlpha);
+//                		} else {
+//                    		worldPixLand.setColor(0f, green, 0f, greenAlpha);
+//                		}
+//                	} else if (Math.toDegrees(theta) < 50) {
+//                		float amount = (float) 50 - (float)Math.toDegrees(theta);
+//                		if (Utility.getRandChance(amount * 0.1f) == true) {
+//                			worldPixLand.setColor(1f*green, 1f*green, 1f*green, greenAlpha);
+//                		} else {
+//                			worldPixLand.setColor(0f, green, 0f, greenAlpha);
+//                		}
+//                	} else {
+//                		worldPixLand.setColor(0f, green, 0f, greenAlpha);
+//                	}
+                	
+                	
+                	
+//                }
+//            }
+            
+            
+
+            
+//            for (int _y = 0; _y < 64; ++_y) {
+//                for (int _x = 0; _x < maxU; ++_x) {
+//                	float h = iceTop[_x][_y];
+//                	float height = toHeight(h);
+//                	if (height > 0) {
+//	                	worldPixHeight.setColor(height, height, height, 1f);
+//	                	worldPixHeight.drawPixel(_x, _y);
+//                	}
+//                	float white = toLand(h);
+//                	white *= (1f/64f) * (64 - _y);
+//                	worldPixIce.setColor(1f, 1f, 1f, white);
+//                	worldPixIce.drawPixel(_x, _y);
+//                	
+////                	h = iceBottom[_x][_y];
+////                	height = toHeight(h);
+////                	if (height > 0) {
+////	                	worldPixHeight.setColor(height, height, height, 1f);
+////	                	worldPixHeight.drawPixel(_x, _y);
+////                	}
+////                	white = toLand(h);
+////                	worldPixIce.setColor(1f, 1f, 1f, white);
+////                	//worldPixIce.drawPixel(_x, maxU-_y);
+//                }
+//            }
+//            
+//            worldPixOcean.drawPixmap(worldPixLand, 0, 0);
+////            worldPixOcean.drawPixmap(worldPixIce, 0, 0);
+//
+//            
+//        	Gdx.app.log("Noise","Min:"+Math.toDegrees(min)+" max:"+Math.toDegrees(max)+" dif"+Math.toDegrees(max-min));
+//
+//            
+//            //make normal map
+//        	//http://www.gamedev.net/topic/586973-how-to-generate-normal-map-from-texture/
+//            for (int _x = 1; _x < (maxU)-1; ++_x) {
+//                for (int _y = 1; _y < (maxV)-1; ++_y) {
+//                	float z1=toNormHeight(data[_x][_y])-toNormHeight(data[_x-1][_y]);
+//                	float z2=toNormHeight(data[_x][_y])-toNormHeight(data[_x][_y+1]);
+//                	
+//                	
+//                	float hxm = toNormHeight(data[_x - 1][_y]);
+//                	float hxp = toNormHeight(data[_x + 1][_y]);
+//                	float hym = toNormHeight(data[_x][_y - 1]);
+//                	float hyp = toNormHeight(data[_x][_y + 1]);
+//
+////                	Vector3 vx = new Vector3(0, 1, z1);
+////                	Vector3 vy = new Vector3(1, 0, z2);
+//                	
+//                	Vector3 vx = new Vector3(0, 1, hxm - hxp);
+//                	Vector3 vy = new Vector3(1, 0, hym - hyp);
+//                	
+//                	vx.crs(vy); //normal = vx X vy
+//                	vx.nor(); //normalise
+//                	
+//                	float R= ((vx.x + 1f)/2f);  
+//                	float g = ((vx.y + 1f)/2f);  
+//                	float b = 1 - ((vx.z + 1f)/2f);  
+//                	
+//                	//if (Utility.getRandChance(0.01f) == true) {
+//                	//	Gdx.app.log("toSphere", "R:"+r+" G:"+g+" B:"+b);
+//                	//}
+//                	
+//                    worldPixNormal.setColor(R, g, b, 1f);
+//                    worldPixNormal.drawPixel(_x, _y);
+//                }
+//            }
+            
+
+           // worldPix.fillRectangle(50, 50, 100, 100);
+//            worldTexture = new Texture(worldPixOcean);
+//            worldHeight = new Texture(worldPixHeight);
+//            worldNormal = new Texture(worldPixNormal);
+//            
+//            worldTexture = new Texture(worldPixOcean);
+//            //worldTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+//
+//            worldNormal = new Texture(worldPixNormal);
+//            worldNormal.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+//
+//
+//            worldPixOcean.dispose();
+//            worldPixLand.dispose();
+//            worldPixHeight.dispose();
+//            worldPixNormal.dispose();
+//            worldPixIce.dispose();
+
+    		genWorld();
+			
+		}
+		
+		public void genWorld() {
+        	++random_r;
+        	randomseed = 2 + random_r*random_r;
+        	Utility.setSeed(randomseed);
+			
+    		octaves = Utility.getRandI(4) + 3;//3-6
+    		frequency = (Utility.getRandI(3) + 1) * (1f/512f); //1-3
+    		persistence = (Utility.getRandI(3) + 4) * 0.1f; //0.4 - 0.6
+    		
+	        Pixmap worldPixOcean = new Pixmap((int) maxU, (int) maxV, Format.RGBA8888);
+	        Pixmap worldPixLand = new Pixmap((int) maxU, (int) maxV, Format.RGBA8888);
+	        Pixmap worldPixHeight = new Pixmap((int) maxU, (int) maxV, Format.RGB888);
+	        Pixmap worldPixNormal = new Pixmap((int) maxU, (int) maxV, Format.RGB888);
+            
+	        float min=999;
+            float max=-999;
+            float[][] data = new float[(int) maxU][(int) maxV];
+	        float theta = 0 ;
+	        float r = maxV;
+	        float phi = 0;
+	        for (int _y = 0; _y < maxV; ++_y) {
+	        	for (int _x = 0; _x < maxU; ++_x) {
+	        		phi = (float) (((float)_x / maxU) * 2 * Math.PI);
+	        		//theta = (float) (2 * Math.atan( Math.exp((float)(_y) / (r/Math.PI)) ) - (Math.PI/2f));
+	        		theta = 2f*(float) (2 * Math.atan( Math.exp((float)(_y) / (r/Math.PI)) ) - (Math.PI/2f));
+
+	        		float X = (float) (r * Math.sin(theta) * Math.cos(phi));
+	        		float Y = (float) (r * Math.cos(theta));
+	        		float Z = (float) (r * Math.sin(theta) * Math.sin(phi));
+	          	
+	        		float h = getHeight(X,Y,Z);
+	              	min = Math.min(min, h);
+	              	max = Math.max(max,h);
+	              	if (h > 1) h = 1;
+	              	if (h < -1) h = -1;
+	              	
+	              	//int y_coord = (int) (_y +  maxV);
+	              	//if (y_coord >= maxV) y_coord -= maxV;
+	              	data[_x][_y] = h;
+	        	}
+	        	//Gdx.app.log("toSphere", "V:"+_y+" -> theta:"+Math.toDegrees(theta)+" phi:"+Math.toDegrees(phi));
+	        }
+		
+        	Color world = getWorldColor();
+        	Color ocean = getWorldColor();
+	        for (int _y = 0; _y < maxV; ++_y) {
+	        	for (int _x = 0; _x < maxU; ++_x) {
+		        	float height = toHeight(data[_x][_y]); //map 0 to 1
+		        	worldPixHeight.setColor(height, height, height, 1f);
+		        	worldPixHeight.drawPixel(_x, _y);
+		        	
+
+		        	
+		        	worldPixLand.setColor(world.r * height, world.g * height, world.b * height, 1f);
+		        	worldPixLand.drawPixel(_x, _y);
+		
+		        	float opaque = 1f;
+		        	waterHeight=0;
+					if (data[_x][_y] > waterHeight) opaque = 0f;
+		        	//else if (data[_x][_y] > -waterHeight) opaque = 1f - (((data[_x][_y] + waterHeight)/2f) * 10f);
+		        	else { //map 
+		        		opaque = 1-(data[_x][_y] + 1f) ;
+		        	}
+		        	worldPixOcean.setColor(ocean.r, ocean.g, ocean.b, opaque);
+		        	worldPixOcean.drawPixel(_x, _y);
+		        	
+		        	//normal
+		        	int _xp1 = _x + 1;
+		        	if (_xp1 == maxU) _xp1 = 0;
+		        	int _xm1 = _x - 1;
+		        	if (_xm1 == -1) _xm1 = (int) (maxU - 1);
+		        	int _yp1 = _y + 1;
+		        	if (_yp1 == maxV) _yp1 = 0;
+		        	int _ym1 = _y - 1;
+		        	if (_ym1 == -1) _ym1 = (int) (maxV - 1);
+                	float hxm = toNormHeight(data[_xm1][_y]);
+                	float hxp = toNormHeight(data[_xp1][_y]);
+                	float hym = toNormHeight(data[_x][_ym1]);
+                	float hyp = toNormHeight(data[_x][_yp1]);
                 	Vector3 vx = new Vector3(0, 1, hxm - hxp);
                 	Vector3 vy = new Vector3(1, 0, hym - hyp);
-                	
-                	Vector3 normal = vx.cpy();
-                	normal.crs(vy); //normal = vx X vy
-                	normal.nor(); //normalise
-                	
-                	float r = ((normal.x + 1.0f) / 2.0f) * 255f;  
-                	float g = ((normal.y + 1.0f) / 2.0f) * 255f;  
-                	float b = ((normal.z + 1.0f) / 2.0f) * 255f;  
-                	
-                    worldPixNormal.setColor(r, g, b, 1f);
+                	vx.crs(vy); // vx X vy
+                	vx.nor(); //normalise
+                	float R= ((vx.x + 1f)/2f);  
+                	float G = ((vx.y + 1f)/2f);  
+                	float B = 1 - ((vx.z + 1f)/2f);  
+                	worldPixNormal.setColor(R, G, B, 1f);
                     worldPixNormal.drawPixel(_x, _y);
-                }
-            }
-
-            
-           // worldPix.fillRectangle(50, 50, 100, 100);
-            worldTexture = new Texture(worldPixOcean);
+	        	}
+	        }
+	        worldPixLand.drawPixmap(worldPixOcean, 0, 0);
+	     
+            worldTexture = new Texture(worldPixLand);
             worldHeight = new Texture(worldPixHeight);
             worldNormal = new Texture(worldPixNormal);
-            
-            worldTexture = new Texture(worldPixOcean);
-            worldTexture.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-
-            worldNormal = new Texture(worldPixNormal);
-            worldNormal.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-
 
             worldPixOcean.dispose();
             worldPixLand.dispose();
             worldPixHeight.dispose();
-            worldPixNormal.dispose();
-
-            
-			
+            worldPixNormal.dispose(); 
+            Gdx.app.log("Noise","Min:"+(min)+" max:"+(max));
+		}
+		
+ 
+	        
+		
+		
+        public Color getWorldColor() {
+        	int nC = 0;
+        	boolean cR = false, cG = false, cB = false;
+        	while (nC == 0 || nC == 3) {
+        		nC = 0;
+        		cR=false;
+        		cG=false;
+        		cB=false;
+        		if (Utility.getRandChance(0.5f) == true) {
+        			++nC;
+        			cR=true;
+        		}
+        		if (Utility.getRandChance(0.5f) == true) {
+        			++nC;
+        			cG=true;
+        		}
+        		if (Utility.getRandChance(0.5f) == true) {
+        			++nC;
+        			cB=true;
+        		}
+        	}
+        	float r = 0,g = 0, b=0f;
+        	if (cR == true) r = 0.5f + (Utility.getRandF()/2f);
+        	if (cG == true) g = 0.5f + (Utility.getRandF()/2f);
+        	if (cB == true) b = 0.5f + (Utility.getRandF()/2f);
+        	return new Color(r, g, b, 1f);
+        }
+		
+		public float mapToSphere(float _x, float _y, float m_dxloop) {
+			//m_dxloop instead of maxU
+        	float magOfEffect = (float) Math.abs(Math.sin(((_y+1) / maxV) * Math.PI));
+        	float range = magOfEffect * m_dxloop;
+        	return ((m_dxloop/2f) - (range/2f)) + (range * (_x/m_dxloop));
+		}
+		
+		public float toLand(float h) {
+        	float green = 1f;
+			if (h > waterHeight) green = 1f;
+        	else if (h > 0f) green = h * 10f;
+        	else if (h < 0f) green = 0;
+        	return green;
 		}
 		
 		public float toHeight(float _h) {
@@ -615,14 +933,31 @@ public class Illumination2D implements Screen {
         	return _h;
 		}
 		
-		//NOISE VARS
-		float persistence = 0.7f;
-		float frequency = 0.1f;
-		float amplitude  = 1f;
-		int octaves = 6;
-		int randomseed = 2 + 5*5;
 		
-		float waterHeight = 0.1f;
+		public float getHeight(float _x, float _y, float _z) {
+			return amplitude * total(_x, _y, _z);
+		}
+		
+		public float total(float _i, float _j, float _k) {
+		    //properties of one octave (changing each loop)
+			float _t = 0.0f;
+			float _amplitude = 1;
+			float _freq = frequency;
+
+		    for(int oc = 0; oc < octaves; ++oc) {
+		        _t += getValue3D(_k * _freq + randomseed, _j * _freq + randomseed, _i * _freq + randomseed) * _amplitude;
+		        _amplitude *= persistence;
+		        _freq *= 2;
+		    }
+
+		    return _t;
+		}
+
+		
+		public float getValue3D(float _x, float _y, float _z) {
+			return SimplexNoise.noise(_x,  _y, _z);
+		}
+		
 		
 		public float getHeight(float _x, float _y) {
 			return amplitude * total(_x, _y);
@@ -635,7 +970,7 @@ public class Illumination2D implements Screen {
 			float _freq = frequency;
 
 		    for(int k = 0; k < octaves; ++k) {
-		        _t += getValue(_j * _freq + randomseed, _i * _freq + randomseed) * _amplitude;
+		        _t += getValueTile(_j * _freq + randomseed, _i * _freq + randomseed, _freq) * _amplitude;
 		        _amplitude *= persistence;
 		        _freq *= 2;
 		    }
@@ -643,46 +978,108 @@ public class Illumination2D implements Screen {
 		    return _t;
 		}
 
-
+		
 		public float getValue(float _x, float _y) {
-			int Xint = (int)_x;
-			int Yint = (int)_y;
-			float Xfrac = _x - Xint;
-			float Yfrac = _y - Yint;
+			return SimplexNoise.noise(_x,  _y);
+		}
 
-			//noise values
-		  	float n01 = noise(Xint-1, Yint-1);
-			float n02 = noise(Xint+1, Yint-1);
-			float n03 = noise(Xint-1, Yint+1);
-			float n04 = noise(Xint+1, Yint+1);
-			float n05 = noise(Xint-1, Yint);
-			float n06 = noise(Xint+1, Yint);
-			float n07 = noise(Xint, Yint-1);
-			float n08 = noise(Xint, Yint+1);
-			float n09 = noise(Xint, Yint);
+		public float getValueTile(float _x, float _y, float _freq) {
+		
+//			s = (double) localx / (double) m_dxloop;
+//			t = (double) localy / (double) m_dyloop;
+//
+//			nx = m_loopx0 + Math.cos(s * 2 * Math.PI)*m_dxloop/(2*Math.PI);
+//			ny = m_loopy0 + Math.cos(t * 2 * Math.PI)*m_dyloop/(2*Math.PI);
+//			nz = m_loopx0 + Math.sin(s * 2 * Math.PI)*m_dxloop/(2*Math.PI);
+//			nw = m_loopy0 + Math.sin(t * 2 * Math.PI)*m_dyloop/(2*Math.PI);
+//
+//			noise = SimplexNoise4D.noise(nx* scalingfactor, ny * scalingfactor, nz * scalingfactor, nw * scalingfactor);
+//			
+//			
+//			
+
+        	float magOfEffect = (float) Math.abs(Math.sin(((_y+1) / maxV) * Math.PI));
+        	float range = magOfEffect * repeat * _freq;
+        	//return ((m_dxloop/2f) - (range/2f)) + (range * (_x/m_dxloop));
 			
-			float n12 = noise(Xint+2, Yint-1);
-			float n14 = noise(Xint+2, Yint+1);
-			float n16 = noise(Xint+2, Yint);
+			float scale = 1f;
 			
-			float n23 = noise(Xint-1, Yint+2);
-			float n24 = noise(Xint+1, Yint+2);
-			float n28 = noise(Xint, Yint+2);
+			float m_loopx0 = 0f;
+			float m_loopy0 = 0f;
+			float m_dxloop = range;//(repeat * _freq);
+			float m_dyloop = (repeat * _freq);
 			
-			float n34 = noise(Xint+2, Yint+2);
+           float _x2 = ((512f/2f) - (range/2f)) + (range * ((_x*_freq)/range));
 
-		    //find the noise values of the four corners
-			float x0y0 = 0.0625f*(n01+n02+n03+n04) + 0.125f*(n05+n06+n07+n08) + 0.25f*(n09);  
-			float x1y0 = 0.0625f*(n07+n12+n08+n14) + 0.125f*(n09+n16+n02+n04) + 0.25f*(n06);  
-			float x0y1 = 0.0625f*(n05+n06+n23+n24) + 0.125f*(n03+n04+n09+n28) + 0.25f*(n08);  
-			float x1y1 = 0.0625f*(n09+n16+n28+n34) + 0.125f*(n08+n14+n06+n24) + 0.25f*(n04);  
-
-		    //interpolate between those values according to the x and y fractions
-			float v1 = interpolate(x0y0, x1y0, Xfrac); //interpolate in x direction (y)
-			float v2 = interpolate(x0y1, x1y1, Xfrac); //interpolate in x direction (y+1)
-		    float fin = interpolate(v1, v2, Yfrac);  //interpolate in y direction
-
-		    return fin;
+			
+			float s = (float) _x2 / m_dxloop;
+			float t = (float) _y / m_dyloop;
+			
+			float nx = (float) (m_loopx0 + Math.cos(s * 2 * Math.PI)*m_dxloop/(2*Math.PI));
+			float ny = (float) (m_loopy0 + Math.cos(t * 2 * Math.PI)*m_dyloop/(2*Math.PI));
+			float nz = (float) (m_loopx0 + Math.sin(s * 2 * Math.PI)*m_dxloop/(2*Math.PI));
+			float nw = (float) (m_loopy0 + Math.sin(t * 2 * Math.PI)*m_dyloop/(2*Math.PI));
+			
+			
+//        	float s = (float)_x / maxU;
+//        	float t = (float)_y / maxV;
+//        	
+//            final float x1 = 0;//_x;
+//            //final float x2 = _x + (1f/maxU);
+//            
+//            final float y1 = 0;// _y;
+//           // final float y2 = _y + (1f/maxV);
+//            
+//        	float dx = (_x/maxU);
+//        	float dy = (_y/maxV);
+//        	
+//        	float nx = (float) (x1+Math.cos(s*2*Math.PI)*dx/(2*Math.PI));
+//        	float ny = (float) (y1+Math.cos(t*2*Math.PI)*dy/(2*Math.PI));
+//        	float nz = (float) (x1+Math.sin(s*2*Math.PI)*dx/(2*Math.PI));
+//        	float nw = (float) (y1+Math.sin(t*2*Math.PI)*dy/(2*Math.PI));
+//        	
+			return SimplexNoise.noise(nx*scale, ny*scale, nz*scale, nw*scale);
+			
+			//return SimplexNoise.noise(_x, _y);
+			
+//			int Xint = (int)_x;
+//			int Yint = (int)_y;
+//			float Xfrac = _x - Xint;
+//			float Yfrac = _y - Yint;
+//
+//			//noise values
+//		  	float n01 = noise(Xint-1, Yint-1);
+//			float n02 = noise(Xint+1, Yint-1);
+//			float n03 = noise(Xint-1, Yint+1);
+//			float n04 = noise(Xint+1, Yint+1);
+//			float n05 = noise(Xint-1, Yint);
+//			float n06 = noise(Xint+1, Yint);
+//			float n07 = noise(Xint, Yint-1);
+//			float n08 = noise(Xint, Yint+1);
+//			float n09 = noise(Xint, Yint);
+//			
+//			float n12 = noise(Xint+2, Yint-1);
+//			float n14 = noise(Xint+2, Yint+1);
+//			float n16 = noise(Xint+2, Yint);
+//			
+//			float n23 = noise(Xint-1, Yint+2);
+//			float n24 = noise(Xint+1, Yint+2);
+//			float n28 = noise(Xint, Yint+2);
+//			
+//			float n34 = noise(Xint+2, Yint+2);
+//
+//		    //find the noise values of the four corners
+//			float x0y0 = 0.0625f*(n01+n02+n03+n04) + 0.125f*(n05+n06+n07+n08) + 0.25f*(n09);  
+//			float x1y0 = 0.0625f*(n07+n12+n08+n14) + 0.125f*(n09+n16+n02+n04) + 0.25f*(n06);  
+//			float x0y1 = 0.0625f*(n05+n06+n23+n24) + 0.125f*(n03+n04+n09+n28) + 0.25f*(n08);  
+//			float x1y1 = 0.0625f*(n09+n16+n28+n34) + 0.125f*(n08+n14+n06+n24) + 0.25f*(n04);  
+//
+//		    //interpolate between those values according to the x and y fractions
+//			float v1 = interpolate(x0y0, x1y0, Xfrac); //interpolate in x direction (y)
+//			float v2 = interpolate(x0y1, x1y1, Xfrac); //interpolate in x direction (y+1)
+//		    float fin = interpolate(v1, v2, Yfrac);  //interpolate in y direction
+//
+//		    return fin;
 		}
 		
 		public float interpolate(float _x, float _y, float _a) {
