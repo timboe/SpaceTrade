@@ -13,17 +13,18 @@ import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.ship.Ship;
+import com.timboe.spacetrade.utility.Utility;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 
 public class Player extends Actor {
 	
-	private EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
-	private EnumMap<Goods, AtomicInteger> avPrice = new EnumMap<Goods, AtomicInteger>(Goods.class);
-	private int credz;
-	private Ship ship;
-	private int totalCargo;
-	private int currentLocationID;
+	private static EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
+	private static EnumMap<Goods, AtomicInteger> avPrice = new EnumMap<Goods, AtomicInteger>(Goods.class);
+	private static int credz;
+	private static Ship ship;
+	private static int totalCargo;
+	private static int currentLocationID;
 
 	private static Player singleton = new Player();
 	public static final Player getPlayer () {
@@ -32,7 +33,7 @@ public class Player extends Actor {
 
 	public Player() { //Only to be called externally when loading a game!
 		ship = new Ship(ShipTemplate.Player, ShipClass.ClassB);
-		move( Starmap.getRandomPlanet() );
+		currentLocationID = Utility.getRandI( Starmap.getNPlanets() );
 		setOrigin(Sprites.getSprites().getPlayerSprite().getWidth()/2f, Sprites.getSprites().getPlayerSprite().getHeight()/2f);
 		
 		//Setup maps
@@ -61,22 +62,26 @@ public class Player extends Actor {
 		setPosition(_p.getX() + _p.radius, _p.getY() + _p.radius);
 	}
 	
-	public int getStock(Goods _g) {
+	public static int getPlanetID() {
+		return currentLocationID;
+	}
+	
+	public static int getStock(Goods _g) {
 		return stock.get(_g).get();
 	}
-	public int getAvPaidPrice(Goods _g) {
+	public static  int getAvPaidPrice(Goods _g) {
 		return avPrice.get(_g).get();
 	}
 	
-	public int getCredz() {
+	public static  int getCredz() {
 		return credz;
 	}
 	
-	public int getFreeCargo() {
+	public static int getFreeCargo() {
 		return ship.getCargo() - totalCargo;
 	}
 	
-	public int getWorth() {
+	public static int getWorth() {
 		int worth = credz;
 		worth += ship.getWorth();
 		for (Goods _g : Goods.values()) {
@@ -85,12 +90,12 @@ public class Player extends Actor {
 		return worth;
 	}
 	
-	public void modCredz(int _m) {
+	public static void modCredz(int _m) {
 		credz += _m;
 		updateTotals();
 	}
 	
-	public void updateTotals() {
+	public static void updateTotals() {
 		totalCargo = 0;
 		for (Goods _g : Goods.values()) {
 			totalCargo += stock.get(_g).get();
@@ -98,11 +103,11 @@ public class Player extends Actor {
 		RightBar.update();
 	}
 	
-	public int getTotalCargo() {
+	public static int getTotalCargo() {
 		return totalCargo;
 	}
 	
-	public void addStock(Goods _g, int _newStock, int _price_per_unit) {
+	public static void addStock(Goods _g, int _newStock, int _price_per_unit) {
 		final int _addingValue = _newStock * _price_per_unit;
 		final int _currentStock = stock.get(_g).get();
 		final int _currentValue = _currentStock * avPrice.get(_g).get();
@@ -114,23 +119,23 @@ public class Player extends Actor {
 		updateTotals();
 	}
 	
-	public void removeStock(Goods _g, int _amount) {
+	public static void removeStock(Goods _g, int _amount) {
 		if (stock.get(_g).addAndGet(-_amount) == 0) {	//Note sign flip
 			avPrice.get(_g).set(0);
 		}
 		updateTotals();
 	}
 	
-	public void setCredz(int _s) {
+	public static void setCredz(int _s) {
 		credz = _s;
 		updateTotals();
 	}
 
-	public Planet getPlanet() {
+	public static Planet getPlanet() {
 		return Starmap.getPlanet(currentLocationID);
 	}
 	
-	public Ship getShip() {
+	public static Ship getShip() {
 		return ship;
 	}
 	

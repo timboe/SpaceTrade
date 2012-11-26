@@ -7,21 +7,25 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.StarmapScreen;
 import com.timboe.spacetrade.utility.Utility;
 
 public class Starmap {
 	
-	private static int starBuffer = Textures.getStar().getWidth() * 2;
+	private static final int starBuffer = (int) Math.round((Textures.getStar().getWidth()/2f) * Math.sqrt(2)) * 2 ;
 	private static final int nPlanets = 128;
 	private static final float toLightYears = 4.2f;
-	private static Array<Planet> thePlanets = new Array<Planet>();
-	private static int starDate = 0;	
+	private static final Array<Planet> thePlanets = new Array<Planet>();
 	private static final float G = 1.03f; //lightyears per year per year
 	private static final float C = 1.f; //lightyear per year
 	public static final float SPEED = 500f;// for animation
 	
+	private static int starDate = 0;
+	private static float starDateGalaxy = 2048;
+	private static float starDateShip = 2048;
+	private static float remainder = 0;
 	private static int localPlanetID = -1;
 	private static IntArray localPlanets = new IntArray();
 	private static int localArrayLocation = 0;
@@ -34,7 +38,16 @@ public class Starmap {
 		return starDate;
 	}
 	
-	public static void newYear(int _n_years) {
+	public static void doTravelTime(float _galaxyTime, float _shipTime) {
+		starDateGalaxy += _galaxyTime;
+		starDateShip += _shipTime;
+		_galaxyTime += remainder; //take into account remainder from last time
+		//run on the sim
+		newYear((int) Math.floor(_galaxyTime));
+		remainder = (float) (_galaxyTime - Math.floor(_galaxyTime));
+	}
+	
+	private static void newYear(int _n_years) {
 		for (Planet _p : thePlanets) {
 			_p.newYear(_n_years);
 		}
@@ -46,8 +59,8 @@ public class Starmap {
 
 		int ID = 0;
 		while (thePlanets.size < getNPlanets()) {
-			int _x = Utility.getRandI( (int) (SpaceTrade.GAME_WIDTH  - (2 * starBuffer)) ) + starBuffer;
-			int _y = Utility.getRandI( (int) (SpaceTrade.GAME_HEIGHT - (2 * starBuffer)) ) + starBuffer;
+			int _x = Utility.getRandI( (int) (SpaceTrade.GAME_WIDTH  - starBuffer) ) + starBuffer/4;
+			int _y = Utility.getRandI( (int) (SpaceTrade.GAME_HEIGHT - starBuffer) ) + starBuffer/4;
 			//Check we're not too close
 			boolean tooClose = false;
 			for (Planet p : thePlanets) {
@@ -99,7 +112,7 @@ public class Starmap {
 	}
 	
 	public static int prevNearbyPlanet() {
-		if (Player.getPlayer().getPlanet().getID() != localPlanetID) {
+		if (Player.getPlanet().getID() != localPlanetID) {
 			recalculateNearbyPlanets();
 		}
 		--localArrayLocation;
@@ -108,7 +121,7 @@ public class Starmap {
 	}
 	
 	public static int nextNearbyPlanet() {
-		if (Player.getPlayer().getPlanet().getID() != localPlanetID) {
+		if (Player.getPlanet().getID() != localPlanetID) {
 			recalculateNearbyPlanets();
 		}
 		++localArrayLocation;
@@ -125,19 +138,19 @@ public class Starmap {
 	}
 	
 	private static void recalculateNearbyPlanets() {
-		localPlanetID = Player.getPlayer().getPlanet().getID();
+		localPlanetID = Player.getPlanet().getID();
 		localArrayLocation = 0;
 		localPlanets.clear();
 		for (Planet _p : thePlanets) {
 			if (_p.getID() == localPlanetID) continue;
-			if (_p.dst( getPlanet(localPlanetID) ) < Player.getPlayer().getShip().getRange()) {
+			if (_p.dst( getPlanet(localPlanetID) ) < Player.getShip().getRange()) {
 				localPlanets.add(_p.getID());
 			}
 		}
 	}
 	
 	private static void setNearbyPlanetFocus(int _ID) {
-		if (Player.getPlayer().getPlanet().getID() != localPlanetID) {
+		if (Player.getPlanet().getID() != localPlanetID) {
 			recalculateNearbyPlanets();
 		}
 		for (int i=0; i < localPlanets.size; ++i) {
@@ -159,6 +172,14 @@ public class Starmap {
 
 	public static Planet getRandomPlanet() {
 		return thePlanets.get( Utility.getRandI(getNPlanets()) );
+	}
+
+	public static String getStarDateDisplay() {
+		return String.format("%.2f", starDateGalaxy);
+	}
+	
+	public static String getShipDateDisplay() {
+		return String.format("%.2f", starDateShip);
 	}
 
 

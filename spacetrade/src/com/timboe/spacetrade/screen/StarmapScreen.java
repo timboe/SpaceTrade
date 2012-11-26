@@ -1,12 +1,9 @@
 package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -21,7 +18,6 @@ import com.timboe.spacetrade.world.Starmap;
 
 public class StarmapScreen extends SpaceTradeRender {
 	
-	private ShapeRenderer g2 = new ShapeRenderer();
 	private float offset = 0f;
 	private ParticleEffectPool effectPool;
 	private Array<PooledEffect> effects = new Array<PooledEffect>();
@@ -34,14 +30,14 @@ public class StarmapScreen extends SpaceTradeRender {
 	static boolean fullRefresh = false;
 	
 	public StarmapScreen() {
-		frontStage = new Stage(); //Uses front stage
+		secondaryStage = new Stage(); //Uses for clickable planets
 		
 		ParticleEffect pEffect = new ParticleEffect();
-		pEffect.load(Gdx.files.internal("data/galaxyEffect"), Gdx.files.internal("data/"));
+		pEffect.load(Gdx.files.internal("data/galaxyEffect3"), Gdx.files.internal("data/"));
 		effectPool = new ParticleEffectPool(pEffect, 50, 250);
 		
 		PooledEffect effect = effectPool.obtain();
-		effect.setPosition(0, 0);
+		effect.setPosition(0, 400);
 		effects.add(effect);		
 		
 		init();
@@ -57,29 +53,20 @@ public class StarmapScreen extends SpaceTradeRender {
 //		frontStage.addActor(Player.getPlayer());
 //	}
 	
-	
 	@Override
-	public void render(float delta) {
+	protected void renderBackground(float delta) {
 		BuyWindow.updateList(fullRefresh, planetClickedID);
 		fullRefresh = false;
 		
-		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
-		//modify camera!
-		//getStage().getCamera().translate(SpaceTrade.GAME_WIDTH/2, SpaceTrade.GAME_HEIGHT/2, 0);
-		//getStage().getCamera().rotate(delta, 0, 0, 1);
-		//getStage().getCamera().translate(-SpaceTrade.GAME_WIDTH/2, -SpaceTrade.GAME_HEIGHT/2, 0);
-
-		
-		Texture _gt = Textures.getGalaxyTexture();
-		spriteBatch.setProjectionMatrix(getStage().getCamera().combined);
-		//_sb.getProjectionMatrix().translate(0, Utility.GAME_HEIGHT, 0);
-		//_sb.getProjectionMatrix().rotate(0f, 0f, 1f, offset);
+		spriteBatch.setProjectionMatrix(stage.getCamera().combined);
 		spriteBatch.begin();
-		//_sb.draw(_gt,-1200, -Utility.GAME_HEIGHT - 70);
-		spriteBatch.draw(_gt,0,0);
-
+		spriteBatch.draw(Textures.getGalaxyTexture(), 0, 0);
+		spriteBatch.end();
+	}
+	
+	@Override
+	protected void renderFX(float delta) {
+		spriteBatch.begin();
 		for (int i = effects.size - 1; i >= 0; i--) {
 	        PooledEffect effect = effects.get(i);
 	        effect.draw(spriteBatch, delta);
@@ -90,9 +77,12 @@ public class StarmapScreen extends SpaceTradeRender {
 		}
 		spriteBatch.end();
 		
+		secondaryStage.act(delta);
+		secondaryStage.draw();
+		
 		if (SpaceTrade.debug == true) {
-			g2.setProjectionMatrix(getStage().getCamera().combined);
-			g2.begin(ShapeType.Circle);
+			g2.setProjectionMatrix(stage.getCamera().combined);
+			g2.begin(ShapeType.Rectangle);
 			g2.setColor(0f, 1f, 0f, 0f);
 			for (Planet _p : Starmap.getPlanets()) {
 				_p.drawBasic(g2);
@@ -103,7 +93,7 @@ public class StarmapScreen extends SpaceTradeRender {
 		//Draw range
 		final float _sx = Player.getPlayer().getX();
 		final float _sy = Player.getPlayer().getY();
-		final float _r = Player.getPlayer().getShip().getRange();
+		final float _r = Player.getShip().getRange();
 		final int _stepSize = 36; //degree
 		final float _miniStep = (float)_stepSize/8f;
 		for (int _step = 0; _step <= 360; _step += _stepSize) {
@@ -120,37 +110,33 @@ public class StarmapScreen extends SpaceTradeRender {
 					 _sy + (float)(_r * Math.sin( Math.toRadians( _offset + (3 * _miniStep) ) ))  );
 			g2.end();
 		}
-		
+	}
+	
+	@Override
+	public void renderForeground(float delta) {
 		if (planetClickedID >= 0 && Player.getPlayer().getActions().size == 0) {
 			leftTable.setVisible(true);
 		} else {
 			leftTable.setVisible(false);
 		}
 		
-		if (frontStage != null) {
-			frontStage.act(delta);
-			frontStage.draw();
-		}
 		stage.act(delta);
 		stage.draw();
-		Table.drawDebug(stage);
-
-	}	
-
+		if (SpaceTrade.debug == true) Table.drawDebug(stage);
+	}
+	
 	@Override 
 	public void show() {
 		BuyWindow.addToTable(leftTable);
 		BuyWindow.updateList(true, planetClickedID);
-		if (frontStage.getActors().size == 0) {
+		if (secondaryStage.getActors().size == 0) {
 			for (Planet _p : Starmap.getPlanets()) {
-				frontStage.addActor(_p);
+				secondaryStage.addActor(_p);
 			}
-			frontStage.addActor(Player.getPlayer());
+			secondaryStage.addActor(Player.getPlayer());
 		}
 		super.show();
 	}
-
-
 
 	public static int getPlanetClickedID() {
 		return planetClickedID;
@@ -245,72 +231,12 @@ public class StarmapScreen extends SpaceTradeRender {
 //	public void hide() {
 //		Gdx.input.setInputProcessor(null);
 //	}
-//
-//	@Override
-//	public void pause() {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void resume() {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
 //	@Override
 //	public void dispose() {
 //		Gdx.input.setInputProcessor(null);
 //		theStarmapRenderer.dispose();
 //	}
-//
-//	//Input processor
-//	@Override
-//	public boolean keyDown(int keycode) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean keyUp(int keycode) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean keyTyped(char character) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean touchDragged(int screenX, int screenY, int pointer) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean mouseMoved(int screenX, int screenY) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public boolean scrolled(int amount) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
+
 //
 //}
 

@@ -3,12 +3,15 @@ package com.timboe.spacetrade.render;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -21,6 +24,7 @@ import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.screen.StarmapScreen;
+import com.timboe.spacetrade.utility.ScreenFade;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 import com.timboe.spacetrade.world.TextButtonGoods;
@@ -48,7 +52,7 @@ public class BuyWindow {
 
 	private static void populateBuyWindow() {
 		
-		Skin _skin = Textures.getSkin();
+		final Skin _skin = Textures.getSkin();
 		
 		buyClick = new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
@@ -57,17 +61,34 @@ public class BuyWindow {
 				final int _amount = (int) sliderStock.get(_g).getValue();
 				final int _price_per_unit = curPlanet.getPrice(_g);
 				final int _price = _price_per_unit * _amount;
-				if (_price > Player.getPlayer().getCredz()) {
+				if (_price > Player.getCredz()) {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
+					new Dialog("Error", _skin, "dialog") {
+						protected void result (Object object) {
+							System.out.println("Chosen: " + object);
+						}
+					}.text("You don't have enough Credz for that!\nCost:"+_price+" Credz:"+Player.getCredz())
+					.button("OK", true)
+					.key(Keys.ENTER, true)
+					.key(Keys.ESCAPE, true)
+					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).stage);
 					return;
 				}
-				if (_amount > Player.getPlayer().getFreeCargo()) {
+				if (_amount > Player.getFreeCargo()) {
+					new Dialog("Error", _skin, "dialog") {
+						protected void result (Object object) {
+							System.out.println("Chosen: " + object);
+						}
+					}.text("You don't have enough cargo space to store all that!\nRequired:"+_amount+" available:"+Player.getFreeCargo()+"\nConsider purchasing a larger ship.")
+					.button("OK", true)
+					.key(Keys.ENTER, true)
+					.key(Keys.ESCAPE, true)
+					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).stage);
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient cargo holds!");
 					return;
 				}
-				
-				Player.getPlayer().modCredz(-_price); //note minus
-				Player.getPlayer().addStock(_g, _amount, _price_per_unit);
+				Player.modCredz(-_price); //note minus
+				Player.addStock(_g, _amount, _price_per_unit);
 				curPlanet.modStock(_g, -_amount); //note minus
 
 				updateList(true);
@@ -160,22 +181,27 @@ public class BuyWindow {
 		warp.getLabel().setFontScale(3);
 		warp.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				Gdx.app.log("warp","Click");
+				Gdx.app.log("WARP", "NativeHeap:"+Gdx.app.getNativeHeap()/1048576+" MB " +
+        		"JavaHeap:"+Gdx.app.getJavaHeap()/1048576+" MB");
 				//Here we go! get angle
 				final Planet _target = Starmap.getPlanet( StarmapScreen.getPlanetClickedID() );
 				final float _targetX = _target.getX() + _target.radius;
 				final float _targetY = _target.getY() + _target.radius;
 				final float _dY = _targetY - Player.getPlayer().getY();
 				final float _dX = _targetX - Player.getPlayer().getX();
-				final float _dist = Player.getPlayer().getPlanet().dst(_targetX, _targetY);
+				final float _dist = Player.getPlanet().dst(_targetX, _targetY);
 				final float _time = _dist / Starmap.SPEED;
+				final float acceleration = Player.getShip().getAcc();
 				float _a = (float) Math.toDegrees( Math.atan2(_dY, _dX) ) - 90f;
+				Starmap.doTravelTime(Starmap.getTravelTimeGalactic(curPlanet,targetPlanet,acceleration),
+						Starmap.getTravelTimeShip(curPlanet,targetPlanet,acceleration));
 				SequenceAction moveSequence = new SequenceAction();
 				moveSequence.addAction( Actions.rotateTo(_a, 1f) );
 				moveSequence.addAction( Actions.moveTo(_targetX, _targetY, _time) );
 				moveSequence.addAction( Actions.run(new Runnable() {
 			        public void run () {
 						Player.getPlayer().move( Starmap.getPlanet( StarmapScreen.getPlanetClickedID() ) );
+						ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().thePlanetScreen );
 						StarmapScreen.setPlanetClickedID(-1);
 			        }
 				}
@@ -202,13 +228,13 @@ public class BuyWindow {
 	public static void updateList(boolean _intial) {
 		if (planetClickedID < 0) return;
 		
-		curPlanet = Player.getPlayer().getPlanet();
+		curPlanet = Player.getPlanet();
 		targetPlanet = Starmap.getPlanet(planetClickedID);
 		
 		final String _titleStr = "Buying from "+curPlanet.getFullName();
 		buyWindow.setTitle(_titleStr);
 		buyWindow.setMovable(true);
-		final float acceleration = Player.getPlayer().getShip().getAcc();
+		final float acceleration = Player.getShip().getAcc();
 		final int _ly = (int) Math.floor( Starmap.getDistanceLightyear(curPlanet, targetPlanet) );
 		disclaimer.setText("Comparing prices to "+targetPlanet.getFullName()
 				+".\n Caution: Prices correct as of Stardate "+(Starmap.getStarDate() - _ly) 
@@ -237,7 +263,7 @@ public class BuyWindow {
 				labelRemotePrice.get(_g).setColor(0f, 1f, 0f, 1f);
 			}
 			
-			int _cargo = Player.getPlayer().getStock(_g);
+			int _cargo = Player.getStock(_g);
 			labelCargo.get(_g).setText( Integer.toString(_cargo) );
 
 			if (curPlanet.getSells(_g) == false) {
@@ -261,8 +287,8 @@ public class BuyWindow {
 				sliderStock.get(_g).setVisible(true);
 			}
 			
-			int canAffordPrice = (int)Math.floor( (float)Player.getPlayer().getCredz() / (float)_localPrice);
-			int canAffordSpace = Player.getPlayer().getFreeCargo();
+			int canAffordPrice = (int)Math.floor( (float)Player.getCredz() / (float)_localPrice);
+			int canAffordSpace = Player.getFreeCargo();
 			int canAfford = Math.min(canAffordPrice, canAffordSpace);
 			canAfford = Math.max(canAfford, 0);
 			if (_intial == true) {

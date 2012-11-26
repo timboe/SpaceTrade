@@ -14,18 +14,22 @@ import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.utility.ScreenFade;
+import com.timboe.spacetrade.world.Starmap;
 
 public class RightBar {
 
-	public static Table rightTable = null;
-	public static TextButton galaxyButton;
-	public static TextButton planetButton;
-	public static TextButton shipButton;
-	public static TextButton sellButton;
-	public static Label credz;
-	public static Label cargo;
-	
+	private static Table rightTable = null;
+	private static TextButton galaxyButton;
+	private static TextButton planetButton;
+	private static TextButton shipButton;
+	private static TextButton sellButton;
+	private static TextButton debugButton;
 
+	private static Label credz;
+	private static Label cargo;
+	private static Label timeUniverse;
+	private static Label timeShip;
 	
 	public static Table getRightBarTable() {
 		if (rightTable == null) {
@@ -42,6 +46,7 @@ public class RightBar {
 		planetButton.setTouchable(_t);
 		shipButton.setTouchable(_t);
 		sellButton.setTouchable(_t);
+		debugButton.setTouchable(_t);
 	}
 	
 	private static void populate() {
@@ -58,13 +63,15 @@ public class RightBar {
 		planetButton = new TextButton("WORLD",  skin.get("toggle", TextButtonStyle.class));
 		shipButton = new TextButton("SHIP",  skin.get("toggle", TextButtonStyle.class));
 		sellButton = new TextButton("SELL",  skin.get("toggle", TextButtonStyle.class));
-		ButtonGroup group = new ButtonGroup(galaxyButton, planetButton, shipButton, sellButton);
+		debugButton = new TextButton("DEBUG",  skin.get("toggle", TextButtonStyle.class));
+
+		ButtonGroup group = new ButtonGroup(galaxyButton, planetButton, shipButton, sellButton, debugButton);
 		group.setMaxCheckCount(1);
 				
 		galaxyButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theStarmap );
+				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theStarmap );
 				return false;
 			}
 		});
@@ -72,7 +79,7 @@ public class RightBar {
 		planetButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().thePlanetScreen );
+				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().thePlanetScreen );
 				return false;
 			}
 		});		
@@ -80,7 +87,7 @@ public class RightBar {
 		shipButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theShipScreen );
+				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theShipScreen );
 				return false;
 			}
 		});
@@ -88,7 +95,15 @@ public class RightBar {
 		sellButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				SpaceTrade.getSpaceTrade().setScreen( SpaceTrade.getSpaceTrade().theSellScreen  );
+				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theSellScreen  );
+				return false;
+			}
+		});
+		
+		debugButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				if (button != Buttons.LEFT) return false;
+				SpaceTrade.debug = !SpaceTrade.debug;
 				return false;
 			}
 		});
@@ -97,6 +112,10 @@ public class RightBar {
 		credz.setAlignment(Align.center);
 		cargo = new Label("", skin);
 		cargo.setAlignment(Align.center);
+		timeShip = new Label("", skin);
+		timeShip.setAlignment(Align.center);
+		timeUniverse = new Label("", skin);
+		timeUniverse.setAlignment(Align.center);
 		
 		rightTable.add(galaxyButton);
 		rightTable.row();
@@ -106,16 +125,24 @@ public class RightBar {
 		rightTable.row();		
 		rightTable.add(sellButton);
 		rightTable.row();		
+		rightTable.add(debugButton);
+		rightTable.row();		
 		rightTable.add(credz);
 		rightTable.row();
 		rightTable.add(cargo);
-
+		rightTable.row();
+		rightTable.add(timeShip);		
+		rightTable.row();
+		rightTable.add(timeUniverse);
 	}
 	
 	
 	public static void update() {
-		credz.setText("Credz:\n"+Player.getPlayer().getCredz());
-		cargo.setText("Cargo:\n"+Player.getPlayer().getTotalCargo()+"/"+Player.getPlayer().getShip().getCargo());
+		credz.setText("Credz:\n"+Player.getCredz());
+		cargo.setText("Cargo:\n"+Player.getTotalCargo()+"/"+Player.getShip().getCargo());
+		timeShip.setText("ShipYear:\n"+Starmap.getShipDateDisplay());
+		timeUniverse.setText("GalacticYear:\n"+Starmap.getStarDateDisplay());
+
 	}
 
 	

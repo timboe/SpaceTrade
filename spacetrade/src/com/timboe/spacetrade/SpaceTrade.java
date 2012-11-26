@@ -6,6 +6,7 @@ import com.timboe.spacetrade.screen.SellScreen;
 import com.timboe.spacetrade.screen.ShipScreen;
 import com.timboe.spacetrade.screen.StarmapScreen;
 import com.timboe.spacetrade.screen.TitleScreen;
+import com.timboe.spacetrade.render.Meshes;
 import com.timboe.spacetrade.render.Textures;
 
 public class SpaceTrade extends Game {
@@ -23,7 +24,7 @@ public class SpaceTrade extends Game {
 	public static final float GAME_HEIGHT = 800;
 	public static final float GAME_WIDTH = CAMERA_WIDTH - GUI_WIDTH;
 	
-	public static boolean debug = true;
+	public static boolean debug = false;
 	
 	private static SpaceTrade self;
 	public static SpaceTrade getSpaceTrade() {
@@ -40,9 +41,9 @@ public class SpaceTrade extends Game {
 		thePlanetScreen = new PlanetScreen();
 		theSellScreen = new SellScreen();
 		
-		Illumination2D i2d = new Illumination2D();
+//		Illumination2D i2d = new Illumination2D();
 		
-		setScreen(i2d);
+		setScreen(theTitle);
 	}
 	
 	@Override
@@ -53,6 +54,7 @@ public class SpaceTrade extends Game {
 		thePlanetScreen.dispose();
 		theSellScreen.dispose();
 		Textures.dispose();
+		Meshes.dispose();
 	}
 
 }

@@ -6,12 +6,12 @@ public class OneOffRandName extends RandName {
 	}
 
 	@Override
-	public String get() {
+	public String getStr() {
 		if (content.size() == 0) {
 			//System.out.println("Empty");
 			return "Empty";
 		}
-		return content.remove( rand.nextInt( content.size() ) );
+		return (String) content.remove( rand.nextInt( content.size() ) );
 	}
 
 

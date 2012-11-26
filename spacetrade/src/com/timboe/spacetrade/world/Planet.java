@@ -4,12 +4,14 @@ import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Array;
+import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
@@ -23,11 +25,12 @@ import com.timboe.spacetrade.utility.Utility;
 public class Planet extends Actor {
 		
 	private Vector2 v2 = new Vector2();
-	private String name = AdLib.getAdLib().planets.get();
+	private String name = AdLib.getAdLib().planets.getStr();
+	private Color colour =  AdLib.getAdLib().starColour.getCol();
 	private Government govType = Government.random();
 	private Civilisation civType = Civilisation.random();
 	private WorldSize worldSize = WorldSize.random();
-	private int diameter = (int) (Textures.getStar().getWidth() * worldSize.getSizeMod());
+	private int diameter = (int) (Textures.getStar().getWidth());
 	public int radius = Math.round(diameter/2f);
 	private int ID;
 	
@@ -39,31 +42,32 @@ public class Planet extends Actor {
 
 	//serialiser
 	public Planet() {
-		Gdx.app.log("Planet", "In Serealise Constructor");
-		setOrigin(0, 0);
-		setWidth(diameter);
-		setHeight(diameter);
-		setTouchable(Touchable.enabled);
-		
-		//Setup maps
-		for (Goods _g : Goods.values()) {
-			goodsSold.put(_g, new Boolean(true));
-			stock.put(_g, new AtomicInteger(Utility.getRandI(_g.getBaseAmount()))); //have up to base amount
-			stockTarget.put(_g, new AtomicInteger(_g.getBaseAmount())); 
-			volitility.put(_g, new AtomicInteger(20)); //base volatility in % //TODO check
-			price.put(_g, new Array<AtomicInteger>() );
-			price.get(_g).add( new AtomicInteger( _g.getBasePrice() ));
-		}
-		
-		//Setup planet 
-		refresh();
-		init();
+//		Gdx.app.log("Planet", "In Serealise Constructor");
+//		setOrigin(0, 0);
+//		//setWidth(diameter);
+//		//setHeight(diameter);
+//		scale(0.5f);
+//		setTouchable(Touchable.enabled);
+//		
+//		//Setup maps
+//		for (Goods _g : Goods.values()) {
+//			goodsSold.put(_g, new Boolean(true));
+//			stock.put(_g, new AtomicInteger(Utility.getRandI(_g.getBaseAmount()))); //have up to base amount
+//			stockTarget.put(_g, new AtomicInteger(_g.getBaseAmount())); 
+//			volitility.put(_g, new AtomicInteger(20)); //base volatility in % //TODO check
+//			price.put(_g, new Array<AtomicInteger>() );
+//			price.get(_g).add( new AtomicInteger( _g.getBasePrice() ));
+//		}
+//		
+//		//Setup planet 
+//		refresh();
+//		init();
 	}
 	
 	public Planet(int _x, int _y, int _ID) {
 		ID = _ID;
 		setPosition(_x, _y); //Actor
-		setOrigin(radius, radius);
+		//setOrigin(0, 0);
 		setWidth(diameter);
 		setHeight(diameter);
 		setTouchable(Touchable.enabled);
@@ -85,18 +89,23 @@ public class Planet extends Actor {
 	
 	public void refresh() {
 		//call on loading me
-		Sprites.getSprites().getPlanetSprite(ID).setScale(worldSize.getSizeMod());
-		Sprites.getSprites().getPlanetSprite(ID).setPosition(getX(), getY());
+		//Sprites.getSprites().getPlanetSprite(ID).setOrigin(getX()+radius, getY()+radius);
+		float scale = worldSize.getSizeMod();
+		Sprites.getSprites().getPlanetSprite(ID).setPosition((getX()+radius)-(radius*scale), (getY()+radius)-(radius*scale));
+		Sprites.getSprites().getPlanetSprite(ID).setSize(radius*scale*2, radius*scale*2);
+		Sprites.getSprites().getPlanetSprite(ID).setColor(colour);
 	}
 	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		Sprites.getSprites().getPlanetSprite(ID).draw(batch, parentAlpha);
-		Textures.getFont().draw(batch, name, getX(), getY() + (1.7f*diameter));
+		Textures.getFont().draw(batch, name, getX(), getY() + (1.1f*diameter));
 	}
 	
 	public void drawBasic(ShapeRenderer g2) {
-		g2.circle(getX()+radius, getY()+radius, radius);
+		g2.rect(getX(), getY(), getWidth(), getHeight());
+		g2.rect(getX() + radius - 1, getY() + radius - 1, 2, 2);
+
 	}
 	
 	private void init() {
@@ -126,11 +135,11 @@ public class Planet extends Actor {
 	
 	
 	public float dst(Planet _remote) {
-		return dst(_remote.getX() + _remote.radius, _remote.getY() + _remote.radius);
+		return dst(_remote.getX(), _remote.getY());
 	}
 	
 	public float dst(float _x, float _y) {
-		v2.set(getX() + radius, getY() + radius);
+		v2.set(getX(), getY());
 		return v2.dst(_x, _y);
 	}
 	

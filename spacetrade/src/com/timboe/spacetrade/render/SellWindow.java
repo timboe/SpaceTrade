@@ -39,7 +39,7 @@ public class SellWindow {
 	
 	public static void updateList(boolean _intial) {
 		
-		curPlanet = Player.getPlayer().getPlanet();
+		curPlanet = Player.getPlanet();
 		final String _titleStr = "Selling on "+curPlanet.getFullName();
 		sellWindow.setTitle(_titleStr);
 		for (Goods _g : Goods.values()) {
@@ -49,12 +49,12 @@ public class SellWindow {
 				sliderStock.get(_g).setTouchable(Touchable.disabled);
 				sliderStock.get(_g).setVisible(false);
 				labelPricePaid.get(_g).setText("---");
-				labelStock.get(_g).setText( Integer.toString(Player.getPlayer().getStock(_g)) );
+				labelStock.get(_g).setText( Integer.toString(Player.getStock(_g)) );
 				buttonSell.get(_g).setTouchable(Touchable.disabled);
 				buttonSell.get(_g).setVisible(false);
 				continue;
 			} else {
-				if (Player.getPlayer().getStock(_g) == 0) {
+				if (Player.getStock(_g) == 0) {
 					sliderStock.get(_g).setTouchable(Touchable.disabled);
 				} else {
 					sliderStock.get(_g).setTouchable(Touchable.enabled);
@@ -68,7 +68,7 @@ public class SellWindow {
 			labelPrice.get(_g).setText( Integer.toString(cost) );
 			
 			if (_intial == true) {
-				int toSell = Player.getPlayer().getStock(_g);
+				int toSell = Player.getStock(_g);
 				if (toSell == 0) {
 					sliderStock.get(_g).setRange(0, 1);
 					sliderStock.get(_g).setTouchable(Touchable.disabled);
@@ -79,7 +79,7 @@ public class SellWindow {
 				}
 			}
 			
-			int avPaid = Player.getPlayer().getAvPaidPrice(_g);
+			int avPaid = Player.getAvPaidPrice(_g);
 			if (avPaid == 0) {
 				labelPricePaid.get(_g).setColor(1f, 1f, 1f, 1f);
 				labelPricePaid.get(_g).setText("0");
@@ -109,10 +109,10 @@ public class SellWindow {
 				final Goods _g = ((TextButtonGoods)actor).getGoods();
 				final int _amount = (int) sliderStock.get(_g).getValue();
 				final int _profit = curPlanet.getPrice(_g) * _amount;
-				Player.getPlayer().modCredz(_profit);
-				Player.getPlayer().removeStock(_g, _amount);
+				Player.modCredz(_profit);
+				Player.removeStock(_g, _amount);
 				curPlanet.modStock(_g, _amount);
-				final int _remainingStock = Player.getPlayer().getStock(_g);
+				final int _remainingStock = Player.getStock(_g);
 				if (_remainingStock == 0) {
 					sliderStock.get(_g).setRange(0, 1);
 				} else {

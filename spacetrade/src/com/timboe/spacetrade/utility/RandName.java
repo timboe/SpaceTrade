@@ -3,20 +3,31 @@ package com.timboe.spacetrade.utility;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.badlogic.gdx.graphics.Color;
+
 public class RandName {
 	protected Random rand = new Random(1);
-	protected ArrayList<String> content = new ArrayList<String>();
+	protected ArrayList<Object> content = new ArrayList<Object>();
 	
 	public RandName() {
 	}
 	
-	public void add(String _s) {
+	public void addStr(String _s) {
 		content.add(_s);
 	}
 	
-	public String get() {
+	public void addCol(Color color) {
+		content.add(color);
+	}
+	
+	public String getStr() {
 		if (content.size() == 0) return "Empty";
-		return content.get( rand.nextInt( content.size() ) );
+		return (String) content.get( rand.nextInt( content.size() ) );
+	}
+	
+	public Color getCol() {
+		if (content.size() == 0) return new Color();
+		return (Color) content.get( rand.nextInt( content.size() ) );
 	}
 	
 	public int getSize() {

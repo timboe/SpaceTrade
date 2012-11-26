@@ -7,7 +7,6 @@ import java.text.MessageFormat;
 import java.util.Random;
  
 import com.badlogic.gdx.Application.ApplicationType;
-import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
@@ -113,7 +112,8 @@ public class Illumination2D implements Screen {
 		
         BitmapFont font;
        
-        private int texWidth, texHeight;
+        @SuppressWarnings("unused")
+		private int texWidth, texHeight;
        
         final String TEXT = "Use number keys to adjust parameters:\n" +
                         "1: Randomize Ambient Color\n" +
@@ -422,6 +422,7 @@ public class Illumination2D implements Screen {
 
 		@Override
 		public void show() {
+			
             // load our textures
             rock = new Texture(Gdx.files.internal("data/teapot.png"));
             rock_n = new Texture(Gdx.files.internal("data/teapot_n.png"));
