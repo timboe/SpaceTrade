@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -28,11 +29,12 @@ public class TitleScreen extends SpaceTradeRender {
 	private Texture texture;
 	//	List<Texture> modelTextures;
 //	ShaderProgram lightTexShader;
-	ShaderProgram texShader;
-	private float rotation = 0;
-
+	//private ShaderProgram texShader;
+	private ShaderProgram shader;
+	
 	public TitleScreen() {
 		
+		shader = Meshes.createShader();	
 		TextButton newGame = new TextButton("New Game", Textures.getSkin());
 		newGame.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
@@ -66,7 +68,7 @@ public class TitleScreen extends SpaceTradeRender {
 		texture = new Texture(Gdx.files.internal("data/sphereMesh.jpg"), Format.RGB565, true);
 		texture.setFilter(TextureFilter.MipMap, TextureFilter.Linear);
 		
-		texShader = new ShaderProgram(Gdx.files.internal("data/tex-vs.glsl"), Gdx.files.internal("data/tex-fs.glsl"));
+		//texShader = new ShaderProgram(Gdx.files.internal("data/tex-vs.glsl"), Gdx.files.internal("data/tex-fs.glsl"));
 
 		init();
 	}
@@ -81,26 +83,21 @@ public class TitleScreen extends SpaceTradeRender {
 	
 	@Override
 	protected void renderFX(float delta) {
-		rotation += delta;
-		
-		Matrix4 transform_FG = screenCam.combined.cpy();
-		transform_FG.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
-		transform_FG.translate(200, 0, 0);
-		transform_FG.rotate(1, 0, 0, -10);
-		transform_FG.rotate(0, 1, 0, rotation*10f);
-		
-//		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
-//		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
-		texture.bind();
-		texShader.begin();
-		texShader.setUniformi("u_diffuse", 0);
-		texShader.setUniformMatrix("u_projView", transform_FG);
-		Meshes.getPlanet(WorldSize.Medium).render(texShader, GL20.GL_TRIANGLES);
-		texShader.end();
-//		Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-        Gdx.gl.glDisable(GL20.GL_CULL_FACE);
-//		Gdx.gl.glDisable(GL20.GL_TEXTURE_2D);
+//		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
+//		Gdx.gl20.glEnable(GL20.GL_TEXTURE_2D);
+		transform_FX.rotate(0, 1, 0, delta*10f);
+		shader.begin();
+        Vector3 lightPos = new Vector3(0,0,0.005f);
+        lightPos.x = Gdx.input.getX();
+        lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        shader.setUniformf("light", lightPos);
+        shader.setUniformMatrix("u_projTrans", transform_FX);
+        Textures.getMoonNorm().bind(1);
+        Textures.getMoonTexture().bind(0);
+        Meshes.getPlanet(WorldSize.Medium).render(shader, GL20.GL_TRIANGLES);
+        shader.end();
+        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
 	}
 
 }

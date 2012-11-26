@@ -16,7 +16,8 @@ public class Textures {
 	private static final Texture bsTexture = new Texture(Gdx.files.internal("data/blackSquare.jpg"));
 	private static final Texture planetBlur = new Texture(Gdx.files.internal("data/planetBlur.png"));
 	private static final Array<Texture> starscapes = new Array<Texture>(5);
-
+	private static final Texture moonTex =  new Texture(Gdx.files.internal("data/moonTex.jpg"));
+	private static final Texture moonNorm =  new Texture(Gdx.files.internal("data/moonNormal.jpg"));
 	
 	public static Texture getStar() {
 		if (starTexture == null) {
@@ -63,6 +64,8 @@ public class Textures {
 		for (Texture t : starscapes) {
 			t.dispose();
 		}
+		moonTex.dispose();
+		moonNorm.dispose();
 	}
 
 	public static Texture getBlackSquare() {
@@ -73,6 +76,13 @@ public class Textures {
 		return planetBlur;
 	}
 	
+	public static Texture getMoonTexture() {
+		return moonTex;
+	}
+	
+	public static Texture getMoonNorm() {
+		return moonNorm;
+	}
 	
 	
 }
