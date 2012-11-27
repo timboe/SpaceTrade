@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
-import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.StarmapScreen;
 import com.timboe.spacetrade.utility.Utility;

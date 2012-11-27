@@ -167,6 +167,10 @@ public class SpaceTradeRender implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);		
 	}
 	
+	public Stage getStage() {
+		return stage;
+	}
+	
 	public void resize (int width, int height) {
 		Gdx.app.log("Resize", "ReSize in Render ["+this+"] ("+width+","+height+")");
 		stage.setViewport(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT, true);

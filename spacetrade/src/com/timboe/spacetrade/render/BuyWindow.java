@@ -3,20 +3,18 @@ package com.timboe.spacetrade.render;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -24,6 +22,7 @@ import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.screen.StarmapScreen;
+import com.timboe.spacetrade.utility.Help;
 import com.timboe.spacetrade.utility.ScreenFade;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
@@ -63,27 +62,11 @@ public class BuyWindow {
 				final int _price = _price_per_unit * _amount;
 				if (_price > Player.getCredz()) {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
-					new Dialog("Error", _skin, "dialog") {
-						protected void result (Object object) {
-							System.out.println("Chosen: " + object);
-						}
-					}.text("You don't have enough Credz for that!\nCost:"+_price+"\nCredz:"+Player.getCredz())
-					.button("OK", true)
-					.key(Keys.ENTER, true)
-					.key(Keys.ESCAPE, true)
-					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).stage);
+					Help.errorOK("You don't have enough Credz for that!\nCost:"+_price+"\nCredz:"+Player.getCredz());
 					return;
 				}
 				if (_amount > Player.getFreeCargo()) {
-					new Dialog("Error", _skin, "dialog") {
-						protected void result (Object object) {
-							System.out.println("Chosen: " + object);
-						}
-					}.text("You don't have enough cargo space to store all that!\nRequired Space:"+_amount+"\nAvailable Space:"+Player.getFreeCargo()+"\nConsider purchasing a larger ship.")
-					.button("OK", true)
-					.key(Keys.ENTER, true)
-					.key(Keys.ESCAPE, true)
-					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).stage);
+					Help.errorOK("You don't have enough cargo space to store all that!\nRequired Space:"+_amount+"\nAvailable Space:"+Player.getFreeCargo()+"\nConsider purchasing a larger ship.");
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient cargo holds!");
 					return;
 				}
@@ -99,7 +82,7 @@ public class BuyWindow {
 		if (SpaceTrade.debug == true) buyWindow.debug();
 		Table innerTable = new Table();
 		if (SpaceTrade.debug == true) innerTable.debug();
-		innerTable.defaults().pad(2);
+		innerTable.defaults().pad(5);
 		
 		Label titleLabelA = new Label("GOODS", _skin);
 		Label titleLabelB = new Label("LOCAL PRICE\nPER UNIT", _skin);
@@ -144,12 +127,12 @@ public class BuyWindow {
 			labelCargo.put(_g, temp);
 			innerTable.add( temp ).width(50);	
 			
-			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin, _g);
+			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(buyClick);
 			buttonBuy.put(_g, buttonTemp);
 			innerTable.add( buttonTemp );	
 			
-			innerTable.row().height(50);
+			innerTable.row();
 		}
 		
 		buyWindow.add(innerTable).colspan(4);

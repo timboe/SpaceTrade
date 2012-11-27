@@ -3,17 +3,16 @@ package com.timboe.spacetrade.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap.Filter;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.WorldSize;
@@ -45,7 +44,7 @@ public class TitleScreen extends SpaceTradeRender {
 		ShaderProgram.pedantic = false; // Useful when debugging this test
 		
 		shader = Meshes.createShader();	
-		TextButton newGame = new TextButton("New Game", Textures.getSkin());
+		TextButton newGame = new TextButton("New Game", Textures.getSkin().get("large",TextButtonStyle.class));
 		newGame.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				RightBar.setTouchable(Touchable.enabled);
@@ -58,7 +57,7 @@ public class TitleScreen extends SpaceTradeRender {
 			}
 		});
 		
-		TextButton resumeGame = new TextButton("Resume Game", Textures.getSkin());
+		TextButton resumeGame = new TextButton("Resume Game", Textures.getSkin().get("large",TextButtonStyle.class));
 		resumeGame.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				//RightBar.setTouchable(Touchable.enabled);
@@ -127,7 +126,7 @@ public class TitleScreen extends SpaceTradeRender {
 	@Override
 	protected void renderFX(float delta) {
 		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
-		transform_FX.rotate(0, 1, 0, delta*10f);
+		transform_FX.rotate(0, 1, 0, delta);
 		shader.begin();
         Vector3 lightPos = new Vector3(0,0,0.005f);
         lightPos.x = Gdx.input.getX();

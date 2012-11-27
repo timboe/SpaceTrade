@@ -13,6 +13,11 @@ public class TextButtonGoods extends TextButton {
 		goods = _g;
 	}
 	
+	public TextButtonGoods(String text, TextButtonStyle textButtonStyle, Goods _g) {
+		super(text, textButtonStyle);
+		goods = _g;
+	}
+
 	public Goods getGoods() {
 		return goods;
 	}

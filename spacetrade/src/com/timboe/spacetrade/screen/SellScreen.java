@@ -49,7 +49,7 @@ public class SellScreen extends SpaceTradeRender {
 //		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
 //		Gdx.gl20.glEnable(GL20.GL_TEXTURE_2D);
-		transform_FX.rotate(0, 1, 0, delta*10f);
+		transform_FX.rotate(0, 1, 0, delta);
 		shader.begin();
 	    Vector3 lightPos = new Vector3(0,0,0.005f);
 	    lightPos.x = Gdx.input.getX();

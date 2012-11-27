@@ -5,16 +5,20 @@ import java.util.EnumMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.utility.Help;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.TextButtonGoods;
 
@@ -24,6 +28,7 @@ public class SellWindow {
 	private static final EnumMap<Goods, Slider> sliderStock = new EnumMap<Goods, Slider>(Goods.class);
 	private static final EnumMap<Goods, Label> labelStock = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, TextButton> buttonSell = new EnumMap<Goods, TextButton>(Goods.class);
+
 	private static Window sellWindow = null;
 	private static boolean sellWindowPopulated = false;
 
@@ -137,16 +142,24 @@ public class SellWindow {
 		Label titleLabelC = new Label("PROFIT PER\nUNIT", _skin);
 		titleLabelC.setAlignment(Align.center);
 		Label titleLabelD = new Label("STOCK", _skin);
-		Label titleLabelE = new Label("SELL", _skin);
+		//Label titleLabelE = new Label("SELL", _skin);
 		
-		sellWindow.defaults().pad(10);
-		sellWindow.add(titleLabelA);
+		sellWindow.defaults().pad(5);
+		sellWindow.add(titleLabelA).colspan(2);
 		sellWindow.add(titleLabelB);
 		sellWindow.add(titleLabelC);
 		sellWindow.add(titleLabelD).colspan(2);
-		sellWindow.add(titleLabelE);
+		//sellWindow.add(titleLabelE);
 		sellWindow.row();
-		for (Goods _g : Goods.values()) {
+		for (final Goods _g : Goods.values()) {
+			ImageButton tempIButton = new ImageButton(_skin.get("info", ImageButtonStyle.class));
+			tempIButton.addCaptureListener( new  ChangeListener() {
+				public void changed (ChangeEvent event, Actor actor) {
+					Gdx.app.log("InfoButton","Interact:"+event.toString());
+					Help.help(_g);
+				}
+			});
+			sellWindow.add( tempIButton );
 			sellWindow.add( new Label( _g.toDisplayString(), _skin ) );
 			
 			Label temp = new Label( "10", _skin );
@@ -165,7 +178,7 @@ public class SellWindow {
 			labelStock.put(_g, temp);
 			sellWindow.add( temp ).width(50);	
 			
-			TextButtonGoods buttonTemp = new TextButtonGoods("SELL", _skin, _g);
+			TextButtonGoods buttonTemp = new TextButtonGoods("SELL", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(sellClik);
 			buttonSell.put(_g, buttonTemp);
 			sellWindow.add( buttonTemp );	
