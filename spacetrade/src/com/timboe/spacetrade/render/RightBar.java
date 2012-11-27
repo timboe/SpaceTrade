@@ -5,10 +5,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.SpaceTrade;
@@ -20,10 +22,10 @@ import com.timboe.spacetrade.world.Starmap;
 public class RightBar {
 
 	private static Table rightTable = null;
-	private static TextButton galaxyButton;
-	private static TextButton planetButton;
-	private static TextButton shipButton;
-	private static TextButton sellButton;
+	private static ImageButton galaxyButton;
+	private static ImageButton planetButton;
+	private static ImageButton shipButton;
+	private static ImageButton sellButton;
 	private static TextButton debugButton;
 
 	private static Label credz;
@@ -59,11 +61,11 @@ public class RightBar {
 
 //		final TextButton galaxyButton = new TextButton("GALAXY", skin.get("toggle", TextButtonStyle.class));
 		
-		galaxyButton = new TextButton("GALAXY",  skin.get("toggle", TextButtonStyle.class));
-		planetButton = new TextButton("WORLD",  skin.get("toggle", TextButtonStyle.class));
-		shipButton = new TextButton("SHIP",  skin.get("toggle", TextButtonStyle.class));
-		sellButton = new TextButton("SELL",  skin.get("toggle", TextButtonStyle.class));
-		debugButton = new TextButton("DEBUG",  skin.get("toggle", TextButtonStyle.class));
+		galaxyButton = new ImageButton(skin.get("galaxy", ImageButtonStyle.class));
+		planetButton = new ImageButton(skin.get("planet", ImageButtonStyle.class));
+		shipButton = new ImageButton(skin.get("ship", ImageButtonStyle.class));
+		sellButton = new ImageButton(skin.get("sell", ImageButtonStyle.class));
+		debugButton = new TextButton("DEBUG",skin);
 
 		ButtonGroup group = new ButtonGroup(galaxyButton, planetButton, shipButton, sellButton, debugButton);
 		group.setMaxCheckCount(1);
@@ -139,9 +141,9 @@ public class RightBar {
 	
 	public static void update() {
 		credz.setText("Credz:\n"+Player.getCredz());
-		cargo.setText("Cargo:\n"+Player.getTotalCargo()+"/"+Player.getShip().getCargo());
+		cargo.setText("Cargo:\n"+Player.getTotalCargo()+"/"+Player.getShip().getMaxCargo());
 		timeShip.setText("ShipYear:\n"+Starmap.getShipDateDisplay());
-		timeUniverse.setText("GalacticYear:\n"+Starmap.getStarDateDisplay());
+		timeUniverse.setText("Galactic\nYear:\n"+Starmap.getStarDateDisplay());
 
 	}
 

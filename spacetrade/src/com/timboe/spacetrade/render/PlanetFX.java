@@ -3,6 +3,7 @@ package com.timboe.spacetrade.render;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,7 +19,7 @@ public class PlanetFX {
 	static final Array<Texture> planetTexture = new Array<Texture>(Starmap.getNPlanets());
 	static final Array<Texture> planetNormals = new Array<Texture>(Starmap.getNPlanets());
 	static final Array<Color> planetLandColour = new Array<Color>(Starmap.getNPlanets());
-	static final Random worldRand = new Random(0);
+	static final Random worldRand = new Random(Utility.masterSeed * 3);
 	
 	static float persistence = 0f;
 	static float frequency = 0f;
@@ -59,6 +60,13 @@ public class PlanetFX {
 			planetLandColour.add(null);
 			//generatePlanet(i); //Only to test memory usage
 		}
+        if (Gdx.app.getType() == ApplicationType.Android) {
+        	maxU = 512;
+        	maxV = 256;
+        } else {
+        	maxU = 1024;
+        	maxV = 512;
+        }
 	}
 
 	private static void generatePlanet(int _planetId) {

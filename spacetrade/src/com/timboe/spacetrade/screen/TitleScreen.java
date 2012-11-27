@@ -3,11 +3,13 @@ package com.timboe.spacetrade.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Pixmap.Filter;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -17,7 +19,6 @@ import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Meshes;
-import com.timboe.spacetrade.render.PlanetFX;
 import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.utility.ScreenFade;
@@ -26,13 +27,22 @@ import com.timboe.spacetrade.render.Textures;
 
 public class TitleScreen extends SpaceTradeRender {
 	
-	private Texture texture;
-	//	List<Texture> modelTextures;
-//	ShaderProgram lightTexShader;
-	//private ShaderProgram texShader;
 	private ShaderProgram shader;
+	private BitmapFont distanceFieldFont;
+	//Texture distanceFieldTexture;
+	
+
 	
 	public TitleScreen() {
+		
+		//font test
+		Texture distanceFieldTexture = new Texture(Gdx.files.internal("data/skin/distancefield32verdana.png"), true);
+		distanceFieldTexture.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
+		distanceFieldFont = new BitmapFont(Gdx.files.internal("data/skin/distancefield32verdana.fnt"), new TextureRegion(distanceFieldTexture), true);
+		distanceFieldFont.setColor(Color.WHITE);
+		
+		
+		ShaderProgram.pedantic = false; // Useful when debugging this test
 		
 		shader = Meshes.createShader();	
 		TextButton newGame = new TextButton("New Game", Textures.getSkin());
@@ -63,13 +73,7 @@ public class TitleScreen extends SpaceTradeRender {
 		leftTable.row();
 		leftTable.add(resumeGame).width(400).height(50);
 		
-		RightBar.setTouchable(Touchable.disabled);
-
-		texture = new Texture(Gdx.files.internal("data/sphereMesh.jpg"), Format.RGB565, true);
-		texture.setFilter(TextureFilter.MipMap, TextureFilter.Linear);
-		
-		//texShader = new ShaderProgram(Gdx.files.internal("data/tex-vs.glsl"), Gdx.files.internal("data/tex-fs.glsl"));
-
+		RightBar.setTouchable(Touchable.disabled);		
 		init();
 	}
 	
@@ -81,11 +85,48 @@ public class TitleScreen extends SpaceTradeRender {
 		spriteBatch.end();
 	}
 	
+	
+//	@Override
+//	public void render(float delta) {
+//		renderClear(delta);
+//		
+//		BitmapFont font2 = new BitmapFont();
+//        
+//        spriteBatch.setProjectionMatrix(transform_BG);
+//        spriteBatch.begin();
+//		spriteBatch.setShader(distanceFieldShader);
+//
+//		float mod = 1;
+//		
+//
+//		float scale = 0.5f;
+//		distanceFieldFont.setScale(scale);
+//		distanceFieldShader.setSmoothing((1f/8f) / (scale/mod));
+//		distanceFieldFont.draw(spriteBatch, "BLAA :)", 50, 100);
+//
+//		scale = 1f;
+//		distanceFieldFont.setScale(scale);
+//		distanceFieldShader.setSmoothing((1f/8f) / (scale/mod));
+//		distanceFieldFont.draw(spriteBatch, "BLAA :)", 50, 150);
+//
+//		scale = 2f;
+//		distanceFieldFont.setScale(scale);
+//		distanceFieldShader.setSmoothing((1f/8f) / (scale/mod));
+//		distanceFieldFont.draw(spriteBatch, "BLAA :)", 50, 200);
+//
+//		scale = 4f;
+//		distanceFieldFont.setScale(scale);
+//		distanceFieldShader.setSmoothing((1f/8f) / (scale/mod));
+//		distanceFieldFont.draw(spriteBatch, "BLAA :)", 50, 250);
+//
+//		
+//		font2.draw(spriteBatch, "BLOO :(", 500, 200);
+//        spriteBatch.end();
+//	}
+	
 	@Override
 	protected void renderFX(float delta) {
-//		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
-//		Gdx.gl20.glEnable(GL20.GL_TEXTURE_2D);
 		transform_FX.rotate(0, 1, 0, delta*10f);
 		shader.begin();
         Vector3 lightPos = new Vector3(0,0,0.005f);
@@ -97,7 +138,7 @@ public class TitleScreen extends SpaceTradeRender {
         Textures.getMoonTexture().bind(0);
         Meshes.getPlanet(WorldSize.Medium).render(shader, GL20.GL_TRIANGLES);
         shader.end();
-        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
+        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);        
 	}
 
 }

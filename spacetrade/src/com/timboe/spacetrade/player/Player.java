@@ -32,7 +32,7 @@ public class Player extends Actor {
 	}
 
 	public Player() { //Only to be called externally when loading a game!
-		ship = new Ship(ShipTemplate.Player, ShipClass.ClassB);
+		ship = new Ship(ShipTemplate.Player, ShipClass.Starting);
 		currentLocationID = Utility.getRandI( Starmap.getNPlanets() );
 		setOrigin(Sprites.getSprites().getPlayerSprite().getWidth()/2f, Sprites.getSprites().getPlayerSprite().getHeight()/2f);
 		
@@ -78,7 +78,7 @@ public class Player extends Actor {
 	}
 	
 	public static int getFreeCargo() {
-		return ship.getCargo() - totalCargo;
+		return ship.getMaxCargo() - totalCargo;
 	}
 	
 	public static int getWorth() {

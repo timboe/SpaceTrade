@@ -79,8 +79,9 @@ public class StarmapScreen extends SpaceTradeRender {
 		
 		secondaryStage.act(delta);
 		secondaryStage.draw();
-		
+	
 		if (SpaceTrade.debug == true) {
+			Table.drawDebug(secondaryStage);
 			g2.setProjectionMatrix(stage.getCamera().combined);
 			g2.begin(ShapeType.Rectangle);
 			g2.setColor(0f, 1f, 0f, 0f);

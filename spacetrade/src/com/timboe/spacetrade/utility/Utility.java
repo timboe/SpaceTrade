@@ -3,8 +3,11 @@ package com.timboe.spacetrade.utility;
 import java.util.Random;
 
 public class Utility {	
-	private static final Random rand = new Random(0);
+	public static final int masterSeed = 2;
+	private static final Random rand = new Random(masterSeed);
 
+	
+	
 	public static float getRandF() {
 		return rand.nextFloat();
 	}

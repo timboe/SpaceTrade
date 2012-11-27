@@ -34,6 +34,8 @@ public class SellWindow {
 		if (sellWindowPopulated == true) return;
 		sellWindowPopulated = true;
 		populateSellWindow();
+		leftTable.pad(50);
+		leftTable.align(Align.left);
 		leftTable.add(sellWindow);
 	}
 	
@@ -65,7 +67,7 @@ public class SellWindow {
 			}
 			
 			int cost = curPlanet.getPrice(_g);
-			labelPrice.get(_g).setText( Integer.toString(cost) );
+			labelPrice.get(_g).setText( "$" + Integer.toString(cost) );
 			
 			if (_intial == true) {
 				int toSell = Player.getStock(_g);

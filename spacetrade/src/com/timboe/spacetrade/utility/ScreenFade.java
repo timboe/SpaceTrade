@@ -11,7 +11,7 @@ public class ScreenFade {
 	static SpaceTradeRender currentScreen;
 	static SpaceTradeRender newScreen;
 
-	static final float speed = 0.5f;
+	static final float speed = 0.25f;
 	
 	private enum Fade {fadingIn,fadeOut,fadingOut,none;}
 	static Fade fade = Fade.none;

@@ -5,48 +5,57 @@ import java.util.ArrayList;
 import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipProperty;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
-import com.timboe.spacetrade.munitions.Weapon;
+import com.timboe.spacetrade.equipment.Equipment;
+import com.timboe.spacetrade.equipment.Weapon;
 
 public class Ship {
 	
 	ShipProperty property;
-	ArrayList<Weapon> weapon_loadout = new ArrayList<Weapon>();
-	private int range = 100;
-	private float acceleration = 5;
-	private int cargo = 10;
-	private int worth = 10000;
+	ShipClass shipClass;
+	ArrayList<Weapon> weaponLoadout = new ArrayList<Weapon>();
+	ArrayList<Equipment> techLoadout = new ArrayList<Equipment>();
+
+	private float hull;
+	private float heat;
+	private float sheilding;
 	
-	public Ship() {
-	}
+	private float acceleration = 5;
 	
 	public Ship(ShipTemplate _st) {
 		
 	}
 	
 	public Ship(ShipTemplate _st, ShipClass _sc) {
-		
+		shipClass = _sc;
+		hull = shipClass.getMaxHull();
+		heat = 0f;
+		sheilding = 0f;
 	}
 	
 	public void fireAt(Ship _s) {
-		for (Weapon _w : weapon_loadout) {
+		for (Weapon _w : weaponLoadout) {
 			_w.attackShip(_s);
 		}
 	}
 	
 	public int getRange() {
-		return range;
+		return shipClass.getRange();
 	}
 	
 	public float getAcc() {
 		return acceleration;
 	}
 	
-	public int getCargo() {
-		return cargo;
+	public int getMaxCargo() {
+		return shipClass.getMaxCargo();
 	}
 
 	public int getWorth() {
 		// TODO add equipment
+		int worth = shipClass.getCost();
+		for (Weapon _w : weaponLoadout) {
+			worth += _w.getCost();
+		}
 		return worth;
 	}
 }

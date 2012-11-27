@@ -67,7 +67,7 @@ public class BuyWindow {
 						protected void result (Object object) {
 							System.out.println("Chosen: " + object);
 						}
-					}.text("You don't have enough Credz for that!\nCost:"+_price+" Credz:"+Player.getCredz())
+					}.text("You don't have enough Credz for that!\nCost:"+_price+"\nCredz:"+Player.getCredz())
 					.button("OK", true)
 					.key(Keys.ENTER, true)
 					.key(Keys.ESCAPE, true)
@@ -79,7 +79,7 @@ public class BuyWindow {
 						protected void result (Object object) {
 							System.out.println("Chosen: " + object);
 						}
-					}.text("You don't have enough cargo space to store all that!\nRequired:"+_amount+" available:"+Player.getFreeCargo()+"\nConsider purchasing a larger ship.")
+					}.text("You don't have enough cargo space to store all that!\nRequired Space:"+_amount+"\nAvailable Space:"+Player.getFreeCargo()+"\nConsider purchasing a larger ship.")
 					.button("OK", true)
 					.key(Keys.ENTER, true)
 					.key(Keys.ESCAPE, true)
@@ -99,7 +99,7 @@ public class BuyWindow {
 		if (SpaceTrade.debug == true) buyWindow.debug();
 		Table innerTable = new Table();
 		if (SpaceTrade.debug == true) innerTable.debug();
-		innerTable.defaults().pad(5);
+		innerTable.defaults().pad(2);
 		
 		Label titleLabelA = new Label("GOODS", _skin);
 		Label titleLabelB = new Label("LOCAL PRICE\nPER UNIT", _skin);
@@ -149,7 +149,7 @@ public class BuyWindow {
 			buttonBuy.put(_g, buttonTemp);
 			innerTable.add( buttonTemp );	
 			
-			innerTable.row();
+			innerTable.row().height(50);
 		}
 		
 		buyWindow.add(innerTable).colspan(4);

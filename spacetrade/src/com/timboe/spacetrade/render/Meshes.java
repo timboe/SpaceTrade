@@ -27,9 +27,9 @@ public class Meshes {
 	}
 
 	public static void dispose() {
-		planetSmall.dispose();
-		planetMedium.dispose();
-		planetLarge.dispose();
+		if (planetSmall != null) planetSmall.dispose();
+		if (planetMedium != null) planetMedium.dispose();
+		if (planetLarge != null) planetLarge.dispose();
 	}
 	
 	private static void init() {

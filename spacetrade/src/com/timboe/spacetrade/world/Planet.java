@@ -88,18 +88,18 @@ public class Planet extends Actor {
 	}
 	
 	public void refresh() {
-		//call on loading me
-		//Sprites.getSprites().getPlanetSprite(ID).setOrigin(getX()+radius, getY()+radius);
 		float scale = worldSize.getSizeMod();
 		Sprites.getSprites().getPlanetSprite(ID).setPosition((getX()+radius)-(radius*scale), (getY()+radius)-(radius*scale));
 		Sprites.getSprites().getPlanetSprite(ID).setSize(radius*scale*2, radius*scale*2);
 		Sprites.getSprites().getPlanetSprite(ID).setColor(colour);
 	}
 	
+	static boolean ONCE = false;
+	
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		Sprites.getSprites().getPlanetSprite(ID).draw(batch, parentAlpha);
-		Textures.getFont().draw(batch, name, getX(), getY() + (1.1f*diameter));
+		Textures.getOutlineFont().draw(batch, name, getX() - radius/2, getY() + (1.2f*diameter));
 	}
 	
 	public void drawBasic(ShapeRenderer g2) {

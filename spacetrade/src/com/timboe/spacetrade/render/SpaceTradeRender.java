@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -34,6 +36,25 @@ public class SpaceTradeRender implements Screen {
 	
 	protected Matrix4 transform_BG;
 	protected Matrix4 transform_FX;
+	
+	protected DistanceFieldShader distanceFieldShader;
+	public static class DistanceFieldShader extends ShaderProgram {
+		public DistanceFieldShader () {
+			super(
+				Gdx.files.internal("data/skin/distanceField.vert"),
+				Gdx.files.internal("data/skin/distanceField.frag"));
+			if (!isCompiled()) {
+				throw new RuntimeException("Shader compilation failed:\n" + getLog());
+			}
+		}
+		
+		/** @param smoothing a value between 0 and 1 */
+		public void setSmoothing(float smoothing) {
+			float delta = 0.5f * MathUtils.clamp(smoothing, 0, 1);
+			setUniformf("u_lower", 0.5f - delta);
+			setUniformf("u_upper", 0.5f + delta);
+		}
+	}
 
 	public Image getBlackSquare() {
 		return blackSquare;
@@ -45,7 +66,10 @@ public class SpaceTradeRender implements Screen {
 		masterTable.align(Align.bottom | Align.left);
 		masterTable.setSize(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT);
 		
+		//distanceFieldShader = new DistanceFieldShader();
+		//distanceFieldShader.setSmoothing((1/8f) / 2f);
 		stage = new Stage();
+		//stage.getSpriteBatch().setShader(distanceFieldShader);
 
 		leftTable = new Table();
 		if (SpaceTrade.debug == true) leftTable.debug();
@@ -56,6 +80,9 @@ public class SpaceTradeRender implements Screen {
 		blackSquare.addAction( Actions.fadeOut(0));
 		blackSquare.act(1);
 		blackSquare.setSize(500, 500);
+		
+
+		
 		
 		//init(); should be caller after superclass constructor
 	}
@@ -96,7 +123,6 @@ public class SpaceTradeRender implements Screen {
 	}
 	
 	public void render(float delta) {
-		//delta = Math.max(delta, 30);
 		renderClear(delta);
 		renderBackground(delta);
 		renderFX(delta);
@@ -155,7 +181,7 @@ public class SpaceTradeRender implements Screen {
 		transform_FX = screenCam.combined.cpy();
 		transform_FX.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
 		transform_FX.translate(200, 0, 0);
-		transform_FX.rotate(1, 0, 0, -10f);
+		transform_FX.rotate(1, 0, 0, -15f);
 	
 		if (secondaryStage != null) {
 			secondaryStage.setCamera(stage.getCamera());

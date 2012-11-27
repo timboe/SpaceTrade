@@ -16,7 +16,7 @@ public class Starmap {
 	
 	private static final int starBuffer = (int) Math.round((Textures.getStar().getWidth()/2f) * Math.sqrt(2)) * 2 ;
 	private static final int nPlanets = 128;
-	private static final float toLightYears = 4.2f;
+	public static final float toLightYears = 4.2f;
 	private static final Array<Planet> thePlanets = new Array<Planet>();
 	private static final float G = 1.03f; //lightyears per year per year
 	private static final float C = 1.f; //lightyear per year

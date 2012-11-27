@@ -1,9 +1,9 @@
-package com.timboe.spacetrade.munitions;
+package com.timboe.spacetrade.equipment;
 
 import com.timboe.spacetrade.enumerator.WeaponClass;
 import com.timboe.spacetrade.ship.Ship;
 
-public class Weapon {
+public class Weapon extends Equipment {
 
 	protected final String name;
 	protected final WeaponClass weaponClass;

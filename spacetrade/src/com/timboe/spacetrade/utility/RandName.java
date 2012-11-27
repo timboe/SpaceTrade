@@ -6,7 +6,7 @@ import java.util.Random;
 import com.badlogic.gdx.graphics.Color;
 
 public class RandName {
-	protected Random rand = new Random(1);
+	protected Random rand = new Random(Utility.masterSeed * 2);
 	protected ArrayList<Object> content = new ArrayList<Object>();
 	
 	public RandName() {
