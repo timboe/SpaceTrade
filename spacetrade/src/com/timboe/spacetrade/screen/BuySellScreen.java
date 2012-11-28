@@ -12,12 +12,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.player.Player;
-import com.timboe.spacetrade.render.BuyWindow;
 import com.timboe.spacetrade.render.Meshes;
 import com.timboe.spacetrade.render.PlanetFX;
-import com.timboe.spacetrade.render.SellWindow;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.windows.BuyWindow;
+import com.timboe.spacetrade.windows.SellWindow;
 
 public class BuySellScreen extends SpaceTradeRender {
 	
@@ -95,6 +95,8 @@ public class BuySellScreen extends SpaceTradeRender {
 	@Override 
 	public void show() {
 		leftTable.clear();
+		leftTable.padLeft(50);
+		leftTable.align(Align.left);
 		if (doBuy == false) {
 			leftTable.add(SellWindow.getWindow()).colspan(2);
 			SellWindow.updateList(true);
@@ -103,9 +105,6 @@ public class BuySellScreen extends SpaceTradeRender {
 			leftTable.add(BuyWindow.getWindow()).colspan(2);
 			BuyWindow.updateList(true);
 		}
-
-		leftTable.padLeft(50);
-		leftTable.align(Align.left);
 		leftTable.row().padBottom(10);
 		leftTable.add(doSellButton).left();
 		leftTable.add(doBuyButton).right();

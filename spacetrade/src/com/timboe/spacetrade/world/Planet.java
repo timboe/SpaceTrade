@@ -109,6 +109,10 @@ public class Planet extends Actor {
 
 	}
 	
+	public float getEquipmentPriceMod() {
+		return 1f; //TODO
+	}
+	
 	private void init() {
 		Modifiers.setPrices(govType, civType, worldSize, this);
 	}

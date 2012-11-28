@@ -16,7 +16,7 @@ import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
-import com.timboe.spacetrade.render.WarpBuyWindow;
+import com.timboe.spacetrade.windows.WarpBuyWindow;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 

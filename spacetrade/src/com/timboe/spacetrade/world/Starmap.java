@@ -41,6 +41,7 @@ public class Starmap {
 	public static void doTravelTime(float _galaxyTime, float _shipTime) {
 		starDateGalaxy += _galaxyTime;
 		starDateShip += _shipTime;
+		Player.getShip().travel(_shipTime);
 		_galaxyTime += remainder; //take into account remainder from last time
 		//run on the sim
 		newYear((int) Math.floor(_galaxyTime));

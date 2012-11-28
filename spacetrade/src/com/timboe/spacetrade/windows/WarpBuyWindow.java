@@ -1,4 +1,4 @@
-package com.timboe.spacetrade.render;
+package com.timboe.spacetrade.windows;
 
 import java.util.EnumMap;
 
@@ -23,10 +23,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.StarmapScreen;
 import com.timboe.spacetrade.utility.Help;
 import com.timboe.spacetrade.utility.ScreenFade;

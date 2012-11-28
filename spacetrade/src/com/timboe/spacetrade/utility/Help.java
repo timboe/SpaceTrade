@@ -5,8 +5,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Civilisation;
+import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
+import com.timboe.spacetrade.enumerator.ShipClass;
+import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
 
@@ -79,6 +82,31 @@ public class Help {
 		case SpaceCrack: helpMsg(""); break;
 		case Textiles: helpMsg(""); break;
 		}
+	}
+
+	public static void help(ShipClass _s) {
+		switch (_s) {
+		case AllroundA: helpMsg("AI"); break;
+		case AllroundC: helpMsg("AI"); break;
+		case FightA: helpMsg("AI"); break;
+		case FightB: helpMsg("AI"); break;
+		case FightC: helpMsg("AI"); break;
+		case Starting: helpMsg("AI"); break;
+		case Tiny: helpMsg("AI"); break;
+		case TradeA: helpMsg("AI"); break;
+		case TradeB: helpMsg("AI"); break;
+		case TradeC: helpMsg("AI"); break;
+		}
+	}
+
+	public static void help(Weapons _w) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void help(Equipment _e) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

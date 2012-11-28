@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -40,6 +41,8 @@ public class TitleScreen extends SpaceTradeRender {
 		distanceFieldFont = new BitmapFont(Gdx.files.internal("data/skin/distancefield32verdana.fnt"), new TextureRegion(distanceFieldTexture), true);
 		distanceFieldFont.setColor(Color.WHITE);
 		
+		RightBar.getRightBarTable().addAction(Actions.fadeOut(0));
+		RightBar.getRightBarTable().act(1);
 		
 		ShaderProgram.pedantic = false; // Useful when debugging this test
 		
@@ -53,6 +56,8 @@ public class TitleScreen extends SpaceTradeRender {
 				Player.getPlayer().refresh();
 				Player.setCredz(1000);
 				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theStarmap );
+				RightBar.getRightBarTable().addAction(Actions.delay(ScreenFade.speed));
+				RightBar.getRightBarTable().addAction(Actions.fadeIn(ScreenFade.speed));
 				Gdx.app.log("NewGame", "Player Credz:"+Player.getCredz());
 			}
 		});

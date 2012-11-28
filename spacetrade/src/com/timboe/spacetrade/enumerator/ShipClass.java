@@ -23,7 +23,6 @@ public enum ShipClass {
 	int hull;
 	int cost;
 	
-	
 	private ShipClass(int _c, int _ws, int _ts, int _r, int _h, int _cst, String _n) {
 		cargo = _c;
 		weaponSlots = _ws;
