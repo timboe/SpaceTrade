@@ -97,7 +97,7 @@ public class RightBar {
 		sellButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (button != Buttons.LEFT) return false;
-				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theSellScreen  );
+				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theBuySellScreen  );
 				return false;
 			}
 		});

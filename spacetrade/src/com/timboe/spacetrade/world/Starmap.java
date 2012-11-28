@@ -13,7 +13,8 @@ import com.timboe.spacetrade.utility.Utility;
 
 public class Starmap {
 	
-	private static final int starBuffer = (int) Math.round((Textures.getStar().getWidth()/2f) * Math.sqrt(2)) * 2 ;
+	private static final int starBuffer = (int) Math.round((Textures.getStar().getWidth()/2f) * Math.sqrt(2)) * 3 ;
+	public static final int travelScale = (int) (starBuffer * 0.1f);
 	private static final int nPlanets = 128;
 	public static final float toLightYears = 4.2f;
 	private static final Array<Planet> thePlanets = new Array<Planet>();
@@ -58,8 +59,8 @@ public class Starmap {
 
 		int ID = 0;
 		while (thePlanets.size < getNPlanets()) {
-			int _x = Utility.getRandI( (int) (SpaceTrade.GAME_WIDTH  - starBuffer) ) + starBuffer/4;
-			int _y = Utility.getRandI( (int) (SpaceTrade.GAME_HEIGHT - starBuffer) ) + starBuffer/4;
+			int _x = Utility.getRandI((int)(Textures.getGalaxyTexture().getWidth()  - starBuffer - SpaceTrade.GUI_WIDTH)) + starBuffer/4;
+			int _y = Utility.getRandI((int)(Textures.getGalaxyTexture().getHeight() - starBuffer)) + starBuffer/4;
 			//Check we're not too close
 			boolean tooClose = false;
 			for (Planet p : thePlanets) {
@@ -82,6 +83,19 @@ public class Starmap {
 			    });
 				thePlanets.add( newPlanet );
 			}
+//			if (thePlanets.size == getNPlanets()) { //TODO think about this
+//				//now we have all the stars, move any which are too far away from each other!
+//				//note this is still within the create loop
+//				for (Planet p1 : thePlanets) {
+//					float minDist = 99999f;
+//					float
+//					for (Planet p2 : thePlanets) {
+//						if (p1 == p2) continue;
+//						float dist = 
+//						minDist = Math.min(minDist, p1.dst(p2));
+//					}
+//					if ()
+//				}
 		}
 		//Get the economy going!
 		newYear(200);

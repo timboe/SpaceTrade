@@ -38,6 +38,8 @@ public class Planet extends Actor {
 	private final EnumMap<Goods, AtomicInteger> stockTarget = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> volitility = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, Array<AtomicInteger> > price = new EnumMap<Goods, Array<AtomicInteger> >(Goods.class);
+	private final float buyMod = 1.02f; //TODO tweak these 
+	private final float sellMod = 0.98f;
 
 	//serialiser
 	public Planet() {
@@ -148,6 +150,22 @@ public class Planet extends Actor {
 	
 	public int getPrice(Goods _g, int _starDate) {
 		return  price.get(_g).get(_starDate).get();
+	}
+	
+	public int getPriceBuy(Goods _g) {
+		return Math.round(getPrice(_g) * buyMod);
+	}
+	
+	public int getPriceBuy(Goods _g, int _starDate) {
+		return Math.round(getPrice(_g, _starDate) * buyMod);
+	}
+	
+	public int getPriceSell(Goods _g) {
+		return Math.round(getPrice(_g) * sellMod);
+	}
+	
+	public int getPriceSell(Goods _g, int _starDate) {
+		return Math.round(getPrice(_g, _starDate) * sellMod);
 	}
 	
 	public void setPrice(Goods _g, int _price) {

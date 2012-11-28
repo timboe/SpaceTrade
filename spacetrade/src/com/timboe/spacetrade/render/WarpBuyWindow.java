@@ -65,7 +65,7 @@ public class WarpBuyWindow {
 				Gdx.app.log("BuyButton","Interact:"+event.toString()+" "+((TextButtonGoods)actor).getGoods());
 				final Goods _g = ((TextButtonGoods)actor).getGoods();
 				final int _amount = (int) sliderStock.get(_g).getValue();
-				final int _price_per_unit = curPlanet.getPrice(_g);
+				final int _price_per_unit = curPlanet.getPriceBuy(_g);
 				final int _price = _price_per_unit * _amount;
 				if (_price > Player.getCredz()) {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
@@ -248,8 +248,8 @@ public class WarpBuyWindow {
 				+" ShipYears.");
 		for (Goods _g : Goods.values()) {
 
-			final int _localPrice = curPlanet.getPrice(_g);
-			final int _remotePrice = targetPlanet.getPrice(_g, _ly);
+			final int _localPrice = curPlanet.getPriceBuy(_g);
+			final int _remotePrice = targetPlanet.getPriceSell(_g, _ly);
 			
 			if (targetPlanet.getSells(_g) == false) {
 				labelRemotePrice.get(_g).setText( "---" );

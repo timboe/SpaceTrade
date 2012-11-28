@@ -1,10 +1,14 @@
 package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.input.GestureDetector.GestureListener;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
@@ -21,7 +25,9 @@ public class StarmapScreen extends SpaceTradeRender {
 	private float offset = 0f;
 	private ParticleEffectPool effectPool;
 	private Array<PooledEffect> effects = new Array<PooledEffect>();
-	
+	private CameraController gestureControler;
+	private OrthographicCamera gestureCam;
+		
 	static int planetClickedID = -1;
 	public static void setPlanetClickedID(int _id) {
 		planetClickedID = _id;
@@ -29,36 +35,124 @@ public class StarmapScreen extends SpaceTradeRender {
 	}
 	static boolean fullRefresh = false;
 	
-	public StarmapScreen() {
-		secondaryStage = new Stage(); //Uses for clickable planets
+	class CameraController implements GestureListener {
+		float velX, velY;
+		boolean flinging = false;
+		float initialScale = 1;
+
+		public boolean touchDown (float x, float y, int pointer, int button) {
+			flinging = false;
+			initialScale = gestureCam.zoom;
+			return false;
+		}
+
+		@Override
+		public boolean fling (float velocityX, float velocityY, int button) {
+			flinging = true;
+			velX = gestureCam.zoom * velocityX * 0.5f;
+			velY = gestureCam.zoom * velocityY * 0.5f;
+			return false;
+		}
+
+		@Override
+		public boolean pan (float x, float y, float deltaX, float deltaY) {
+			Gdx.app.log("Backdrop", "In PAN X:"+x+" Y:"+y+" dX:"+deltaX+" dY:"+deltaY);
+			gestureCam.position.add(-deltaX * gestureCam.zoom, deltaY * gestureCam.zoom, 0);
+			return false;
+		}
+
+		public void update (float delta) {
+			if (flinging) {
+				velX *= 0.98f;
+				velY *= 0.98f;
+				gestureCam.position.add(-velX * delta, velY * delta, 0);
+				if (Math.abs(velX) < 0.01f) velX = 0;
+				if (Math.abs(velY) < 0.01f) velY = 0;
+			}
+			//bounce constrain here
+			constrain(false);
+		}
 		
+		public void constrain(boolean jump) {
+			final float diffX = Textures.getGalaxyTexture().getWidth() - SpaceTrade.CAMERA_WIDTH/2;
+			if (gestureCam.position.x < SpaceTrade.CAMERA_WIDTH/2) {
+				if (jump == true) gestureCam.position.x = SpaceTrade.CAMERA_WIDTH/2;
+				else {
+					flinging = true;
+					velX = -5*Math.abs(gestureCam.position.x - SpaceTrade.CAMERA_WIDTH/2);
+				}
+			} else if (gestureCam.position.x > diffX) {
+				if (jump == true) gestureCam.position.x = diffX;
+				else {
+					flinging = true;
+					velX = 5*Math.abs(gestureCam.position.x - diffX);
+				}
+			}
+			final float diffY = Textures.getGalaxyTexture().getHeight() - SpaceTrade.CAMERA_HEIGHT/2;
+			if (gestureCam.position.y < SpaceTrade.CAMERA_HEIGHT/2) {
+				if (jump == true) gestureCam.position.y = SpaceTrade.CAMERA_HEIGHT/2;
+				else {
+					flinging = true;
+					velY = 5*Math.abs(SpaceTrade.CAMERA_HEIGHT/2 - gestureCam.position.y);
+				}
+			} else if (gestureCam.position.y > diffY) {
+				if (jump == true) gestureCam.position.y = diffY;
+				else {
+					flinging = true;
+					velY = -5*Math.abs(diffY - gestureCam.position.y);
+				}
+			}
+		}
+
+		@Override
+		public boolean tap(float x, float y, int count, int button) {
+			return false;
+		}
+
+		@Override
+		public boolean longPress(float x, float y) {
+			return false;
+		}
+
+		@Override
+		public boolean zoom(float initialDistance, float distance) {
+			return false;
+		}
+
+		@Override
+		public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+			return false;
+		}
+	}
+	
+	public StarmapScreen() {
 		ParticleEffect pEffect = new ParticleEffect();
 		pEffect.load(Gdx.files.internal("data/galaxyEffect3"), Gdx.files.internal("data/"));
 		effectPool = new ParticleEffectPool(pEffect, 50, 250);
 		
 		PooledEffect effect = effectPool.obtain();
 		effect.setPosition(0, 400);
-		effects.add(effect);		
+		effects.add(effect);	
 		
+		gestureCam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		gestureControler = new CameraController();
+		gestureDetector = new GestureDetector(20, 0.5f, 2, 0.15f, gestureControler);
+		secondaryStage = new Stage(); //Uses for clickable planets
+		secondaryStage.setCamera(gestureCam);
+				
 		init();
 	}
-	
 
-	
-//	@Override
-//	public void hookStage() {
-//		for (Planet _p : Starmap.getStarmap().getPlanets()) {
-//			frontStage.addActor(_p);
-//		}
-//		frontStage.addActor(Player.getPlayer());
-//	}
-	
 	@Override
 	protected void renderBackground(float delta) {
+		gestureControler.update(delta);
+		gestureCam.update();
+		secondaryStage.setCamera(gestureCam);
+		
 		WarpBuyWindow.updateList(fullRefresh, planetClickedID);
 		fullRefresh = false;
 		
-		spriteBatch.setProjectionMatrix(stage.getCamera().combined);
+		spriteBatch.setProjectionMatrix(gestureCam.combined);
 		spriteBatch.begin();
 		spriteBatch.draw(Textures.getGalaxyTexture(), 0, 0);
 		spriteBatch.end();
@@ -66,6 +160,7 @@ public class StarmapScreen extends SpaceTradeRender {
 	
 	@Override
 	protected void renderFX(float delta) {
+		spriteBatch.setProjectionMatrix(gestureCam.combined);
 		spriteBatch.begin();
 		for (int i = effects.size - 1; i >= 0; i--) {
 	        PooledEffect effect = effects.get(i);
@@ -80,9 +175,9 @@ public class StarmapScreen extends SpaceTradeRender {
 		secondaryStage.act(delta);
 		secondaryStage.draw();
 	
+		g2.setProjectionMatrix(secondaryStage.getCamera().combined);
 		if (SpaceTrade.debug == true) {
 			Table.drawDebug(secondaryStage);
-			g2.setProjectionMatrix(stage.getCamera().combined);
 			g2.begin(ShapeType.Rectangle);
 			g2.setColor(0f, 1f, 0f, 0f);
 			for (Planet _p : Starmap.getPlanets()) {
@@ -128,6 +223,10 @@ public class StarmapScreen extends SpaceTradeRender {
 	
 	@Override 
 	public void show() {
+		gestureCam.position.set(Player.getPlayer().getX(),  Player.getPlayer().getY(), 0);
+		gestureControler.flinging = false;
+		gestureControler.constrain(true);
+
 		WarpBuyWindow.addToTable(leftTable);
 		WarpBuyWindow.updateList(true, planetClickedID);
 		if (secondaryStage.getActors().size == 0) {

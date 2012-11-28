@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -28,7 +29,9 @@ public class SpaceTradeRender implements Screen {
 	protected Stage stage;
 	protected Stage secondaryStage = null;
 	protected ShapeRenderer g2 = new ShapeRenderer();
-	private InputMultiplexer inputMultiplex = null;
+	
+	protected GestureDetector gestureDetector = null;
+	protected InputMultiplexer inputMultiplex = null;
 	
 	protected SpriteBatch spriteBatch = new SpriteBatch();
 	protected SpriteBatch spriteBatchFade = new SpriteBatch();
@@ -87,7 +90,6 @@ public class SpaceTradeRender implements Screen {
 		
 		shader = Meshes.createShader();	
 		
-		
 		//init(); should be caller after superclass constructor
 	}
 	
@@ -98,25 +100,6 @@ public class SpaceTradeRender implements Screen {
 		stage.clear();
 		stage.addActor(masterTable);
 	}
-	
-//	public void hookStage() {
-//		//Overrider
-//	}
-	
-	//CAN (not must) be overriden
-//	public void unHookStage() {
-//		if (frontStage != null) {
-//			frontStage.clear();
-//		}
-//	}
-	
-//	public Stage getStage() {
-//		return stage;
-//	}
-	
-//	public Stage getFrontStage() {
-//		return frontStage;
-//	}
 	
 	public boolean needsGL20 () {
 		return true;
@@ -167,7 +150,7 @@ public class SpaceTradeRender implements Screen {
 	}
 
 	protected void renderClear(float delta) {
-		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+		Gdx.gl.glClearColor(0f, 0f, 0f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);		
 	}
 	
@@ -179,6 +162,7 @@ public class SpaceTradeRender implements Screen {
 		Gdx.app.log("Resize", "ReSize in Render ["+this+"] ("+width+","+height+")");
 		stage.setViewport(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT, true);
 		stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
+		
 		blackSquare.setSize(width,height);
 		screenCam = new OrthographicCamera();
 		
@@ -198,11 +182,13 @@ public class SpaceTradeRender implements Screen {
 	
 	@Override
 	public void show() {
-		if (secondaryStage == null) {
+		if (secondaryStage == null && gestureDetector == null) {
 			Gdx.input.setInputProcessor( stage );
 		} else {
 			if (inputMultiplex == null) {
-				inputMultiplex = new InputMultiplexer( stage, secondaryStage );
+				inputMultiplex = new InputMultiplexer( stage );
+				if (secondaryStage != null) inputMultiplex.addProcessor(secondaryStage);
+				if (gestureDetector != null) inputMultiplex.addProcessor(gestureDetector);
 			}
 			Gdx.input.setInputProcessor( inputMultiplex );
 		}
