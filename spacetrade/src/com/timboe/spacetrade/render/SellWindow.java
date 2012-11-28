@@ -7,10 +7,10 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -23,6 +23,7 @@ import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.TextButtonGoods;
 
 public class SellWindow {
+	private static final EnumMap<Goods, Label> labelName = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelPrice = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelPricePaid = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Slider> sliderStock = new EnumMap<Goods, Slider>(Goods.class);
@@ -35,13 +36,11 @@ public class SellWindow {
 	private static ChangeListener sellClik;
 	private static Planet curPlanet;
 	
-	public static void addToTable(Table leftTable) {
-		if (sellWindowPopulated == true) return;
+	public static Window getWindow() {
+		if (sellWindowPopulated == true) return sellWindow;
 		sellWindowPopulated = true;
 		populateSellWindow();
-		leftTable.pad(50);
-		leftTable.align(Align.left);
-		leftTable.add(sellWindow);
+		return sellWindow;
 	}
 	
 	public static void updateList(boolean _intial) {
@@ -51,6 +50,7 @@ public class SellWindow {
 		sellWindow.setTitle(_titleStr);
 		for (Goods _g : Goods.values()) {
 			if (curPlanet.getSells(_g) == false) {
+				labelName.get(_g).setText(_g.toDisplayString());
 				labelPrice.get(_g).setText( "---" );
 				sliderStock.get(_g).setRange(0, 1);
 				sliderStock.get(_g).setTouchable(Touchable.disabled);
@@ -71,6 +71,8 @@ public class SellWindow {
 				sliderStock.get(_g).setVisible(true);
 			}
 			
+			labelName.get(_g).setText(_g.toDisplayString() + "[" + curPlanet.getStock(_g)  + "]");
+			
 			int cost = curPlanet.getPrice(_g);
 			labelPrice.get(_g).setText( "$" + Integer.toString(cost) );
 			
@@ -86,22 +88,21 @@ public class SellWindow {
 				}
 			}
 			
+			int chosen = (int) sliderStock.get(_g).getValue();
+			labelStock.get(_g).setText( Integer.toString(chosen) );
+			
 			int avPaid = Player.getAvPaidPrice(_g);
 			if (avPaid == 0) {
 				labelPricePaid.get(_g).setColor(1f, 1f, 1f, 1f);
-				labelPricePaid.get(_g).setText("0");
+				labelPricePaid.get(_g).setText("$0");
 			} else {
 				if (avPaid < cost) {
 					labelPricePaid.get(_g).setColor(0f, 1f, 0f, 1f);
 				} else {
 					labelPricePaid.get(_g).setColor(1f, 0f, 0f, 1f);
 				}
-				labelPricePaid.get(_g).setText(Integer.toString(cost - avPaid));
+				labelPricePaid.get(_g).setText("$" + Integer.toString((cost - avPaid)* chosen) );
 			}
-
-
-			int chosen = (int) sliderStock.get(_g).getValue();
-			labelStock.get(_g).setText( Integer.toString(chosen) );
 		}
 
 	}
@@ -134,12 +135,13 @@ public class SellWindow {
 		};
 		
 		sellWindow = new Window("MyWindow", _skin);
+		sellWindow.setMovable(false);
 		sellWindow.debug();
 		
 		Label titleLabelA = new Label("GOODS", _skin);
 		Label titleLabelB = new Label("PRICE PER\nUNIT", _skin);
 		titleLabelB.setAlignment(Align.center);
-		Label titleLabelC = new Label("PROFIT PER\nUNIT", _skin);
+		Label titleLabelC = new Label("PROFIT", _skin);
 		titleLabelC.setAlignment(Align.center);
 		Label titleLabelD = new Label("STOCK", _skin);
 		//Label titleLabelE = new Label("SELL", _skin);
@@ -160,13 +162,16 @@ public class SellWindow {
 				}
 			});
 			sellWindow.add( tempIButton );
-			sellWindow.add( new Label( _g.toDisplayString(), _skin ) );
 			
-			Label temp = new Label( "10", _skin );
+			Label temp = new Label( _g.toDisplayString(), _skin );
+			sellWindow.add(temp);
+			labelName.put(_g, temp);
+			
+			temp = new Label( "10", _skin.get("background", LabelStyle.class) );
 			labelPrice.put(_g, temp);
 			sellWindow.add( temp );
 			
-			temp = new Label( "100", _skin );
+			temp = new Label( "100", _skin.get("background", LabelStyle.class) );
 			labelPricePaid.put(_g, temp);
 			sellWindow.add( temp ).pad(10);
 			

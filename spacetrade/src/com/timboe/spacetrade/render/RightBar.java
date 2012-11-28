@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
@@ -54,7 +55,7 @@ public class RightBar {
 		Skin skin = Textures.getSkin();
 		
 		rightTable = new Table();
-		if (SpaceTrade.debug == true) rightTable.debug();
+		rightTable.debug();
 		rightTable.align(Align.top | Align.center );
 		rightTable.setSize(SpaceTrade.GUI_WIDTH, SpaceTrade.GAME_HEIGHT);
 
@@ -109,37 +110,37 @@ public class RightBar {
 			}
 		});
 		
-		credz = new Label("", skin);
+		credz = new Label("", skin.get("background", LabelStyle.class));
 		credz.setAlignment(Align.center);
-		cargo = new Label("", skin);
+		cargo = new Label("", skin.get("background", LabelStyle.class));
 		cargo.setAlignment(Align.center);
-		timeShip = new Label("", skin);
+		timeShip = new Label("", skin.get("background", LabelStyle.class));
 		timeShip.setAlignment(Align.center);
-		timeUniverse = new Label("", skin);
+		timeUniverse = new Label("", skin.get("background", LabelStyle.class));
 		timeUniverse.setAlignment(Align.center);
 		
-		rightTable.add(galaxyButton);
+		rightTable.add(galaxyButton).fillX();
 		rightTable.row();
-		rightTable.add(planetButton);
+		rightTable.add(planetButton).fillX();
 		rightTable.row();		
-		rightTable.add(shipButton);
+		rightTable.add(shipButton).fillX();
 		rightTable.row();		
-		rightTable.add(sellButton);
+		rightTable.add(sellButton).fillX();
 		rightTable.row();		
 		rightTable.add(debugButton);
 		rightTable.row();		
-		rightTable.add(credz);
+		rightTable.add(credz).fillX();
 		rightTable.row();
-		rightTable.add(cargo);
+		rightTable.add(cargo).fillX();
 		rightTable.row();
-		rightTable.add(timeShip);		
+		rightTable.add(timeShip).fillX();		
 		rightTable.row();
-		rightTable.add(timeUniverse);
+		rightTable.add(timeUniverse).fillX();
 	}
 	
 	
 	public static void update() {
-		credz.setText("Credz:\n"+Player.getCredz());
+		credz.setText("Credz:\n$"+Player.getCredz());
 		cargo.setText("Cargo:\n"+Player.getTotalCargo()+"/"+Player.getShip().getMaxCargo());
 		timeShip.setText("ShipYear:\n"+Starmap.getShipDateDisplay());
 		timeUniverse.setText("Galactic\nYear:\n"+Starmap.getStarDateDisplay());

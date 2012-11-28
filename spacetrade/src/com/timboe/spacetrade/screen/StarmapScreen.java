@@ -10,9 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.player.Player;
-import com.timboe.spacetrade.render.BuyWindow;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.render.WarpBuyWindow;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 
@@ -55,7 +55,7 @@ public class StarmapScreen extends SpaceTradeRender {
 	
 	@Override
 	protected void renderBackground(float delta) {
-		BuyWindow.updateList(fullRefresh, planetClickedID);
+		WarpBuyWindow.updateList(fullRefresh, planetClickedID);
 		fullRefresh = false;
 		
 		spriteBatch.setProjectionMatrix(stage.getCamera().combined);
@@ -128,8 +128,8 @@ public class StarmapScreen extends SpaceTradeRender {
 	
 	@Override 
 	public void show() {
-		BuyWindow.addToTable(leftTable);
-		BuyWindow.updateList(true, planetClickedID);
+		WarpBuyWindow.addToTable(leftTable);
+		WarpBuyWindow.updateList(true, planetClickedID);
 		if (secondaryStage.getActors().size == 0) {
 			for (Planet _p : Starmap.getPlanets()) {
 				secondaryStage.addActor(_p);

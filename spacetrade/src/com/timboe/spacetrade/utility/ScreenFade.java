@@ -23,9 +23,9 @@ public class ScreenFade {
 		fade = Fade.fadeOut;
 	}
 	
-	public static void checkFade() {
+	public static boolean checkFade() {
 		if (fade == Fade.none) {
-			return;
+			return false;
 		} else if (fade == Fade.fadeOut) {
 			currentScreen.getBlackSquare().addAction(Actions.fadeIn(speed));
 			fade = Fade.fadingOut;
@@ -43,5 +43,6 @@ public class ScreenFade {
 				fade = Fade.none;
 			}
 		}
+		return true;
 	}
 }

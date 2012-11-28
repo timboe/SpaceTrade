@@ -5,6 +5,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Meshes;
@@ -12,14 +20,39 @@ import com.timboe.spacetrade.render.PlanetFX;
 import com.timboe.spacetrade.render.SellWindow;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.utility.Help;
 
 public class SellScreen extends SpaceTradeRender {
 	
-    private ShaderProgram shader;
-
+    private boolean doBuy = false;
+    private TextButton doBuyButton;
+    private TextButton doSellButton;
 	
 	public SellScreen() {
-		shader = Meshes.createShader();	
+		
+		doBuyButton = new TextButton("BUY GOODS", Textures.getSkin().get("large-toggle", TextButtonStyle.class));
+		doSellButton = new TextButton("SELL GOODS", Textures.getSkin().get("large-toggle", TextButtonStyle.class));
+
+		doSellButton.setChecked(true);
+		ButtonGroup group = new ButtonGroup(doBuyButton, doSellButton);
+		group.setMaxCheckCount(1);
+		
+		doBuyButton.addCaptureListener( new  ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				Gdx.app.log("doBuyButton","Interact:"+event.toString());
+				doBuy = true;
+				show();
+			}
+		});
+		
+		doSellButton.addCaptureListener( new  ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				Gdx.app.log("doBuyButton","Interact:"+event.toString());
+				doBuy = false;
+				show();
+			}
+		});
+		
 		init();
 	}
 
@@ -65,8 +98,20 @@ public class SellScreen extends SpaceTradeRender {
 
 	@Override 
 	public void show() {
-		SellWindow.addToTable(leftTable);
-		SellWindow.updateList(true);
+
+		leftTable.clear();
+		if (doBuy == false) {
+			leftTable.add(SellWindow.getWindow()).colspan(2);
+			SellWindow.updateList(true);
+		} else {
+			//TODO
+		}
+
+		leftTable.pad(50);
+		leftTable.align(Align.left);
+		leftTable.row().pad(10);
+		leftTable.add(doSellButton).left();
+		leftTable.add(doBuyButton).right();
 		super.show();
 	}
 }

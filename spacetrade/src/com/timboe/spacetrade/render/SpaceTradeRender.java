@@ -29,13 +29,17 @@ public class SpaceTradeRender implements Screen {
 	protected Stage secondaryStage = null;
 	protected ShapeRenderer g2 = new ShapeRenderer();
 	private InputMultiplexer inputMultiplex = null;
+	
 	protected SpriteBatch spriteBatch = new SpriteBatch();
+	protected SpriteBatch spriteBatchFade = new SpriteBatch();
+
 	protected Camera screenCam = new OrthographicCamera();
 	private Image blackSquare;
-	protected SpriteBatch spriteBatchFade = new SpriteBatch();
 	
 	protected Matrix4 transform_BG;
 	protected Matrix4 transform_FX;
+	
+	protected ShaderProgram shader;
 	
 	protected DistanceFieldShader distanceFieldShader;
 	public static class DistanceFieldShader extends ShaderProgram {
@@ -62,7 +66,7 @@ public class SpaceTradeRender implements Screen {
 	
 	public SpaceTradeRender() {
 		masterTable = new Table();
-		if (SpaceTrade.debug == true) masterTable.debug();
+		masterTable.debug();
 		masterTable.align(Align.bottom | Align.left);
 		masterTable.setSize(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT);
 		
@@ -81,7 +85,7 @@ public class SpaceTradeRender implements Screen {
 		blackSquare.act(1);
 		blackSquare.setSize(500, 500);
 		
-
+		shader = Meshes.createShader();	
 		
 		
 		//init(); should be caller after superclass constructor
@@ -131,10 +135,10 @@ public class SpaceTradeRender implements Screen {
 	}
 
 	protected void renderFade(float delta) {
-		ScreenFade.checkFade();
+		if (ScreenFade.checkFade() == false) return;
 		Matrix4 transform_Fade = screenCam.combined.cpy();
-		transform_Fade.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
-		transform_Fade.translate(-SpaceTrade.CAMERA_WIDTH/2f, -SpaceTrade.CAMERA_HEIGHT/2f, 0f);
+		transform_Fade.scale(2f/Gdx.graphics.getWidth(), 2f/Gdx.graphics.getHeight(), 0f);
+		transform_Fade.translate(-Gdx.graphics.getWidth()/2f, -Gdx.graphics.getHeight()/2f, 0f);
 		
 		spriteBatchFade.setProjectionMatrix(transform_Fade);
 		spriteBatchFade.begin();

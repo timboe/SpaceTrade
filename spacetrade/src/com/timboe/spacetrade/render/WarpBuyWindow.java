@@ -3,21 +3,27 @@ package com.timboe.spacetrade.render;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
+import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
@@ -28,15 +34,16 @@ import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 import com.timboe.spacetrade.world.TextButtonGoods;
 
-public class BuyWindow {
+public class WarpBuyWindow {
 
 	private static ChangeListener buyClick;
 	private static Window buyWindow;
 	private static Label disclaimer;
 	private static TextButton prevPlanet;
 	private static TextButton nextPlanet;
-	private static TextButton warp;
+	private static ImageButton warp;
 	private static Label warpInfo;
+	private static final EnumMap<Goods, Label> labelName = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelLocalPrice = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelRemotePrice = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Slider> sliderStock = new EnumMap<Goods, Slider>(Goods.class);
@@ -62,7 +69,7 @@ public class BuyWindow {
 				final int _price = _price_per_unit * _amount;
 				if (_price > Player.getCredz()) {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
-					Help.errorOK("You don't have enough Credz for that!\nCost:"+_price+"\nCredz:"+Player.getCredz());
+					Help.errorOK("You don't have enough Credz for that!\nCost: $"+_price+"\nCredz: $"+Player.getCredz());
 					return;
 				}
 				if (_amount > Player.getFreeCargo()) {
@@ -95,23 +102,34 @@ public class BuyWindow {
 		disclaimer = new Label("", _skin);
 		disclaimer.setAlignment(Align.center);
 		
-		innerTable.add(disclaimer).colspan(7);
+		innerTable.add(disclaimer).colspan(8);
 		innerTable.row();
-		innerTable.add(titleLabelA);
+		innerTable.add(titleLabelA).colspan(2);
 		innerTable.add(titleLabelB);
 		innerTable.add(titleLabelC);
 		innerTable.add(titleLabelD).colspan(2);
 		innerTable.add(titleLabelE);
 		innerTable.add(titleLabelF);
 		innerTable.row();
-		for (Goods _g : Goods.values()) {
-			innerTable.add( new Label( _g.toDisplayString(), _skin ) );
+		for (final Goods _g : Goods.values()) {
+			ImageButton tempIButton = new ImageButton(_skin.get("info", ImageButtonStyle.class));
+			tempIButton.addCaptureListener( new  ChangeListener() {
+				public void changed (ChangeEvent event, Actor actor) {
+					Gdx.app.log("InfoButton","Interact:"+event.toString());
+					Help.help(_g);
+				}
+			});
+			innerTable.add( tempIButton );
 			
-			Label temp = new Label( "10", _skin );
+			Label temp = new Label( _g.toDisplayString(), _skin );
+			labelName.put(_g, temp);
+			innerTable.add(temp);
+			
+			temp = new Label( "10", _skin.get("background", LabelStyle.class) );
 			labelLocalPrice.put(_g, temp);
 			innerTable.add( temp );
 			
-			temp = new Label( "101", _skin );
+			temp = new Label( "101", _skin.get("background", LabelStyle.class) );
 			labelRemotePrice.put(_g, temp);
 			innerTable.add( temp );
 			
@@ -123,9 +141,9 @@ public class BuyWindow {
 			labelStock.put(_g, temp);
 			innerTable.add( temp ).width(50);	
 			
-			temp = new Label( "1000", _skin );
+			temp = new Label( "1000", _skin.get("background", LabelStyle.class) );
 			labelCargo.put(_g, temp);
-			innerTable.add( temp ).width(50);	
+			innerTable.add( temp );	
 			
 			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(buyClick);
@@ -160,8 +178,7 @@ public class BuyWindow {
 		warpInfo.setAlignment(Align.center);
 		buyWindow.add(warpInfo).center();
 		
-		warp = new TextButton("ENGAGE!", _skin);
-		warp.getLabel().setFontScale(3);
+		warp = new ImageButton(_skin.get("engage", ImageButtonStyle.class));
 		warp.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				Gdx.app.log("WARP", "NativeHeap:"+Gdx.app.getNativeHeap()/1048576+" MB " +
@@ -173,7 +190,7 @@ public class BuyWindow {
 				final float _dY = _targetY - Player.getPlayer().getY();
 				final float _dX = _targetX - Player.getPlayer().getX();
 				final float _dist = Player.getPlanet().dst(_targetX, _targetY);
-				final float _time = _dist / Starmap.SPEED;
+				final float _time = 5*_dist / Starmap.SPEED;
 				final float acceleration = Player.getShip().getAcc();
 				float _a = (float) Math.toDegrees( Math.atan2(_dY, _dX) ) - 90f;
 				Starmap.doTravelTime(Starmap.getTravelTimeGalactic(curPlanet,targetPlanet,acceleration),
@@ -181,6 +198,8 @@ public class BuyWindow {
 				SequenceAction moveSequence = new SequenceAction();
 				moveSequence.addAction( Actions.rotateTo(_a, 1f) );
 				moveSequence.addAction( Actions.moveTo(_targetX, _targetY, _time) );
+				((TemporalAction) moveSequence.getActions().get(0)).setInterpolation(Interpolation.circle); //This is ugly!
+				((TemporalAction) moveSequence.getActions().get(1)).setInterpolation(Interpolation.exp5);
 				moveSequence.addAction( Actions.run(new Runnable() {
 			        public void run () {
 						Player.getPlayer().move( Starmap.getPlanet( StarmapScreen.getPlanetClickedID() ) );
@@ -235,7 +254,7 @@ public class BuyWindow {
 			if (targetPlanet.getSells(_g) == false) {
 				labelRemotePrice.get(_g).setText( "---" );
 			} else {
-				labelRemotePrice.get(_g).setText(Integer.toString(_remotePrice));
+				labelRemotePrice.get(_g).setText("$"+Integer.toString(_remotePrice));
 			}
 			
 			if (curPlanet.getSells(_g) == false || targetPlanet.getSells(_g) == false) {
@@ -250,6 +269,7 @@ public class BuyWindow {
 			labelCargo.get(_g).setText( Integer.toString(_cargo) );
 
 			if (curPlanet.getSells(_g) == false) {
+				labelName.get(_g).setText(_g.toDisplayString());
 				labelLocalPrice.get(_g).setText( "---" );
 				sliderStock.get(_g).setRange(0, 1);
 				sliderStock.get(_g).setVisible(false);
@@ -259,12 +279,13 @@ public class BuyWindow {
 				buttonBuy.get(_g).setVisible(false);
 				continue;
 			} else {
+				labelName.get(_g).setText(_g.toDisplayString() + "[" + curPlanet.getStock(_g)  + "]");
 				if (curPlanet.getStock(_g) == 0) {
 					sliderStock.get(_g).setTouchable(Touchable.disabled);
 				} else {
 					sliderStock.get(_g).setTouchable(Touchable.enabled);
 				}
-				labelLocalPrice.get(_g).setText( Integer.toString(_localPrice) );
+				labelLocalPrice.get(_g).setText("$"+ Integer.toString(_localPrice) );
 				buttonBuy.get(_g).setTouchable(Touchable.enabled);
 				buttonBuy.get(_g).setVisible(true);
 				sliderStock.get(_g).setVisible(true);
