@@ -30,6 +30,9 @@ public class RightBar {
 
 	private static Label credz;
 	private static Label cargo;
+	private static Label hull;
+	private static Label heat;
+	private static Label shield;
 	private static Label timeUniverse;
 	private static Label timeShip;
 	
@@ -114,6 +117,12 @@ public class RightBar {
 		credz.setAlignment(Align.center);
 		cargo = new Label("", skin.get("background", LabelStyle.class));
 		cargo.setAlignment(Align.center);
+		hull = new Label("", skin.get("background", LabelStyle.class));
+		hull.setAlignment(Align.center);
+		heat = new Label("", skin.get("background", LabelStyle.class));
+		heat.setAlignment(Align.center);
+		shield = new Label("", skin.get("background", LabelStyle.class));
+		shield.setAlignment(Align.center);
 		timeShip = new Label("", skin.get("background", LabelStyle.class));
 		timeShip.setAlignment(Align.center);
 		timeUniverse = new Label("", skin.get("background", LabelStyle.class));
@@ -133,6 +142,12 @@ public class RightBar {
 		rightTable.row();
 		rightTable.add(cargo).fillX();
 		rightTable.row();
+		rightTable.add(hull).fillX();
+		rightTable.row();
+		rightTable.add(shield).fillX();
+		rightTable.row();
+		rightTable.add(heat).fillX();
+		rightTable.row();
 		rightTable.add(timeShip).fillX();		
 		rightTable.row();
 		rightTable.add(timeUniverse).fillX();
@@ -142,6 +157,9 @@ public class RightBar {
 	public static void update() {
 		credz.setText("Credz:\n$"+Player.getCredz());
 		cargo.setText("Cargo:\n"+Player.getTotalCargo()+"/"+Player.getShip().getMaxCargo());
+		hull.setText("Hull:\n"+Player.getShip().getHull()+"/"+Player.getShip().getMaxHull());
+		shield.setText("Shields:\n"+Player.getShip().getShields()+"/"+Player.getShip().getMaxShields());
+		heat.setText("Heat:\n"+Player.getShip().getHeat()+"/"+Player.getShip().getMaxHeat());
 		timeShip.setText("ShipYear:\n"+Starmap.getShipDateDisplay());
 		timeUniverse.setText("Galactic\nYear:\n"+Starmap.getStarDateDisplay());
 

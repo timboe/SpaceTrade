@@ -1,7 +1,5 @@
 package com.timboe.spacetrade.render;
 
-import java.util.Random;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.Color;
@@ -10,8 +8,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.timboe.spacetrade.utility.Rnd;
 import com.timboe.spacetrade.utility.SimplexNoise;
-import com.timboe.spacetrade.utility.Utility;
 import com.timboe.spacetrade.world.Starmap;
 
 public class PlanetFX {
@@ -19,7 +17,7 @@ public class PlanetFX {
 	static final Array<Texture> planetTexture = new Array<Texture>(Starmap.getNPlanets());
 	static final Array<Texture> planetNormals = new Array<Texture>(Starmap.getNPlanets());
 	static final Array<Color> planetLandColour = new Array<Color>(Starmap.getNPlanets());
-	static final Random worldRand = new Random(Utility.masterSeed * 3);
+	static final Rnd rnd = new Rnd();
 	
 	static float persistence = 0f;
 	static float frequency = 0f;
@@ -73,11 +71,11 @@ public class PlanetFX {
 		
 		//NOISE VARS
     	randomseed = 2 + _planetId*_planetId;
-    	worldRand.setSeed(randomseed);
+    	rnd.setSeed(randomseed);
 		
-		octaves = Utility.getRandI(3) + 4;//4-6
-		frequency = (Utility.getRandI(3) + 2) * (1f/512f); //2-4 *1/maxU
-		persistence = (Utility.getRandI(3) + 4) * 0.1f; //0.4 - 0.6
+		octaves = rnd.getRandI(3) + 4;//4-6
+		frequency = (rnd.getRandI(3) + 2) * (1f/512f); //2-4 *1/maxU
+		persistence = (rnd.getRandI(3) + 4) * 0.1f; //0.4 - 0.6
 		
         Pixmap worldPixOcean = new Pixmap((int) maxU, (int) maxV, Format.RGBA8888);
         Pixmap worldPixLand = new Pixmap((int) maxU, (int) maxV, Format.RGBA8888);
@@ -172,23 +170,23 @@ public class PlanetFX {
     		cR=false;
     		cG=false;
     		cB=false;
-    		if (worldRand.nextFloat() < 0.5f == true) {
+    		if (rnd.getRandChance(0.5f) == true) {
     			++nC;
     			cR=true;
     		}
-    		if (worldRand.nextFloat() < 0.5f == true) {
+    		if (rnd.getRandChance(0.5f) == true) {
     			++nC;
     			cG=true;
     		}
-    		if (worldRand.nextFloat() < 0.5f == true) {
+    		if (rnd.getRandChance(0.5f) == true) {
     			++nC;
     			cB=true;
     		}
     	}
     	float r = 0f, g = 0f, b=0f;
-    	if (cR == true) r = 0.5f + (worldRand.nextFloat()/2f);
-    	if (cG == true) g = 0.5f + (worldRand.nextFloat()/2f);
-    	if (cB == true) b = 0.5f + (worldRand.nextFloat()/2f);
+    	if (cR == true) r = 0.5f + (rnd.getRandF()/2f);
+    	if (cG == true) g = 0.5f + (rnd.getRandF()/2f);
+    	if (cB == true) b = 0.5f + (rnd.getRandF()/2f);
     	return new Color(r, g, b, 1f);
     }
 	

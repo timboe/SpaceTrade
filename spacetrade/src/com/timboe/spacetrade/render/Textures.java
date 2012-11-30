@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
 
 public class Textures {
@@ -18,6 +19,11 @@ public class Textures {
 	private static final Array<Texture> starscapes = new Array<Texture>(5);
 	private static final Texture moonTex =  new Texture(Gdx.files.internal("data/moonTex.jpg"));
 	private static final Texture moonNorm =  new Texture(Gdx.files.internal("data/moonNormal.jpg"));
+	private static final Texture pink = new Texture(Gdx.files.internal("data/pink.png"));
+	
+	public static Texture getPink() {
+		return pink;
+	}
 	
 	public static Texture getStar() {
 		if (starTexture == null) {
@@ -33,7 +39,6 @@ public class Textures {
 			mainSkin.getFont("default-font").getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 			mainSkin.getFont("default-outline-font").getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 			mainSkin.getFont("large-font").getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-			mainSkin.getFont("large-font");
 		}
 		return mainSkin;
 	}
@@ -91,8 +96,8 @@ public class Textures {
 		moonNorm.dispose();
 	}
 
-	public static Texture getBlackSquare() {
-		return bsTexture;
+	public static Drawable getBlackSquare() {
+		return getSkin().getDrawable("black-box");
 	}
 	
 	public static Texture getPlanetBlur() {

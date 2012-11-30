@@ -21,7 +21,7 @@ public class ImageButtonWeapon extends ImageButton {
 		a = _add;
 	}
 
-	public Weapons getWeaponClass() {
+	public Weapons getWeapon() {
 		return w;
 	}
 	

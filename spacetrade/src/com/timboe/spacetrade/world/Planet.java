@@ -11,15 +11,21 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Array;
+import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Civilisation;
+import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
+import com.timboe.spacetrade.enumerator.ShipClass;
+import com.timboe.spacetrade.enumerator.ShipProperty;
+import com.timboe.spacetrade.enumerator.SpecialEvents;
+import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.utility.AdLib;
 import com.timboe.spacetrade.utility.Modifiers;
-import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.utility.Rnd;
 
 public class Planet extends Actor {
 		
@@ -40,6 +46,19 @@ public class Planet extends Actor {
 	private final EnumMap<Goods, Array<AtomicInteger> > price = new EnumMap<Goods, Array<AtomicInteger> >(Goods.class);
 	private final float buyMod = 1.02f; //TODO tweak these 
 	private final float sellMod = 0.98f;
+	private final float techMod = 1f;
+	private final EnumMap<ShipClass, ShipProperty > shipsSold = new EnumMap<ShipClass, ShipProperty >(ShipClass.class);
+	private final EnumMap<Weapons, Boolean > weaponsSold = new EnumMap<Weapons, Boolean >(Weapons.class);
+	private final EnumMap<Equipment, Boolean > equipmentSold = new EnumMap<Equipment, Boolean >(Equipment.class);
+	
+	private SpecialEvents specialEvent;
+
+
+	private final Rnd rnd = new Rnd();
+
+	public void addShipSold(ShipClass _sc) {
+		shipsSold.put(_sc, ShipProperty.random() );
+	}
 
 	//serialiser
 	public Planet() {
@@ -72,20 +91,57 @@ public class Planet extends Actor {
 		setWidth(diameter);
 		setHeight(diameter);
 		setTouchable(Touchable.enabled);
+		rnd.setSeed(SpaceTrade.masterSeed + _ID);
 
 		//Setup maps
 		for (Goods _g : Goods.values()) {
-			goodsSold.put(_g, new Boolean(true));
-			stock.put(_g, new AtomicInteger(Utility.getRandI(_g.getBaseAmount()))); //have up to base amount
+			goodsSold.put(_g, Boolean.TRUE);
+			stock.put(_g, new AtomicInteger(rnd.getRandI(_g.getBaseAmount()))); //have up to base amount
 			stockTarget.put(_g, new AtomicInteger(_g.getBaseAmount())); 
 			volitility.put(_g, new AtomicInteger(20)); //base volatility in % //TODO check
 			price.put(_g, new Array<AtomicInteger>() );
 			price.get(_g).add( new AtomicInteger( _g.getBasePrice() ));
 		}
+		for (ShipClass _s : ShipClass.values()) {
+			shipsSold.put(_s, null);
+		}
+		for (Weapons _w : Weapons.values()) {
+			weaponsSold.put(_w, Boolean.FALSE);
+		}
+		for (Equipment _e : Equipment.values()) {
+			equipmentSold.put(_e, Boolean.FALSE);
+		}
+		
+		specialEvent = SpecialEvents.None;
 		
 		//Setup planet 
 		refresh();
 		init();
+	}
+	
+	public void addWeapons(int _n, int _level) {
+		addEquipment(_n, _level);//TODO, do this separately?
+		while (_n > 0) {
+			Weapons _w = Weapons.random();
+			if (_w.getLevel() != _level) continue;
+			if (weaponsSold.get(_w) == true) continue;
+			weaponsSold.put(_w, Boolean.TRUE);
+			--_n;
+		}
+	}
+	
+	public void addEquipment(int _n, int _level) {
+		while (_n > 0) {
+			Equipment _e = Equipment.random();
+			if (_e.getLevel() != _level) continue;
+			if (equipmentSold.get(_e) == true) continue;
+			equipmentSold.put(_e, Boolean.TRUE);
+			--_n;
+		}
+	}
+	
+	public boolean getSellsWeapon(Weapons _w) {
+		return weaponsSold.get(_w);
 	}
 	
 	public void refresh() {
@@ -110,7 +166,7 @@ public class Planet extends Actor {
 	}
 	
 	public float getEquipmentPriceMod() {
-		return 1f; //TODO
+		return techMod;
 	}
 	
 	private void init() {
@@ -122,7 +178,7 @@ public class Planet extends Actor {
 			for (Goods _g : Goods.values()) {
 				final int current = getPrice(_g);
 				final float sigma = (float)current * ((float)volitility.get(_g).get() / 100f);
-				final int _new = Math.abs( Math.round( Utility.getRandG(current, sigma) ) );
+				final int _new = Math.abs( Math.round( rnd.getRandG(current, sigma) ) );
 				price.get(_g).add( new AtomicInteger(_new) );
 				//Mod stock
 				final int _stock = getStock(_g);
@@ -265,6 +321,23 @@ public class Planet extends Actor {
 	
 	public void setStockTarget(Goods _g, int _st) {
 		stockTarget.get(_g).set(_st);
+	}
+
+	public boolean getSells(ShipClass _s) {
+		if (shipsSold.get(_s) == null) return false;
+		return true;
+	}
+
+	public ShipProperty getShipMod(ShipClass _s) {
+		return shipsSold.get(_s);
+	}
+
+	public boolean getSellsEquipment(Equipment _e) {
+		return equipmentSold.get(_e);
+	}
+
+	public SpecialEvents getSpecial() {
+		return specialEvent;
 	}
 
 

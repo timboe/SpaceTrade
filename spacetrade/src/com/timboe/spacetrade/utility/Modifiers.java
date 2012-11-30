@@ -4,6 +4,7 @@ import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Fluctuate;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
+import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.world.Planet;
 
@@ -32,6 +33,9 @@ public class Modifiers {
 			changePrice(_p, Goods.Textiles, 	Fluctuate.downSmall);
 			changePrice(_p, Goods.MedicalGel,	Fluctuate.upSmall);
 			changePrice(_p, Goods.SpaceCrack,	Fluctuate.downSmall);
+			_p.addShipSold(ShipClass.Tiny);
+			_p.addShipSold(ShipClass.Starting);
+			_p.addWeapons(2, 1); //two xLevel1
 			break;		
 		case Industrial:
 			_p.setGoodsSold(Goods.AI, 		false);
@@ -42,17 +46,40 @@ public class Modifiers {
 			changePrice(_p, Goods.Machinery,	Fluctuate.downSmall);
 			changePrice(_p, Goods.HeavyWater,	Fluctuate.downSmall);
 			changePrice(_p, Goods.SpaceCrack,	Fluctuate.upSmall);
+			
+			for (ShipClass _sc : ShipClass.values()) {
+				if (_sc == ShipClass.TradeC || _sc == ShipClass.FightC || _sc == ShipClass.AllroundC) continue;
+				if (_sc == ShipClass.TradeB || _sc == ShipClass.FightB) continue;
+				_p.addShipSold(_sc);
+			}
+			_p.addWeapons(1, 2); //one xLevel2
+			_p.addWeapons(2, 1); //two xLevel1
 			break;		
 		case Technological:
 			changePrice(_p, Goods.Textiles, 	Fluctuate.upSmall);
 			changePrice(_p, Goods.HeavyWater,	Fluctuate.upSmall);
 			changePrice(_p, Goods.Computers,	Fluctuate.downSmall);
+			
+			for (ShipClass _sc : ShipClass.values()) {
+				if (_sc == ShipClass.TradeC || _sc == ShipClass.FightC || _sc == ShipClass.AllroundC) continue;
+				_p.addShipSold(_sc);
+			}
+			_p.addWeapons(1, 3); //one xLevel3
+			_p.addWeapons(1, 2); //one xLevel2
+			_p.addWeapons(2, 1); //two xLevel1
 			break;		
 		case Cybernetic:
 			changePrice(_p, Goods.Computers,	Fluctuate.upSmall);
 			changePrice(_p, Goods.MedicalGel,	Fluctuate.downSmall);
 			changePrice(_p, Goods.AI,			Fluctuate.upSmall);
 			changePrice(_p, Goods.Singularity,	Fluctuate.downSmall);
+			
+			for (ShipClass _sc : ShipClass.values()) {
+				_p.addShipSold(_sc);
+			}
+			_p.addWeapons(1, 3); //one xLevel3
+			_p.addWeapons(2, 2); //two xLevel2
+			_p.addWeapons(2, 1); //two xLevel1
 			break;		
 		case Transcendental:
 			_p.setGoodsSold(Goods.Grain, 		false);
@@ -63,6 +90,13 @@ public class Modifiers {
 			
 			changePrice(_p, Goods.AI,			Fluctuate.downSmall);
 			changePrice(_p, Goods.Singularity,	Fluctuate.upSmall);
+			
+			for (ShipClass _sc : ShipClass.values()) {
+				_p.addShipSold(_sc);
+			}
+			_p.addWeapons(2, 3); //two xLevel3
+			_p.addWeapons(2, 2); //two xLevel2
+			_p.addWeapons(2, 1); //two xLevel1
 		}
 		
 		switch (govType) {

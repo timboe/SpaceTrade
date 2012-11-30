@@ -1,6 +1,6 @@
 package com.timboe.spacetrade.enumerator;
 
-import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.utility.Rnd;
 
 public enum Fluctuate {
 	downSmall(0.9f),
@@ -16,11 +16,12 @@ public enum Fluctuate {
 		fluctuate = _f;
 	}
 	
+	private static final Rnd rnd = new Rnd();
 	public float get() {
 		if (Math.abs(fluctuate - 1f) < 0.001f) {
-			if (Utility.getRandChance(0.33f) == true) {
+			if (rnd.getRandChance(0.33f) == true) {
 				return Fluctuate.downSmall.get();
-			} else if (Utility.getRandChance(0.33f) == true) {
+			} else if (rnd.getRandChance(0.33f) == true) {
 				return Fluctuate.upSmall.get();
 			}
 		}

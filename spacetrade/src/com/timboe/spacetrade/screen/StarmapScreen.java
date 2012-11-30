@@ -27,6 +27,8 @@ public class StarmapScreen extends SpaceTradeRender {
 	private Array<PooledEffect> effects = new Array<PooledEffect>();
 	private CameraController gestureControler;
 	private OrthographicCamera gestureCam;
+	
+//	private SelectBox planetSelect = null;
 		
 	static int planetClickedID = -1;
 	public static void setPlanetClickedID(int _id) {
@@ -210,7 +212,7 @@ public class StarmapScreen extends SpaceTradeRender {
 	
 	@Override
 	public void renderForeground(float delta) {
-		if (planetClickedID >= 0 && Player.getPlayer().getActions().size == 0) {
+		if (planetClickedID >= 0 && Player.getPlayer().isMoving() == false) {
 			leftTable.setVisible(true);
 		} else {
 			leftTable.setVisible(false);
@@ -223,6 +225,12 @@ public class StarmapScreen extends SpaceTradeRender {
 	
 	@Override 
 	public void show() {
+//		if (planetSelect == null) {
+//			planetSelect = new SelectBox(Starmap.getPlanetNames(), Textures.getSkin());
+//
+//		}
+//		leftTable.add(planetSelect);
+		
 		gestureCam.position.set(Player.getPlayer().getX(),  Player.getPlayer().getY(), 0);
 		gestureControler.flinging = false;
 		gestureControler.constrain(true);
@@ -236,6 +244,8 @@ public class StarmapScreen extends SpaceTradeRender {
 			secondaryStage.addActor(Player.getPlayer());
 		}
 		super.show();
+		//masterTable.getCell(leftTable).left().top();
+		//masterTable.invalidateHierarchy();
 	}
 
 	public static int getPlanetClickedID() {

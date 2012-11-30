@@ -26,6 +26,8 @@ public class SpaceTrade extends Game {
 	
 	public static boolean debug = false;
 	
+	public static final int masterSeed = 2;
+	
 	private static SpaceTrade self;
 	public static SpaceTrade getSpaceTrade() {
 		return self;

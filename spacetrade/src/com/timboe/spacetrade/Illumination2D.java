@@ -29,8 +29,8 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.timboe.spacetrade.utility.Rnd;
 import com.timboe.spacetrade.utility.SimplexNoise;
-import com.timboe.spacetrade.utility.Utility;
  
 /**
  * Simple illumination model with shaders in LibGDX.
@@ -52,6 +52,8 @@ public class Illumination2D implements Screen {
         Texture worldNormal;
         Mesh sphereMesh;
         float Delta=0;
+        
+        private static Rnd rnd2 = new Rnd();
 
        
         Matrix4 transform = new Matrix4();
@@ -773,11 +775,11 @@ public class Illumination2D implements Screen {
 		public void genWorld() {
         	++random_r;
         	randomseed = 2 + random_r*random_r;
-        	Utility.setSeed(randomseed);
+        	rnd2.setSeed(randomseed);
 			
-    		octaves = Utility.getRandI(4) + 3;//3-6
-    		frequency = (Utility.getRandI(3) + 1) * (1f/512f); //1-3
-    		persistence = (Utility.getRandI(3) + 4) * 0.1f; //0.4 - 0.6
+    		octaves = rnd2.getRandI(4) + 3;//3-6
+    		frequency = (rnd2.getRandI(3) + 1) * (1f/512f); //1-3
+    		persistence = (rnd2.getRandI(3) + 4) * 0.1f; //0.4 - 0.6
     		
 	        Pixmap worldPixOcean = new Pixmap((int) maxU, (int) maxV, Format.RGBA8888);
 	        Pixmap worldPixLand = new Pixmap((int) maxU, (int) maxV, Format.RGBA8888);
@@ -885,23 +887,23 @@ public class Illumination2D implements Screen {
         		cR=false;
         		cG=false;
         		cB=false;
-        		if (Utility.getRandChance(0.5f) == true) {
+        		if (rnd2.getRandChance(0.5f) == true) {
         			++nC;
         			cR=true;
         		}
-        		if (Utility.getRandChance(0.5f) == true) {
+        		if (rnd2.getRandChance(0.5f) == true) {
         			++nC;
         			cG=true;
         		}
-        		if (Utility.getRandChance(0.5f) == true) {
+        		if (rnd2.getRandChance(0.5f) == true) {
         			++nC;
         			cB=true;
         		}
         	}
         	float r = 0,g = 0, b=0f;
-        	if (cR == true) r = 0.5f + (Utility.getRandF()/2f);
-        	if (cG == true) g = 0.5f + (Utility.getRandF()/2f);
-        	if (cB == true) b = 0.5f + (Utility.getRandF()/2f);
+        	if (cR == true) r = 0.5f + (rnd2.getRandF()/2f);
+        	if (cG == true) g = 0.5f + (rnd2.getRandF()/2f);
+        	if (cB == true) b = 0.5f + (rnd2.getRandF()/2f);
         	return new Color(r, g, b, 1f);
         }
 		

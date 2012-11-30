@@ -46,7 +46,7 @@ public class BuyWindow {
 	}
 	
 	public static void updateList(boolean _intial) {
-		if (buyWindowPopulated == false) return;
+		if (buyWindowPopulated == false) getWindow();
 		
 		curPlanet = Player.getPlanet();
 		final String _titleStr = "Buying from "+curPlanet.getFullName();

@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -12,12 +13,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.screen.ShipScreen;
 import com.timboe.spacetrade.utility.Help;
 import com.timboe.spacetrade.world.ImageButtonEquipment;
-import com.timboe.spacetrade.world.ImageButtonWeapon;
 
 public class EquipmentWindow {
 	private static final EnumMap<Equipment, ImageButtonEquipment> equipmentMinus = new EnumMap<Equipment, ImageButtonEquipment>(Equipment.class);
@@ -28,11 +30,11 @@ public class EquipmentWindow {
 	private static ChangeListener equipmentClick;
 
 	private static Window equipmentWindow = null;
-	private static boolean equipmentWindowPopulated = false;
+//	private static boolean equipmentWindowPopulated = false;
 	
 	public static Window getWindow() {
-		if (equipmentWindowPopulated == true) return equipmentWindow;
-		equipmentWindowPopulated = true;
+//		if (equipmentWindowPopulated == true) return equipmentWindow;
+//		equipmentWindowPopulated = true;
 		populateWindow();
 		return equipmentWindow;
 	}
@@ -42,8 +44,28 @@ public class EquipmentWindow {
 		
 		equipmentClick = new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				Gdx.app.log("ShipButton","Interact:"+event.toString()+" "+((ImageButtonWeapon)actor).getWeaponClass());
-				updateList();
+				Equipment _class = ((ImageButtonEquipment)actor).getEquipment();
+				int _cost = Math.round(_class.getCost() * Player.getPlanet().getEquipmentPriceMod());
+				Gdx.app.log("EquipmentButton","Interact:"+event.toString()+" "+_class);
+				if ( ((ImageButtonEquipment)actor).getAdd() == false ) { //TRY SELL
+					if (Player.getShip().getNumberInstalled(_class) == 0) {
+						return;
+					}
+					Player.modCredz(_cost);
+					Player.getShip().disarm(_class);
+				} else { //TRY BUY
+					if (Player.getShip().getFreeEquipmentSlots() == 0) {
+						Help.errorOK("\nThere are no free equipment slots.\n\nTry selling some equipment to free a slot,\nor buy a bigger ship!\n ");
+						return;
+					}
+					if (_cost > Player.getCredz()) {
+						Help.errorOK("\nYou cannot afford to buy this pice of equipment!\n ");
+						return;	
+					}
+					Player.modCredz(-_cost);
+					Player.getShip().arm( ((ImageButtonEquipment)actor).getEquipment() );
+				}
+				ShipScreen.updateAll = true;	
 			}
 		};
 		
@@ -52,7 +74,16 @@ public class EquipmentWindow {
 		equipmentWindow.setMovable(false);
 		equipmentWindow.debug();
 		
+		if (Player.getPlanet().getCiv() == Civilisation.Agricultural) {
+			equipmentWindow.add( new Label( "Not Sold Here", _skin ) );	
+		}
+		
 		for (final Equipment _e : Equipment.values()) {
+			if (Player.getPlanet().getSellsEquipment(_e) == false) {
+				equipmentPrice.put(_e, null); //used to communicate decision
+				continue;
+			}
+			
 			ImageButton tempIButton = new ImageButton(_skin.get("info", ImageButtonStyle.class));
 			tempIButton.addCaptureListener( new  ChangeListener() {
 				public void changed (ChangeEvent event, Actor actor) {
@@ -61,6 +92,8 @@ public class EquipmentWindow {
 				}
 			});
 			equipmentWindow.add( tempIButton );
+			
+			equipmentWindow.add( new Image(_skin.getDrawable("Laser1") ) ); //TODO ART!
 			
 			equipmentWindow.add( new Label( _e.getName(), _skin ) );	
 			
@@ -85,13 +118,22 @@ public class EquipmentWindow {
 			equipmentWindow.row();
 		}
 			
-		updateList();		
+		ShipScreen.updateAll = true;	
 	}
 
-	private static void updateList() {
+	public static void updateList() {
+		if (equipmentWindow == null) return;
 
+		int _slots = Player.getShip().getFreeEquipmentSlots();
+		if (_slots == 1) {
+			equipmentWindow.setTitle("Equipment, "+_slots+" Slot Free");
+		} else {
+			equipmentWindow.setTitle("Equipment, "+_slots+" Slots Free");
+		}
+
+		
 		for (final Equipment _e : Equipment.values()) {
-			//TODO check if sold!
+			if (equipmentPrice.get(_e) == null) continue; //not sold
 			
 			//set price
 			int _price = _e.getCost();
@@ -101,7 +143,10 @@ public class EquipmentWindow {
 			} else {
 				equipmentPrice.get(_e).setColor(Color.GREEN);
 			}
-
+			
+			//set n owned
+			int _owned = Player.getShip().getNumberInstalled(_e);
+			equipmentCargo.get(_e).setText( Integer.toString(_owned) );
 		}
 	}
 }

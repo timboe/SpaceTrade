@@ -17,6 +17,22 @@ public class Meshes {
 	static Mesh planetMedium = null;
 	static Mesh planetLarge = null;
 	
+	static Mesh pinkTube = null;
+	
+	public static Mesh getPinkTube() {
+		if (pinkTube == null) {
+			InputStream in = Gdx.files.internal("data/pinkTube.obj").read();
+			pinkTube = ObjLoader.loadObj(in);
+			try {
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			pinkTube.scale(150f, 150f, 150f);
+		}
+		return pinkTube;
+	}
+	
 	public static Mesh getPlanet(WorldSize _ws) {
 		if (planetSmall == null) init();
 		switch (_ws) {
@@ -130,8 +146,8 @@ public class Meshes {
                         "       \n" +
                         "       gl_FragColor = v_color * vec4(result, color.a);\n" +
                         "}";
-        System.out.println("VERTEX PROGRAM:\n------------\n\n"+vert);
-        System.out.println("FRAGMENT PROGRAM:\n------------\n\n"+frag);
+        //System.out.println("VERTEX PROGRAM:\n------------\n\n"+vert);
+        //System.out.println("FRAGMENT PROGRAM:\n------------\n\n"+frag);
         ShaderProgram program = new ShaderProgram(vert, frag);
         // u_proj and u_trans will not be active but SpriteBatch will still try to set them...
         ShaderProgram.pedantic = false;

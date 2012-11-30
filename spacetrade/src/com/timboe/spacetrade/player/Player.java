@@ -9,11 +9,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.ShipClass;
-import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.ship.Ship;
-import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.utility.Rnd;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 
@@ -25,15 +24,21 @@ public class Player extends Actor {
 	private static Ship ship;
 	private static int totalCargo;
 	private static int currentLocationID;
+	private static Rnd rnd = new Rnd();
 
 	private static Player singleton = new Player();
 	public static final Player getPlayer () {
 		return singleton;
 	}
 
+	public boolean isMoving() {
+		if (getActions().size == 0) return false;
+		return true;
+	}
+	
 	public Player() { //Only to be called externally when loading a game!
-		ship = new Ship(ShipTemplate.Player, ShipClass.Starting);
-		currentLocationID = Utility.getRandI( Starmap.getNPlanets() );
+		ship = new Ship(ShipClass.FightC);
+		currentLocationID = rnd.getRandI( Starmap.getNPlanets() );
 		setOrigin(Sprites.getSprites().getPlayerSprite().getWidth()/2f, Sprites.getSprites().getPlayerSprite().getHeight()/2f);
 		
 		//Setup maps
@@ -107,6 +112,10 @@ public class Player extends Actor {
 		return totalCargo;
 	}
 	
+	public static int getTotalCargoCapacity() {
+		return ship.getMaxCargo();
+	}
+	
 	public static void addStock(Goods _g, int _newStock, int _price_per_unit) {
 		final int _addingValue = _newStock * _price_per_unit;
 		final int _currentStock = stock.get(_g).get();
@@ -138,5 +147,8 @@ public class Player extends Actor {
 	public static Ship getShip() {
 		return ship;
 	}
-	
+
+	public static void setShip(Ship _newShip) {
+		ship = _newShip;
+	}
 }

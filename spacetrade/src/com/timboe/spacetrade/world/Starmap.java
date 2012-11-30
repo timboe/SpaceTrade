@@ -6,17 +6,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.timboe.spacetrade.SpaceTrade;
+import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.StarmapScreen;
-import com.timboe.spacetrade.utility.Utility;
+import com.timboe.spacetrade.utility.Rnd;
 
 public class Starmap {
 	
 	private static final int starBuffer = (int) Math.round((Textures.getStar().getWidth()/2f) * Math.sqrt(2)) * 3 ;
 	public static final int travelScale = (int) (starBuffer * 0.1f);
 	private static final int nPlanets = 128;
-	public static final float toLightYears = 4.2f;
+	public static final float toLightYears = 4.2f; //Average solar separation in lightyears
 	private static final Array<Planet> thePlanets = new Array<Planet>();
 	private static final float G = 1.03f; //lightyears per year per year
 	private static final float C = 1.f; //lightyear per year
@@ -29,6 +30,8 @@ public class Starmap {
 	private static int localPlanetID = -1;
 	private static IntArray localPlanets = new IntArray();
 	private static int localArrayLocation = 0;
+	
+	private static Rnd rnd = new Rnd();
 
 	public static synchronized Array<Planet> getPlanets() {
 		return thePlanets;
@@ -60,14 +63,21 @@ public class Starmap {
 
 		int ID = 0;
 		while (thePlanets.size < getNPlanets()) {
-			int _x = Utility.getRandI((int)(Textures.getGalaxyTexture().getWidth()  - starBuffer - SpaceTrade.GUI_WIDTH)) + starBuffer/4;
-			int _y = Utility.getRandI((int)(Textures.getGalaxyTexture().getHeight() - starBuffer)) + starBuffer/4;
+			int _x = rnd.getRandI((int)(Textures.getGalaxyTexture().getWidth()  - starBuffer - SpaceTrade.GUI_WIDTH)) + starBuffer/4;
+			int _y = rnd.getRandI((int)(Textures.getGalaxyTexture().getHeight() - starBuffer)) + starBuffer/4;
 			//Check we're not too close
-			boolean tooClose = false;
-			for (Planet p : thePlanets) {
-				if (p.dst(_x, _y) < starBuffer) tooClose = true;
+			if (thePlanets.size == 0) { //first one in the centre
+				_x = Textures.getGalaxyTexture().getWidth()/2;
+				_y = Textures.getGalaxyTexture().getHeight()/2;
 			}
-			if (tooClose == false) {
+			boolean tooClose = false;
+			boolean tooFar = true;
+			for (Planet p : thePlanets) {
+				if (p.dst(_x, _y) < 1*starBuffer) tooClose = true;
+				if (p.dst(_x, _y) < ShipClass.Starting.getRange()) tooFar = false;
+
+			}
+			if (thePlanets.size == 0 || (tooClose == false && tooFar == false)) {
 				final Planet newPlanet = new Planet(_x, _y, ID++);
 				newPlanet.addListener(new ClickListener() {
 			        @Override
@@ -75,28 +85,12 @@ public class Starmap {
 			        	if (isOver() == true) {
 			        		Gdx.app.log("PlanetButton","Interact:"+event.toString()+" "+newPlanet.getName());
 			        		StarmapScreen.setPlanetClickedID(newPlanet.getID());
-			        		if (event.getButton() != 0) {
-			        			Player.getPlayer().move(newPlanet);
-			        			setNearbyPlanetFocus(newPlanet.getID());
-			        		}
 			        	}
 			        }
 			    });
 				thePlanets.add( newPlanet );
+				Gdx.app.log("Starmap", "Populating, size:"+thePlanets.size);
 			}
-//			if (thePlanets.size == getNPlanets()) { //TODO think about this
-//				//now we have all the stars, move any which are too far away from each other!
-//				//note this is still within the create loop
-//				for (Planet p1 : thePlanets) {
-//					float minDist = 99999f;
-//					float
-//					for (Planet p2 : thePlanets) {
-//						if (p1 == p2) continue;
-//						float dist = 
-//						minDist = Math.min(minDist, p1.dst(p2));
-//					}
-//					if ()
-//				}
 		}
 		//Get the economy going!
 		newYear(200);
@@ -117,12 +111,16 @@ public class Starmap {
 		return (float) (2 * (Math.sqrt( Math.pow((d/c),2) +  ((2*d)/a) )) );
 	}
 	
+	public static float acosh(float _v) {
+		return (float) Math.log(_v + Math.sqrt(_v * _v - 1));
+	}
+	
 	public static float getTravelTimeShip(Planet _local, Planet _remote, float _g) {
 		final float d = getDistanceLightyear(_local, _remote)/2f; 		//need to change around at half way point!
 		final float a = _g * G;
 		final float c = C;
 		//(c/a) ch-1 [ad/c2 + 1]
-		return (float) 2 * ( (c/a) * Utility.acosh( ((a*d)/(c*c)) + 1 ) );
+		return (float) 2 * ( (c/a) * acosh( ((a*d)/(c*c)) + 1 ) );
 	}
 	
 	public static int prevNearbyPlanet() {
@@ -185,7 +183,7 @@ public class Starmap {
 	}
 
 	public static Planet getRandomPlanet() {
-		return thePlanets.get( Utility.getRandI(getNPlanets()) );
+		return thePlanets.get( rnd.getRandI(getNPlanets()) );
 	}
 
 	public static String getStarDateDisplay() {
@@ -194,6 +192,16 @@ public class Starmap {
 	
 	public static String getShipDateDisplay() {
 		return String.format("%.2f", starDateShip);
+	}
+
+	public static String[] getPlanetNames() {
+		String[] names = new String[nPlanets];
+		int i = 0;
+		for (Planet _p : thePlanets) {
+			names[i] = _p.getName();
+			++i;
+		}
+		return names;
 	}
 
 

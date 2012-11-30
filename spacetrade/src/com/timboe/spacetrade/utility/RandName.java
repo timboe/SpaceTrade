@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
+import com.timboe.spacetrade.SpaceTrade;
 
 public class RandName {
-	protected Random rand = new Random(Utility.masterSeed * 2);
+	protected Random rand = new Random(SpaceTrade.masterSeed);
 	protected ArrayList<Object> content = new ArrayList<Object>();
 	
 	public RandName() {

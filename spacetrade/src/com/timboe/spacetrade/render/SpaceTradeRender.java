@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,12 +13,15 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.timboe.spacetrade.SpaceTrade;
+import com.timboe.spacetrade.enumerator.WorldSize;
+import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.utility.ScreenFade;
 import com.timboe.spacetrade.utility.Serialiser;
 
@@ -116,6 +120,40 @@ public class SpaceTradeRender implements Screen {
 		renderForeground(delta);
 		renderFade(delta);
 	}
+	
+	protected void renderPlanet(float delta) {
+		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
+		transform_FX.rotate(0, 1, 0, delta);
+		shader.begin();
+        Vector3 lightPos = new Vector3(0,0,0.005f);
+        lightPos.x = Gdx.input.getX();
+        lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        shader.setUniformf("light", lightPos);
+        shader.setUniformMatrix("u_projTrans", transform_FX);
+        PlanetFX.getNormals(Player.getPlanetID()).bind(1);
+        PlanetFX.getTexture(Player.getPlanetID()).bind(0);
+        Meshes.getPlanet(Player.getPlanet().getSize()).render(shader, GL20.GL_TRIANGLES);
+        shader.end();
+        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
+	}
+	
+	protected void renderPlanetBackdrop() {
+		spriteBatch.setProjectionMatrix(transform_BG);
+		spriteBatch.begin();
+		spriteBatch.setColor( Color.WHITE );
+		spriteBatch.draw(Textures.getStarscape( Player.getPlanetID() ),0,0);
+		spriteBatch.setColor( PlanetFX.getLandColor( Player.getPlanetID() ) ); //TODO put proper colour back in here
+		if (Player.getPlanet().getSize() == WorldSize.Small) { //image is 705x800
+			spriteBatch.draw(Textures.getPlanetBlur(),550,80,580,635);
+		} else if (Player.getPlanet().getSize() == WorldSize.Medium) {
+			spriteBatch.draw(Textures.getPlanetBlur(),490,0);
+		} else if (Player.getPlanet().getSize() == WorldSize.Large) {
+			spriteBatch.draw(Textures.getPlanetBlur(),455,-20,765,840);
+		}
+		spriteBatch.setColor( Color.WHITE );
+		Textures.getBlackSquare().draw(spriteBatch, -500, -500, 1, 1); // spriteBatch.draw(  Textures.getBlackSquare(),-500,-500); //BUG need to draw something to reset colour
+		spriteBatch.end();
+	}
 
 	protected void renderFade(float delta) {
 		if (ScreenFade.checkFade() == false) return;
@@ -163,7 +201,8 @@ public class SpaceTradeRender implements Screen {
 		stage.setViewport(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT, true);
 		stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
 		
-		blackSquare.setSize(width,height);
+		blackSquare.setWidth(Gdx.graphics.getWidth()*10);
+		blackSquare.setHeight(Gdx.graphics.getHeight()*10);
 		screenCam = new OrthographicCamera();
 		
 		transform_BG = screenCam.combined.cpy();

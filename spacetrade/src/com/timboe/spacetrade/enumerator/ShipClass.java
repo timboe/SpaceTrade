@@ -3,17 +3,17 @@ package com.timboe.spacetrade.enumerator;
 import com.timboe.spacetrade.world.Starmap;
 
 public enum ShipClass {
-	//	         Cargo 	Weapn	Tech	Range	Hull	Cost	name
-	Tiny		(5,		1,		0,		30,		100,	500,	"Tiny"),
-	Starting	(10,	1,		1,		20,		400,	1000,	"Starting"),
-	TradeA		(20,	1,		1,		22,		1000,	10000,	"TradeA"),
-	TradeB		(40,	2,		2,		24,		1700,	75000,	"TradeB"),
-	TradeC		(60,	2,		3,		26,		2400,	150000,	"TradeC"),
-	FightA		(10,	2,		1,		21,		1400,	15000,	"FightA"),
-	FightB		(20,	3,		2,		22,		2200,	60000,	"FightB"),
-	FightC		(35,	3,		3,		23,		2800,	175000,	"FightC"),
-	AllroundA	(15,	2,		1,		21,		1200,	12000,	"AllroundA"),
-	AllroundC	(50,	3,		3,		25,		2600,	160000,	"AllroundC");
+	//	         Cargo 	Weapn	Tech	Range	Hull	Heat	Cost	name
+	Tiny		(5,		1,		0,		30,		100,	80,		500,	"Tiny"),
+	Starting	(10,	1,		1,		20,		400,	200,	1000,	"Starting"),
+	TradeA		(20,	1,		1,		22,		1000,	600,	10000,	"TradeA"),
+	AllroundA	(15,	2,		1,		21,		1200,	1200,	12000,	"AllroundA"),
+	FightA		(10,	2,		1,		21,		1400,	2400,	15000,	"FightA"),
+	FightB		(20,	3,		2,		22,		2200,	5400,	60000,	"FightB"),
+	TradeB		(40,	2,		2,		24,		1700,	2600,	75000,	"TradeB"),
+	TradeC		(60,	2,		3,		26,		2400,	5000,	150000,	"TradeC"),
+	AllroundC	(50,	3,		3,		25,		2600,	6400,	160000,	"AllroundC"),
+	FightC		(35,	3,		3,		23,		2800,	8000,	175000,	"FightC");
 
 	String name;
 	int cargo;
@@ -22,8 +22,9 @@ public enum ShipClass {
 	int range;
 	int hull;
 	int cost;
+	int heat;
 	
-	private ShipClass(int _c, int _ws, int _ts, int _r, int _h, int _cst, String _n) {
+	private ShipClass(int _c, int _ws, int _ts, int _r, int _h, int _heat, int _cst, String _n) {
 		cargo = _c;
 		weaponSlots = _ws;
 		techSlots = _ts;
@@ -31,6 +32,7 @@ public enum ShipClass {
 		hull = _h;
 		cost = _cst;
 		name = _n;
+		heat = _heat;
 	}
 	
 	public String getName() {
@@ -59,5 +61,9 @@ public enum ShipClass {
 
 	public int getMaxCargo() {
 		return cargo;
+	}
+
+	public int getMaxHeat() {
+		return heat;
 	}
 }

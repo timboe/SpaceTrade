@@ -54,7 +54,7 @@ public class TitleScreen extends SpaceTradeRender {
 				//new!
 				Starmap.populate();
 				Player.getPlayer().refresh();
-				Player.setCredz(1000);
+				Player.setCredz(250000);
 				ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theStarmap );
 				RightBar.getRightBarTable().addAction(Actions.delay(ScreenFade.speed));
 				RightBar.getRightBarTable().addAction(Actions.fadeIn(ScreenFade.speed));

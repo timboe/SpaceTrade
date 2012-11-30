@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -196,10 +195,8 @@ public class WarpBuyWindow {
 				Starmap.doTravelTime(Starmap.getTravelTimeGalactic(curPlanet,targetPlanet,acceleration),
 						Starmap.getTravelTimeShip(curPlanet,targetPlanet,acceleration));
 				SequenceAction moveSequence = new SequenceAction();
-				moveSequence.addAction( Actions.rotateTo(_a, 1f) );
-				moveSequence.addAction( Actions.moveTo(_targetX, _targetY, _time) );
-				((TemporalAction) moveSequence.getActions().get(0)).setInterpolation(Interpolation.circle); //This is ugly!
-				((TemporalAction) moveSequence.getActions().get(1)).setInterpolation(Interpolation.exp5);
+				moveSequence.addAction( Actions.rotateTo(_a, 1f, Interpolation.circle) );
+				moveSequence.addAction( Actions.moveTo(_targetX, _targetY, _time, Interpolation.exp5) );
 				moveSequence.addAction( Actions.run(new Runnable() {
 			        public void run () {
 						Player.getPlayer().move( Starmap.getPlanet( StarmapScreen.getPlanetClickedID() ) );

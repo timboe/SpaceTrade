@@ -1,32 +1,51 @@
 package com.timboe.spacetrade.enumerator;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import com.timboe.spacetrade.utility.Rnd;
+
 public enum Equipment {
-	//Shields
-	SmallShield		(10000,		"Small Shield"),
-	LargeShield		(100000,	"Large Shield"),
-	//Heat disperser
-	MiniRadiator	(10000,		"Mini Rad"),
-	MaxiRadiator	(100000,	"Maxi Rad"),
-	//
-	Window			(50000,		"Window"),
-	ZMRadio			(50000,		"ZMRadio");
-	//
+	SmallShield		(10000,		1,	"Small Shield"),
+	MiniRadiator	(10000,		1,	"Mini Rad"),
+	Window			(10000,		1,	"Window"),
+	MediumShield	(50000,		2,	"Small Shield"),
+	MediRadiator	(50000,		2,	"Medi Rad"),
+	ZMRadio			(50000,		2,	"ZMRadio"),
+	LargeShield		(100000,	3,	"Large Shield"),
+	MaxiRadiator	(100000,	3,	"Maxi Rad"),
+	Cloak			(100000,	3,	"ZMRadio");
 	//TargetingComputer;
 	
 	String name;
 	int cost;
+	int level;
 	
-	private Equipment (int _cst, String _n) {
+	private Equipment (int _cst, int _l, String _n) {
 		name = _n;
 		cost = _cst;
+		level = _l;
 	}
 	
 	public int getCost() {
 		return cost;
 	}
 	
+	public int getLevel() {
+		return level;
+	}
+	
 	public String getName() {
 		return name;
+	}
+	
+	private static final List<Equipment> content = Collections.unmodifiableList(Arrays.asList(values()));
+	private static final int size = content.size();
+	private static final Rnd rnd = new Rnd();
+
+	public static Equipment random()  {
+		return content.get( rnd.getRandI(size) );
 	}
 	
 	
