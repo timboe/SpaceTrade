@@ -14,7 +14,7 @@ import com.timboe.spacetrade.utility.Rnd;
 
 public class Starmap {
 	
-	private static final int starBuffer = (int) Math.round((Textures.getStar().getWidth()/2f) * Math.sqrt(2)) * 3 ;
+	private static final int starBuffer = (int) Math.round((Textures.getStar().getRegionWidth()/2f) * Math.sqrt(2)) * 3 ;
 	public static final int travelScale = (int) (starBuffer * 0.1f);
 	private static final int nPlanets = 128;
 	public static final float toLightYears = 4.2f; //Average solar separation in lightyears

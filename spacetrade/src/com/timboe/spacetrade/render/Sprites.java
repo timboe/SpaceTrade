@@ -16,7 +16,8 @@ public class Sprites {
 	
 	private Sprites() {
 		shipSprite = new Sprite(Textures.getShip());
-		shipSprite.setOrigin(0, 0);
+		//shipSprite.scale(2f);
+		shipSprite.setOrigin(Textures.getShip().getRegionWidth()/2, Textures.getShip().getRegionHeight()/2);
 		
 		for (int _p = 0; _p < Starmap.getNPlanets(); ++_p) {
 			Sprite _ps = new Sprite(Textures.getStar());

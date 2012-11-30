@@ -4,6 +4,7 @@ import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Fluctuate;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
+import com.timboe.spacetrade.enumerator.PlanetActivity;
 import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.world.Planet;
@@ -111,6 +112,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.upSmall);
 			changePrice(_p, Goods.AI, 			Fluctuate.upHuge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.upLarge);
+			
+			_p.setActivity(PlanetActivity.Few , PlanetActivity.Few, PlanetActivity.Few);
 			break;
 		case Autocracy:
 			changePrice(_p, Goods.Grain, 		Fluctuate.downLarge);
@@ -123,6 +126,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.chance);
 			changePrice(_p, Goods.AI, 			Fluctuate.upLarge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.chance);
+			
+			_p.setActivity(PlanetActivity.Swarms, PlanetActivity.Few, PlanetActivity.Many);
 			break;
 		case Bureaucracy:
 			changePrice(_p, Goods.Grain, 		Fluctuate.upLarge);
@@ -135,6 +140,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.upLarge);
 			changePrice(_p, Goods.AI, 			Fluctuate.upHuge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.upSmall);
+			
+			_p.setActivity(PlanetActivity.Few, PlanetActivity.Swarms, PlanetActivity.Some);
 			break;
 		case Democracy:
 			changePrice(_p, Goods.Grain, 		Fluctuate.chance);
@@ -147,6 +154,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.chance);
 			changePrice(_p, Goods.AI, 			Fluctuate.downSmall);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.chance);
+			
+			_p.setActivity(PlanetActivity.Some, PlanetActivity.Some, PlanetActivity.Many);
 			break;			
 		case Dictatorship:
 			changePrice(_p, Goods.Grain, 		Fluctuate.upSmall);
@@ -159,6 +168,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.upSmall);
 			changePrice(_p, Goods.AI, 			Fluctuate.upLarge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.upLarge);
+			
+			_p.setActivity(PlanetActivity.Swarms, PlanetActivity.None, PlanetActivity.Few);
 			break;
 		case Ergatocracy:  //Proles
 			changePrice(_p, Goods.Grain, 		Fluctuate.downSmall);
@@ -171,6 +182,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.chance);
 			changePrice(_p, Goods.AI, 			Fluctuate.upSmall);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.chance);
+			
+			_p.setActivity(PlanetActivity.Many, PlanetActivity.None, PlanetActivity.Some);
 			break;
 		case Geniocracy: //wise
 			changePrice(_p, Goods.Grain, 		Fluctuate.chance);
@@ -183,6 +196,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.chance);
 			changePrice(_p, Goods.AI, 			Fluctuate.downHuge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.downHuge);
+			
+			_p.setActivity(PlanetActivity.Some, PlanetActivity.Some, PlanetActivity.Some);
 			break;
 		case Kratocracy: //The strong
 			changePrice(_p, Goods.Grain, 		Fluctuate.chance);
@@ -195,6 +210,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.chance);
 			changePrice(_p, Goods.AI, 			Fluctuate.downSmall);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.downLarge);
+			
+			_p.setActivity(PlanetActivity.Few, PlanetActivity.Many, PlanetActivity.Some);
 			break;
 		case Monarchy:
 			changePrice(_p, Goods.Grain, 		Fluctuate.upLarge);
@@ -207,8 +224,10 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.downSmall);
 			changePrice(_p, Goods.AI, 			Fluctuate.upSmall);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.chance);
+			
+			_p.setActivity(PlanetActivity.Some, PlanetActivity.Many, PlanetActivity.Many);
 			break;
-		case Oligarchy:
+		case Oligarchy: //ruled by the few
 			changePrice(_p, Goods.Grain, 		Fluctuate.chance);
 			changePrice(_p, Goods.Textiles, 	Fluctuate.chance);
 			changePrice(_p, Goods.Minerals, 	Fluctuate.upSmall);
@@ -219,8 +238,10 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.downSmall);
 			changePrice(_p, Goods.AI, 			Fluctuate.upLarge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.downLarge);
+			
+			_p.setActivity(PlanetActivity.Many , PlanetActivity.Many, PlanetActivity.Swarms);
 			break;
-		case Plutocracy:
+		case Plutocracy: //wealthy
 			changePrice(_p, Goods.Grain, 		Fluctuate.downLarge);
 			changePrice(_p, Goods.Textiles, 	Fluctuate.upLarge);
 			changePrice(_p, Goods.Minerals, 	Fluctuate.downSmall);
@@ -231,6 +252,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.upLarge);
 			changePrice(_p, Goods.AI, 			Fluctuate.upHuge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.upLarge);
+			
+			_p.setActivity(PlanetActivity.Many, PlanetActivity.Some, PlanetActivity.Many);
 			break;
 		case Republic:
 			changePrice(_p, Goods.Grain, 		Fluctuate.downSmall);
@@ -243,8 +266,10 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.downLarge);
 			changePrice(_p, Goods.AI, 			Fluctuate.downLarge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.downSmall);
+			
+			_p.setActivity(PlanetActivity.None, PlanetActivity.Many, PlanetActivity.Swarms);
 			break;
-		case Technocracy:
+		case Technocracy: //scientists, engineers
 			changePrice(_p, Goods.Grain, 		Fluctuate.chance);
 			changePrice(_p, Goods.Textiles, 	Fluctuate.chance);
 			changePrice(_p, Goods.Minerals, 	Fluctuate.upLarge);
@@ -255,6 +280,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.downLarge);
 			changePrice(_p, Goods.AI, 			Fluctuate.downHuge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.downLarge);
+			
+			_p.setActivity(PlanetActivity.None, PlanetActivity.Few, PlanetActivity.Many);
 			break;
 		case Theocracy:
 			changePrice(_p, Goods.Grain, 		Fluctuate.chance);
@@ -267,6 +294,8 @@ public class Modifiers {
 			changePrice(_p, Goods.MedicalGel, 	Fluctuate.chance);
 			changePrice(_p, Goods.AI, 			Fluctuate.upHuge);
 			changePrice(_p, Goods.Singularity, 	Fluctuate.upHuge);
+			
+			_p.setActivity(PlanetActivity.Some, PlanetActivity.Swarms, PlanetActivity.Few);
 			break;
 		}
 		

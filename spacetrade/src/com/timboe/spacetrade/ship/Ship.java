@@ -29,10 +29,10 @@ public class Ship {
 	
 	public Ship(ShipClass _sc) { //Player ship constructor
 		shipClass = _sc;
-		template = ShipTemplate.Player;
+		template = null;
 		property = ShipProperty.random();
 		hull = shipClass.getMaxHull();
-		heat = shipClass.getMaxHeat();
+		heat = 0;
 		sheilding = 0f;
 	}
 	

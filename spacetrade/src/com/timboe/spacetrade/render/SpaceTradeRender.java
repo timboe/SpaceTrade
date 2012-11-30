@@ -151,7 +151,7 @@ public class SpaceTradeRender implements Screen {
 			spriteBatch.draw(Textures.getPlanetBlur(),455,-20,765,840);
 		}
 		spriteBatch.setColor( Color.WHITE );
-		Textures.getBlackSquare().draw(spriteBatch, -500, -500, 1, 1); // spriteBatch.draw(  Textures.getBlackSquare(),-500,-500); //BUG need to draw something to reset colour
+		spriteBatch.draw(Textures.getBlackSquare(),-500,-500, 1, 1); //BUG need to draw something to reset colour
 		spriteBatch.end();
 	}
 

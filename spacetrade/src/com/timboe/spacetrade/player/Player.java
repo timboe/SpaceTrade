@@ -57,7 +57,8 @@ public class Player extends Actor {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		Sprite _ps = Sprites.getSprites().getPlayerSprite();
-		_ps.setPosition(getX(), getY());
+		_ps.setPosition(getX() - _ps.getWidth()/2, 
+						getY() - _ps.getHeight()/2);
 		_ps.setRotation(getRotation());
 		_ps.draw(batch, parentAlpha);
 	}

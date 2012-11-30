@@ -8,7 +8,9 @@ import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
+import com.timboe.spacetrade.enumerator.PlanetActivity;
 import com.timboe.spacetrade.enumerator.ShipClass;
+import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.enumerator.SpecialEvents;
 import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.enumerator.WorldSize;
@@ -117,6 +119,11 @@ public class Help {
 	}
 
 	public static void help(SpecialEvents special) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void help(PlanetActivity activity, ShipTemplate type) {
 		// TODO Auto-generated method stub
 		
 	}

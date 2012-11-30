@@ -16,8 +16,10 @@ import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.Government;
+import com.timboe.spacetrade.enumerator.PlanetActivity;
 import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipProperty;
+import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.enumerator.SpecialEvents;
 import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.enumerator.WorldSize;
@@ -35,7 +37,7 @@ public class Planet extends Actor {
 	private Government govType = Government.random();
 	private Civilisation civType = Civilisation.random();
 	private WorldSize worldSize = WorldSize.random();
-	private int diameter = (int) (Textures.getStar().getWidth());
+	private int diameter = (int) (Textures.getStar().getRegionWidth());
 	public int radius = Math.round(diameter/2f);
 	private int ID;
 	
@@ -52,6 +54,9 @@ public class Planet extends Actor {
 	private final EnumMap<Equipment, Boolean > equipmentSold = new EnumMap<Equipment, Boolean >(Equipment.class);
 	
 	private SpecialEvents specialEvent;
+	private PlanetActivity police = PlanetActivity.Some;
+	private PlanetActivity pirates = PlanetActivity.Some;
+	private PlanetActivity traders = PlanetActivity.Some;
 
 
 	private final Rnd rnd = new Rnd();
@@ -117,6 +122,12 @@ public class Planet extends Actor {
 		//Setup planet 
 		refresh();
 		init();
+	}
+	
+	public void setActivity(PlanetActivity _pirate, PlanetActivity _police, PlanetActivity _trade) {
+		police = _police;
+		pirates = _pirate;
+		traders = _trade;
 	}
 	
 	public void addWeapons(int _n, int _level) {
@@ -338,6 +349,19 @@ public class Planet extends Actor {
 
 	public SpecialEvents getSpecial() {
 		return specialEvent;
+	}
+
+	public PlanetActivity getPoliceActivity() {
+		return police;
+	}
+
+	public PlanetActivity getActivity(ShipTemplate _template) {
+		switch (_template) {
+		case Pirate: return pirates;
+		case Police: return police;
+		case Trader: return traders;
+		}
+		return PlanetActivity.Some;
 	}
 
 

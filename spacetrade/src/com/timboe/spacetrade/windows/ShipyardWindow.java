@@ -162,17 +162,20 @@ public class ShipyardWindow {
 			doShip.get(_s).setVisible(true);
 			
 			int _tradeInPrice = Math.round(Player.getShip().getTradeInPrice() * Player.getPlanet().getEquipmentPriceMod());
-			int cost = Math.round((Player.getPlanet().getEquipmentPriceMod() *_s.getCost()) - _tradeInPrice);
-			if (cost > 0) {
-				doShip.get(_s).setColor(Color.GREEN);
-				if (_s == Player.getShip().getShipClass()) {
-					doShip.get(_s).setText("EXCHANGE FOR\n$" + Integer.toString(cost) );
-				} else {
-					doShip.get(_s).setText("UPGRADE FOR\n$" + Integer.toString(cost) );
-				}
-			} else {
+			int _cost = Math.round((Player.getPlanet().getEquipmentPriceMod() *_s.getCost()) - _tradeInPrice);
+			doShip.get(_s).setText("EXCHANGE\n$" + Integer.toString(_cost) );
+
+			if (_cost > Player.getCredz()) {
 				doShip.get(_s).setColor(Color.RED);
-				doShip.get(_s).setText("DOWNSIZE\n$" + Integer.toString(cost) );
+//				if (_s == Player.getShip().getShipClass()) {
+//				} else {
+//					doShip.get(_s).setText("UPGRADE FOR\n$" + Integer.toString(cost) );
+//				}
+			} else if (_cost > 0) {
+				doShip.get(_s).setColor(Color.GREEN);
+				//doShip.get(_s).setText("DOWNSIZE\n$" + Integer.toString(cost) );
+			} else {
+				doShip.get(_s).setColor(Color.WHITE);
 			}
 		}
 	}

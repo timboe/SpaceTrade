@@ -77,7 +77,7 @@ public class ShipWindow {
 		shipWindow.add( new Image(_skin.getDrawable("default-splitpane-vertical")) ).colspan(4).fillX();
 
 		shipWindow.row();
-		weaponLabel = new Label( "Weapons Systems: " + Player.getShip().getFilledWeaponSlots() +" of "+Player.getShip().getTotalWeaponSlots() + " slots in use.", _skin );
+		weaponLabel = new Label( "Weapons: " + Player.getShip().getFilledWeaponSlots() +" of "+Player.getShip().getTotalWeaponSlots() + " slots in use.", _skin );
 		shipWindow.add(weaponLabel).colspan(4).left();
 		shipWindow.row();
 

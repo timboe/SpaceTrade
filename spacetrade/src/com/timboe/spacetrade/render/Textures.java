@@ -4,17 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
 
 public class Textures {
 
-	private static Texture starTexture = null;
-	private static final Texture shipTexture = new Texture(Gdx.files.internal("data/ship.png"));
+	private static TextureRegion starTexture = null;
+	private static TextureRegion blackSquare = null;
+	private static TextureRegion shipTexture = null;
 	private static Texture galaxyTexture = null;
 	private static Skin mainSkin;
-	private static final Texture bsTexture = new Texture(Gdx.files.internal("data/blackSquare.jpg"));
 	private static final Texture planetBlur = new Texture(Gdx.files.internal("data/planetBlur.png"));
 	private static final Array<Texture> starscapes = new Array<Texture>(5);
 	private static final Texture moonTex =  new Texture(Gdx.files.internal("data/moonTex.jpg"));
@@ -25,10 +26,9 @@ public class Textures {
 		return pink;
 	}
 	
-	public static Texture getStar() {
+	public static TextureRegion getStar() {
 		if (starTexture == null) {
-			starTexture = new Texture(Gdx.files.internal("data/star.png"));
-			starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			starTexture = getSkin().getRegion("star");
 		}
 		return starTexture;
 	}
@@ -55,7 +55,10 @@ public class Textures {
 		return mainSkin.getFont("default-outline-font");
 	}
 
-	public static Texture getShip() {
+	public static TextureRegion getShip() {
+		if (shipTexture == null){
+			shipTexture = getSkin().getRegion("ship");
+		}
 		return shipTexture;
 	}
 	
@@ -83,11 +86,8 @@ public class Textures {
 	}
 	
 	public static void dispose() {
-		if (starTexture != null) starTexture.dispose();
-		shipTexture.dispose();
 		if (mainSkin != null) mainSkin.dispose();
 		if (galaxyTexture != null) galaxyTexture.dispose();
-		bsTexture.dispose();
 		planetBlur.dispose();
 		for (Texture t : starscapes) {
 			t.dispose();
@@ -96,8 +96,11 @@ public class Textures {
 		moonNorm.dispose();
 	}
 
-	public static Drawable getBlackSquare() {
-		return getSkin().getDrawable("black-box");
+	public static TextureRegion getBlackSquare() {
+		if (blackSquare == null) {
+			blackSquare = getSkin().getRegion("black-box");
+		}
+		return blackSquare;
 	}
 	
 	public static Texture getPlanetBlur() {
