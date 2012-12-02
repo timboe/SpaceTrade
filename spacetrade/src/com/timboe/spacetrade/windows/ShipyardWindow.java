@@ -97,8 +97,8 @@ public class ShipyardWindow {
 						"\nin order to buy a "+Player.getPlanet().getShipMod(_class).toString()+" "+_class.getName()+"."+
 						_CostStr +
 						"\nIs this what you want to do?\n ")
-					.button("  Yes!  ", true, Textures.getSkin().get("large", TextButtonStyle.class))
-					.button("  No!  ", false, Textures.getSkin().get("large", TextButtonStyle.class))
+					.button("  Yes  ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+					.button("  No  ", false, Textures.getSkin().get("large", TextButtonStyle.class))
 					.key(Keys.ENTER, true)
 					.key(Keys.ESCAPE, false)
 					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());

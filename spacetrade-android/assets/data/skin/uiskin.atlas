@@ -10,6 +10,69 @@ default
   orig: 254, 77
   offset: 0, 0
   index: -1
+Laser3
+  rotate: false
+  xy: 167, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+MassDriver3
+  rotate: false
+  xy: 196, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+Missile3
+  rotate: false
+  xy: 225, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+Laser2
+  rotate: false
+  xy: 254, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+MassDriver2
+  rotate: false
+  xy: 283, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+Missile2
+  rotate: false
+  xy: 312, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+Laser1
+  rotate: false
+  xy: 341, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+MassDriver1
+  rotate: false
+  xy: 370, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+Missile1
+  rotate: false
+  xy: 399, 50
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
 default-image-button-up
   rotate: false
   xy: 1, 96
@@ -92,6 +155,27 @@ info-image-button-down
   xy: 126, 50
   size: 40, 40
   orig: 40, 40
+  offset: 0, 0
+  index: -1
+engage-image-button-up
+  rotate: false
+  xy: 243, 96
+  size: 235, 70
+  orig: 235, 70
+  offset: 0, 0
+  index: -1
+engage-image-button-down
+  rotate: false
+  xy: 243, 238
+  size: 235, 70
+  orig: 235, 70
+  offset: 0, 0
+  index: -1
+engage-image-button-hover
+  rotate: false
+  xy: 243, 167
+  size: 235, 70
+  orig: 235, 70
   offset: 0, 0
   index: -1
 default-window
@@ -201,6 +285,34 @@ tree-plus
   orig: 14, 14
   offset: 0, 0
   index: -1
+minus-up
+  rotate: false
+  xy: 140, 6
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+minus-down
+  rotate: false
+  xy: 227, 6
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+plus-up
+  rotate: false
+  xy: 169, 6
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+plus-down
+  rotate: false
+  xy: 198, 6
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
 default-slider
   rotate: false
   xy: 29, 20
@@ -301,5 +413,54 @@ white
   xy: 174, 48
   size: 1, 1
   orig: 1, 1
+  offset: 0, 0
+  index: -1
+transparent
+  rotate: false
+  xy: 13, 52
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
+particle
+  rotate: false
+  xy: 297, 1
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+star
+  rotate: false
+  xy: 256, 1
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+black-box
+  rotate: false
+  xy: 12, 57
+  size: 10, 10
+  orig: 10, 10
+  offset: 0, 0
+  index: -1
+ship
+  rotate: false
+  xy: 318, 1
+  size: 32, 44
+  orig: 32, 44
+  offset: 0, 0
+  index: -1
+x-up
+  rotate: false
+  xy: 351, 1
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+x-down
+  rotate: false
+  xy: 392, 1
+  size: 40, 40
+  orig: 40, 40
   offset: 0, 0
   index: -1

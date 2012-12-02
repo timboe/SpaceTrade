@@ -248,8 +248,6 @@ public class PlanetWindow {
 		planetWindow.add( quest ).colspan(2);
 		planetWindow.row();
 		
-		fadeIn();
-
 	}
 	
 	

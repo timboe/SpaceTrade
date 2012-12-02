@@ -25,11 +25,16 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 	ship: { down: ship-image-button-down, up: ship-image-button-up },
 	sell: { down: sell-image-button-down, up: sell-image-button-up },
 	info: { down: info-image-button-down, up: info-image-button-up },
+	engage: { down: engage-image-button-down, up: engage-image-button-up, over: engage-image-button-hover },
+	minus: { down: minus-down, up: minus-up },
+	plus: { down: plus-down, up: plus-up },
+	cancel: { down: x-down, up: x-up }
 },
 com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: { down: default-round-down, up: default-round, font: default-font, fontColor: white },
 	large: { down: default-round-down, up: default-round, font: large-font, fontColor: white },
-	toggle: { down: default-round-down, up: default-round, checked: default-round-down, font: default-font, fontColor: white, downFontColor: blue }
+	toggle: { down: default-round-down, up: default-round, checked: default-round-down, font: default-font, fontColor: white, downFontColor: white },
+	large-toggle: { down: default-round-down, up: default-round, checked: default-round-down, font: large-font, fontColor: white, downFontColor: white }
 },
 com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
 	default: { listBackground: default-rect, listSelection: default-select-selection, font: default-font, fontColor: white, background: default-select }
@@ -43,13 +48,16 @@ com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 },
 com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 	default: { titleFont: default-font, background: large-window, titleFontColor: white },
-	dialog: { titleFont: large-font, background: large-window, titleFontColor: white, stageBackground: dialogDim }
+	dialog: { titleFont: default-font, background: large-window, titleFontColor: white, stageBackground: dialogDim },
+	transparent: { titleFont: default-font, background: transparent, titleFontColor: white }
 },
 com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 	default-horizontal: { background: large-slider, knob: default-slider-knob }
 },
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
-	default: { font: default-font, fontColor: white }
+	default: { font: default-font, fontColor: white },
+	large: { font: large-font, fontColor: white },
+	background: { font: default-font, fontColor: white, background: textfield }
 },
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: { selection: selection, background: textfield, font: default-font, fontColor: white, cursor: cursor }

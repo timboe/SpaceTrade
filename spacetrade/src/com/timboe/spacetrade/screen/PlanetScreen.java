@@ -1,14 +1,11 @@
 package com.timboe.spacetrade.screen;
 
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.timboe.spacetrade.render.Meshes;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.windows.PlanetWindow;
 
 public class PlanetScreen extends SpaceTradeRender {
 
-	//private float rotation = 0;
-    private ShaderProgram shader;
 
 	public PlanetScreen() {
 		shader = Meshes.createShader();	
@@ -32,7 +29,7 @@ public class PlanetScreen extends SpaceTradeRender {
 		leftTable.left();
 		leftTable.add(PlanetWindow.getWindow());
 		super.show();
-		//PlanetWindow.fadeIn();
+		PlanetWindow.fadeIn();
 	}
 	
 }

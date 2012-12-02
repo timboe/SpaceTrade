@@ -2,11 +2,13 @@ package com.timboe.spacetrade.ship;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Gdx;
 import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipProperty;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.enumerator.Weapons;
+import com.timboe.spacetrade.player.Player;
 
 public class Ship {
 	
@@ -23,8 +25,69 @@ public class Ship {
 	
 	private float acceleration = 5;
 	
-	public Ship(ShipTemplate _st) {
+	public Ship(ShipTemplate _st) { //Others ship constructor
+		final int _cash = Player.getWorth(); //How much do we have to spend?
 		
+		template = _st;
+		property = ShipProperty.random();
+		
+		boolean _chosen = false;
+		final ShipClass[] values = ShipClass.values();
+		final int _length = values.length - 1;
+		int _loop = 0;
+		while (_chosen == false) {
+			++_loop;
+			for (int i = _length; i >= 0; --i) {
+				ShipClass _sc = values[i];
+				if (_sc == ShipClass.Tiny) continue;
+				if (_sc.getCost() > _cash) continue;
+				shipClass = _sc;
+				weaponLoadout.clear();
+				techLoadout.clear();
+				int _spend = _sc.getCost();
+				//choose weapons
+				while (getFreeWeaponSlots() > 0) {
+					Weapons _w;
+					if (getFilledWeaponSlots() == 0) {
+						_w = Weapons.randomLevel( shipClass.getLevel() ); //get at level
+					} else {
+						_w = Weapons.random( shipClass.getLevel() ); //get up to level
+					}
+					arm(_w);
+					_spend += _w.getCost();
+				}
+				while (getFreeEquipmentSlots() > 0) {
+					Equipment _e;
+					if (getFilledEquipmentSlots() == 0) {
+						_e = Equipment.randomLevel( shipClass.getLevel() ); //get at level
+					} else {
+						_e = Equipment.random( shipClass.getLevel() ); //get up to level-1
+					}
+					arm(_e);
+					_spend += _e.getCost();
+				}
+				//have we gone overbudget?
+				if (_spend < _cash) {
+					_chosen = true;
+					break;
+				}
+			}
+			//If we're having no luck then just take the smallest config after 5 tries
+			if (_loop == 5) {
+				_chosen = true;
+			}
+		}
+		print();
+	}
+	
+	public void print() {
+		Gdx.app.log("ShipDebug", template.toString() +" "+ property.toString() + " " + shipClass.getName()+ ", value:"+getWorth());
+		for (Weapons _w : weaponLoadout) {
+			Gdx.app.log("ShipDebug"," ---> Level "+ _w.getLevel() + " " + _w.getWeaponClass().toString() + " [" + _w.getName() + "]");
+		}
+		for (Equipment _e : techLoadout) {
+			Gdx.app.log("ShipDebug"," ###> Level "+ _e.getLevel() + " " + _e.getName());
+		}
 	}
 	
 	public Ship(ShipClass _sc) { //Player ship constructor

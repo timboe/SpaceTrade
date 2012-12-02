@@ -64,7 +64,7 @@ public class ShipScreen extends SpaceTradeRender {
 	protected void renderBackground(float delta) {
 		if (updateAll == true) {
 			if (viewShip == true) {
-				ShipWindow.updateList();
+				show(); //Currently needs full refresh, may change //TODO
 			} else {
 				EquipmentWindow.updateList();
 				WeaponsWindow.updateList();
@@ -79,6 +79,7 @@ public class ShipScreen extends SpaceTradeRender {
 	protected void renderFX(float delta) {
 		renderPlanet(delta);
 		
+		//Ship test
 		Delta += delta;
 		Matrix4 transform_FX2 = screenCam.combined.cpy();
 		transform_FX2.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);

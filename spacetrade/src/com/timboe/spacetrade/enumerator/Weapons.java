@@ -52,4 +52,20 @@ public enum Weapons {
 	public static Weapons random()  {
 		return content.get( rnd.getRandI(size) );
 	}
+
+	public static Weapons random(int _level) { //Random of given level or -1
+		assert (_level > 0 && _level <= 3);
+		while (true) {
+			Weapons _w = content.get( rnd.getRandI(size) );
+			if (_w.getLevel() >= (_level - 1)) return _w;
+		}
+	}
+	
+	public static Weapons randomLevel(int _level) { //Random of given level
+		assert (_level > 0 && _level <= 3);
+		while (true) {
+			Weapons _w = content.get( rnd.getRandI(size) );
+			if (_w.getLevel() == _level) return _w;
+		}
+	}
 }
