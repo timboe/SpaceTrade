@@ -48,6 +48,8 @@ public enum Equipment {
 		return content.get( rnd.getRandI(size) );
 	}
 	
+	//TODO put some code in for different classes
+	
 	public static Equipment random(int _level) {
 		assert (_level > 0 && _level <= 3);
 		while (true) {
