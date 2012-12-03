@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.PlanetFX;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.windows.BuyWindow;
@@ -57,7 +59,10 @@ public class BuySellScreen extends SpaceTradeRender {
 	
 	@Override
 	protected void renderFX(float delta) {
-		renderPlanet(delta);
+		renderPlanet(delta, 
+				PlanetFX.getTexture(Player.getPlanetID()),
+				PlanetFX.getNormals(Player.getPlanetID()),
+				Player.getPlanet().getSize());
 	}
 
 	@Override 

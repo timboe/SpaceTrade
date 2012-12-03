@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.utility.Rnd;
@@ -17,6 +18,8 @@ public class PlanetFX {
 	static final Array<Texture> planetTexture = new Array<Texture>(Starmap.getNPlanets());
 	static final Array<Texture> planetNormals = new Array<Texture>(Starmap.getNPlanets());
 	static final Array<Color> planetLandColour = new Array<Color>(Starmap.getNPlanets());
+	static final Array<Color> planetWaterColour = new Array<Color>(Starmap.getNPlanets());
+
 	static final Rnd rnd = new Rnd();
 	
 	static float persistence = 0f;
@@ -50,12 +53,18 @@ public class PlanetFX {
 		preFetch(_planetId);
 		return planetLandColour.get(_planetId);
 	}
+	
+	public static Color getWaterColor(int _planetId) {
+		preFetch(_planetId);
+		return planetWaterColour.get(_planetId);
+	}
 
 	private static void init() {
 		for (int i = 0; i < Starmap.getNPlanets(); ++i) {
 			planetTexture.add(null);
 			planetNormals.add(null);
 			planetLandColour.add(null);
+			planetWaterColour.add(null);
 			//generatePlanet(i); //Only to test memory usage
 		}
         if (Gdx.app.getType() == ApplicationType.Android) {
@@ -111,6 +120,7 @@ public class PlanetFX {
     	Color world = getWorldColor();
     	Color ocean = getWorldColor();
     	planetLandColour.set(_planetId, world);
+    	planetWaterColour.set(_planetId, ocean);
         for (int _y = 0; _y < maxV; ++_y) {
         	for (int _x = 0; _x < maxU; ++_x) {
 	        	float height = toHeight(data[_x][_y]); //map 0 to 1
@@ -154,6 +164,10 @@ public class PlanetFX {
 
         planetTexture.set(_planetId, new Texture(worldPixLand));
         planetNormals.set(_planetId, new Texture(worldPixNormal));
+        
+        planetTexture.get(_planetId).setFilter(TextureFilter.Linear, TextureFilter.Linear);
+        planetNormals.get(_planetId).setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
         
         worldPixOcean.dispose();
         worldPixLand.dispose();

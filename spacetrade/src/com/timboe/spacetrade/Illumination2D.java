@@ -3,24 +3,20 @@ package com.timboe.spacetrade;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.text.MessageFormat;
 import java.util.Random;
  
-import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GLCommon;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -37,6 +33,7 @@ import com.timboe.spacetrade.utility.SimplexNoise;
  * @author davedes
  */
 public class Illumination2D implements Screen {   
+	String _V = "7";
  
         Texture texture, texture_n;
        
@@ -45,7 +42,6 @@ public class Illumination2D implements Screen {
         OrthographicCamera cam;
         SpriteBatch fxBatch, batch;
         
-        Texture earthTexture;
 
         Texture worldTexture;
         Texture worldHeight;
@@ -55,7 +51,6 @@ public class Illumination2D implements Screen {
         
         private static Rnd rnd2 = new Rnd();
 
-       
         Matrix4 transform = new Matrix4();
  
         Random rnd = new Random();
@@ -104,20 +99,16 @@ public class Illumination2D implements Screen {
 		float amplitude  = 1f;
 		int octaves = 6;
 		int randomseed = 2 + 1*1;
-		
 		int random_r = 0;
-		
 		float waterHeight = 0.1f;
-		float maxU = 512f;
-		float maxV = 256f;
+		final float maxU = 512f/2;
+		final float maxV = 256f/2;
 		float repeat = 256f;
-		
         BitmapFont font;
        
         @SuppressWarnings("unused")
 		private int texWidth, texHeight;
-       
-        final String TEXT = "Use number keys to adjust parameters:\n" +
+        final String TEXT = _V+") Use number keys to adjust parameters:\n" +
                         "1: Randomize Ambient Color\n" +
                         "2: Randomize Ambient Intensity {0}\n" +
                         "3: Randomize Light Color\n" +
@@ -129,7 +120,7 @@ public class Illumination2D implements Screen {
                         "UP/DOWN: Increase/decrease lightDir.z: {5}\n\n" +
                         "S toggles attenuation, N toggles normal shading\n" +
                         "T to toggle textures";
-       
+
         private Texture rock, rock_n, teapot, teapot_n;
        
 //        public void create() {
@@ -140,73 +131,195 @@ public class Illumination2D implements Screen {
                 return new Vector3(rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat());
         }
  
+        private ShaderProgram workingShader() {
+        	String vertexShader = "#ifdef GL_ES\n"
+        			+ "#define LOWP lowp\n"
+        			+ "#define MEDP mediump\n"
+        			+ "#define HIGP highp\n"
+        			+ "#else\n"
+        			+ "#define LOWP\n"
+        			+ "#define MEDP\n"
+        			+ "#define HIGP\n"
+        			+ "#endif\n"
+        			+ "\n"
+        			+ "attribute vec4 a_position;\n"
+        			+ "attribute MEDP vec2 a_texCoord0;\n"
+        			+ "\n"
+        			+ "uniform mat4 u_projView;\n"
+        			+ "\n"
+        			+ "varying MEDP vec2 texCoords;\n"
+        			+ "\n"
+        			+ "void main() {\n"
+        			+ "	texCoords = a_texCoord0;\n"
+        			+ "	gl_Position = u_projView * a_position;\n"
+        			+ "}";
+        	
+        	String fragmentShader = "#ifdef GL_ES\n"
+        			+ "#define LOWP lowp\n"
+        			+ "#define MEDP mediump\n"
+        			+ "#define HIGP highp\n"
+        			+ "precision lowp float;\n"
+        			+ "#else\n"
+        			+ "#define LOWP\n"
+        			+ "#define MEDP\n"
+        			+ "#define HIGP\n"
+        			+ "#endif\n"
+        			+ "\n"
+        			+ "uniform sampler2D u_normals;\n"
+        			+ "\n"
+        			+ "varying MEDP vec2 texCoords;\n"
+        			+ "\n"
+        			+ "void main() {\n"
+        			+ "	gl_FragColor = texture2D(u_normals, texCoords);\n"
+        			+ "}";
+        	
+            ShaderProgram program = new ShaderProgram(vertexShader, fragmentShader);
+            // u_proj and u_trans will not be active but SpriteBatch will still try to set them...
+            ShaderProgram.pedantic = false;
+            if (program.isCompiled() == false)
+                    throw new IllegalArgumentException("couldn't compile shader: "
+                                    + program.getLog());
+            return program;
+        }
+        
+        private ShaderProgram basicShader()  {
+        	String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
+        			+ "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
+        			+ "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
+        			+ "uniform mat4 u_projTrans;\n" //
+        			+ "varying vec4 v_color;\n" //
+        			+ "varying vec2 v_texCoords;\n" //
+        			+ "\n" //
+        			+ "void main()\n" //
+        			+ "{\n" //
+        			+ "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
+        			+ "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
+        			+ "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
+        			+ "}\n";
+        	
+        	String fragmentShader = "#ifdef GL_ES\n" //
+        			+ "#define LOWP lowp\n" //
+        			+ "precision mediump float;\n" //
+        			+ "#else\n" //
+        			+ "#define LOWP \n" //
+        			+ "#endif\n" //
+        			+ "varying LOWP vec4 v_color;\n" //
+        			+ "varying vec2 v_texCoords;\n" //
+        			+ "uniform sampler2D u_texture;\n" //
+        			+ "void main()\n"//
+        			+ "{\n" //
+        			+ "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" //
+        			+ "}";
+        	
+            ShaderProgram program = new ShaderProgram(vertexShader, fragmentShader);
+            // u_proj and u_trans will not be active but SpriteBatch will still try to set them...
+            ShaderProgram.pedantic = false;
+            if (program.isCompiled() == false)
+                    throw new IllegalArgumentException("couldn't compile shader: "
+                                    + program.getLog());
+            return program;
+		}
+        
         private ShaderProgram createShader() {
                 // see the code here: http://pastebin.com/7fkh1ax8
                 // simple illumination model using ambient, diffuse (lambert) and attenuation
                 // see here: http://nccastaff.bournemouth.ac.uk/jmacey/CGF/slides/IlluminationModels4up.pdf
-                String vert = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
-                                + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
-                                + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
-                                + "uniform mat4 u_proj;\n" //
-                                + "uniform mat4 u_trans;\n" //
-                                + "uniform mat4 u_projTrans;\n" //
-                                + "varying vec4 v_color;\n" //
-                                + "varying vec2 v_texCoords;\n" //
+                String vert = "#ifdef GL_ES\n"
+            			+ "#define LOWP lowp\n"
+            			+ "#define MEDP mediump\n"
+            			+ "#define HIGP highp\n"
+            			//+ "precision lowp float;\n"
+            			+ "#else\n"
+            			+ "#define LOWP\n"
+            			+ "#define MEDP\n"
+            			+ "#define HIGP\n"
+            			+ "#endif\n"
+                				+ "attribute HIGP vec4 a_position;\n" //
+                                + "attribute HIGP vec4 a_color;\n" //
+                                + "attribute MEDP vec2 a_texCoord0;\n" //
+//                                + "uniform MEDP mat4 u_proj;\n" //
+//                                + "uniform MEDP mat4 u_trans;\n" //
+                                + "uniform MEDP mat4 u_projTrans;\n" //
+                                + "varying MEDP vec4 v_color;\n" //
+                                + "varying MEDP vec2 v_texCoords;\n" //
                                 + "\n" //
                                 + "void main()\n" //
                                 + "{\n" //
-                                + "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
-                                + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
-                                + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
+                                + "   v_color = a_color;\n" //
+                                + "   v_texCoords = a_texCoord0;\n" //
+                                + "   gl_Position =  u_projTrans * a_position;\n" //
                                 + "}\n";
                
-                String frag = "#ifdef GL_ES\n" +
-                                "precision mediump float;\n" +
-                                "#endif\n" +
-                                "varying vec4 v_color;\n" +
-                                "varying vec2 v_texCoords;\n" +
-                               
-                                "uniform sampler2D u_texture;\n" +
-                                "uniform sampler2D u_normals;\n" +
-                                "uniform vec3 light;\n" +
-                                "uniform vec3 ambientColor;\n" +
-                                "uniform float ambientIntensity; \n" +
-                                "uniform vec2 resolution;\n" +
-                                "uniform vec3 lightColor;\n" +
-                                "uniform bool useNormals;\n" +
-                                "uniform bool useShadow;\n" +
-                                "uniform vec3 attenuation;\n" +
-                                "uniform float strength;\n" +
-                                "uniform bool yInvert;\n"+
+                
+                String frag = "#ifdef GL_ES\n"
+                			+ "#define LOWP lowp\n"
+                			+ "#define MEDP mediump\n"
+                			+ "#define HIGP highp\n"
+                			+ "precision lowp float;\n"
+                			+ "#else\n"
+                			+ "#define LOWP\n"
+                			+ "#define MEDP\n"
+                			+ "#define HIGP\n"
+                			+ "#endif\n"
+                			//"#ifdef GL_ES\n" +
+                            //"precision mediump float;\n" +
+                            //"#endif\n" +
+                            +   "varying HIGP vec4 v_color;\n" +
+                                "varying MEDP vec2 v_texCoords;\n" +
+                                "uniform LOWP sampler2D u_texture;\n" +
+                                "uniform LOWP sampler2D u_normals;\n" +
+                                "uniform MEDP vec3 light;\n" +
+                                "uniform MEDP vec2 resolution;\n" +
+                                "uniform MEDP vec3 attenuation;\n" +
+                                "MEDP vec3 ambientColor = vec3(1.0, 1.0, 1.0);\n" +
+                                "MEDP float ambientIntensity = 0.6; \n" +
+                                "MEDP vec3 lightColor = vec3(0.75, 0.75, 0.68);\n" +
+//                                "uniform bool useNormals;\n" +
+//                                "uniform bool useShadow;\n" +
+                                "MEDP float strength = 1.0;\n" +
+//                                "uniform bool yInvert;\n"+
                                 "\n" +
                                 "void main() {\n" +
                                 "       //sample color & normals from our textures\n" +
-                                "       vec4 color = texture2D(u_texture, v_texCoords.st);\n" +
-                                "       vec3 nColor = texture2D(u_normals, v_texCoords.st).rgb;\n\n" +
-                                "       //some bump map programs will need the Y value flipped..\n" +
-                                "       nColor.g = yInvert ? 1.0 - nColor.g : nColor.g;\n\n" +
-                                "       //this is for debugging purposes, allowing us to lower the intensity of our bump map\n" +
-                                "       vec3 nBase = vec3(0.5, 0.5, 1.0);\n" +
-                                "       nColor = mix(nBase, nColor, strength);\n\n" +
+                                "       MEDP vec4 color = texture2D(u_texture, v_texCoords.st); \n" +
+                                "       MEDP vec3 nColor = texture2D(u_normals, v_texCoords.st).rgb; \n\n" +
+                                
+//                                "       //some bump map programs will need the Y value flipped..\n" +
+//                                "       nColor.g = yInvert ? 1.0 - nColor.g : nColor.g;\n\n" +
+
+                                //"       //this is for debugging purposes, allowing us to lower the intensity of our bump map\n" +
+                                //"       vec3 nBase = vec3(0.5, 0.5, 1.0);\n" +
+                                //"       nColor = mix(nBase, nColor, strength);\n\n" +
+                                
                                 "       //normals need to be converted to [-1.0, 1.0] range and normalized\n" +
-                                "       vec3 normal = normalize(nColor * 2.0 - 1.0);\n\n" +
+                                "       MEDP vec3 normal = normalize(nColor * 2.0 - 1.0);\n\n" +
+                                
                                 "       //here we do a simple distance calculation\n" +
-                                "       vec3 deltaPos = vec3( (light.xy - gl_FragCoord.xy) / resolution.xy, light.z );\n\n" +
-                                "       vec3 lightDir = normalize(deltaPos);\n" +
-                                "       float lambert = useNormals ? clamp(dot(normal, lightDir), 0.0, 1.0) : 1.0;\n" +
+                                "       MEDP vec3 deltaPos = MEDP vec3( (light.xy - gl_FragCoord.xy) / resolution.xy, light.z );\n\n" +
+                                "       MEDP vec3 lightDir = normalize(deltaPos);\n" +
+                                "       MEDP float lambert = clamp(dot(normal, lightDir), 0.0, 1.0);\n" +
                                 "       \n" +
+                                
                                 "       //now let's get a nice little falloff\n" +
-                                "       float d = sqrt(dot(deltaPos, deltaPos));"+
+                                "       MEDP float d = sqrt(dot(deltaPos, deltaPos));"+
                                 "       \n" +
-                                "       float att = useShadow ? 1.0 / ( attenuation.x + (attenuation.y*d) + (attenuation.z*d*d) ) : 1.0;\n" +
+                                
+                          //usShaddows (att = 1 if false)
+                                "       MEDP float att =  1.0 / ( attenuation.x + (attenuation.y*d) + (attenuation.z*d*d) );\n" +
                                 "       \n" +
-                                "       vec3 result = (ambientColor * ambientIntensity) + (lightColor.rgb * lambert) * att;\n" +
+                                
+                       // ORIG//"       MEDP vec3 result = (ambientColor * ambientIntensity) + (lightColor.rgb * lambert) * att;\n" +
+                                "       MEDP vec3 result = vec3(1.0,.0,1.0);\n" +
+          
                                 "       result *= color.rgb;\n" +
                                 "       \n" +
-                                "       gl_FragColor = v_color * vec4(result, color.a);\n" +
+                                
+                                //"       gl_FragColor = v_color ;\n" +
+                   				"	gl_FragColor = texture2D(u_texture, v_texCoords);\n"+
+
                                 "}";
-                System.out.println("VERTEX PROGRAM:\n------------\n\n"+vert);
-                System.out.println("FRAGMENT PROGRAM:\n------------\n\n"+frag);
+               // System.out.println("VERTEX PROGRAM:\n------------\n\n"+vert);
+                //System.out.println("FRAGMENT PROGRAM:\n------------\n\n"+frag);
                 ShaderProgram program = new ShaderProgram(vert, frag);
                 // u_proj and u_trans will not be active but SpriteBatch will still try to set them...
                 ShaderProgram.pedantic = false;
@@ -222,15 +335,15 @@ public class Illumination2D implements Screen {
                 program.setUniformi("u_texture", 0);
                 program.setUniformi("u_normals", 1);
                 program.setUniformf("light", lightPos);
-                program.setUniformf("strength", strength);
-                program.setUniformf("ambientIntensity", ambientIntensity);
-                program.setUniformf("ambientColor", DEFAULT_AMBIENT_COLOR);
+                //program.setUniformf("strength", strength);
+                //program.setUniformf("ambientIntensity", ambientIntensity);
+                //program.setUniformf("ambientColor", DEFAULT_AMBIENT_COLOR);
                 program.setUniformf("resolution", resolution);
-                program.setUniformf("lightColor", DEFAULT_LIGHT_COLOR);
+                //program.setUniformf("lightColor", DEFAULT_LIGHT_COLOR);
                 program.setUniformf("attenuation", attenuation);
-                program.setUniformi("useShadow", useShadow ? 1 : 0);
-                program.setUniformi("useNormals", useNormals ? 1 : 0);
-                program.setUniformi("yInvert", flipY ? 1 : 0);
+                //program.setUniformi("useShadow", useShadow ? 1 : 0);
+                //program.setUniformi("useNormals", useNormals ? 1 : 0);
+                //program.setUniformi("yInvert", flipY ? 1 : 0);
                 program.end();
  
                 return program;
@@ -246,7 +359,7 @@ public class Illumination2D implements Screen {
         public void resize(int width, int height) {
                 cam.setToOrtho(false, width, height);
                 resolution.set(width, height);
-                program.setUniformf("resolution", resolution);
+                //program.setUniformf("resolution", resolution);
         }
  
         public void pause() {
@@ -258,119 +371,14 @@ public class Illumination2D implements Screen {
 		@Override
 		public void render(float delta) {
 			Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
-			Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-
-            
-//            // draw our sprites without any effects
-//           
-            NORMAL_VCOLOR.a = 1.0f - strength;
-//
-            final int IMG_Y = 0;
-//           
-            batch.begin();
-            //let's first simulate our resulting normal map by blending a blue square atop it
-            //we also could have achieved this with glTexEnv in the fixed function pipeline
-            batch.draw(worldHeight, 230, 800-270, 512, 256);
-            batch.draw(worldTexture, 230+520, 800-270,  512, 256);
-            batch.draw(worldNormal, 230, 800-530,  512, 256);
-          //  batch.draw(texture_n, texWidth + 10, IMG_Y);
-           // batch.setColor(NORMAL_VCOLOR);
-           //batch.draw(normalBase, texWidth + 10, IMG_Y, texWidth, texHeight);
-           // batch.setColor(Color.WHITE);
-           // batch.draw(texture, 0, IMG_Y);
-            batch.end();
-//
-//            //now let's simulate how our normal map will be sampled using strength
-//            //we can do this simply by blending a blue fill overtop
-//           
-//
-//            
-//
-//           
-//            // start our FX batch, which will bind our shader program
-            fxBatch.begin();
-//           
-//            // get y-down light position based on mouse/touch
-            lightPos.x = Gdx.input.getX();
-            lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
-//           
-            // handle attenuation input
-            if (Gdx.input.isKeyPressed(Keys.NUM_4)) {
-                    attenuation.x += 0.025f;
-            } else if (Gdx.input.isKeyPressed(Keys.NUM_5)) {
-                    attenuation.x -= 0.025f;
-                    if (attenuation.x < 0)
-                            attenuation.x = 0;
-            } else if (Gdx.input.isKeyPressed(Keys.NUM_6)) {
-                    attenuation.y += 0.25f;
-            } else if (Gdx.input.isKeyPressed(Keys.NUM_7)) {
-                    attenuation.y -= 0.25f;
-                    if (attenuation.y < 0)
-                            attenuation.y = 0;
-            } else if (Gdx.input.isKeyPressed(Keys.NUM_8)) {
-                    attenuation.z += 0.25f;
-            } else if (Gdx.input.isKeyPressed(Keys.NUM_9)) {
-                    attenuation.z -= 0.25f;
-                    if (attenuation.z < 0)
-                            attenuation.z = 0;
-            } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-                    strength += 0.025f;
-                    if (strength > 1f)
-                            strength = 1f;
-            } else if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-                    strength -= 0.025f;
-                    if (strength < 0)
-                            strength = 0;
-            } else if (Gdx.input.isKeyPressed(Keys.UP)) {
-                    lightPos.z += 0.0025f;
-            } else if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-                    lightPos.z -= 0.0025f;
-            }
-//           
-            // update our uniforms
-            program.setUniformf("ambientIntensity", ambientIntensity);
-            program.setUniformf("attenuation", attenuation);
-            program.setUniformf("light", lightPos);
-            program.setUniformi("useNormals", useNormals ? 1 : 0);
-            program.setUniformi("useShadow", useShadow ? 1 : 0);
-            program.setUniformf("strength", strength);
-           
-            // bind the normal first at texture1
-            texture_n.bind(1);
-           
-            // bind the actual texture at texture0
-            texture.bind(0);
-           
-            // we bind texture0 second since draw(texture) will end up binding it at
-            // texture0...
-            fxBatch.draw(texture, texWidth*2 + 20, IMG_Y);
-           // fxBatch.draw(worldTexture, 500+270, 400);
-
-            fxBatch.end();			
-            
-            //second render
-            fxBatch.begin();
-            // get y-down light position based on mouse/touch
-            lightPos.x = Gdx.input.getX();
-            lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
-            program.setUniformf("ambientIntensity", ambientIntensity);
-            program.setUniformf("attenuation", attenuation);
-            program.setUniformf("light", lightPos);
-            program.setUniformi("useNormals", useNormals ? 1 : 0);
-            program.setUniformi("useShadow", useShadow ? 1 : 0);
-            program.setUniformf("strength", strength);
-            worldNormal.bind(1);
-            worldTexture.bind(0);
-            fxBatch.draw(worldTexture,230+520, 800-530, 512, 256);
-            fxBatch.end();
-            
-            
-    		GLCommon gl = Gdx.gl;
-//    		gl.glEnable(GL20.GL_DEPTH_TEST);
-    		gl.glEnable(GL20.GL_CULL_FACE);
-//    		gl.glEnable(GL20.GL_TEXTURE_2D);
-            //third render
-            Delta += delta;
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+//	        batch.begin();
+//	        String str = MessageFormat.format(TEXT, ambientIntensity,
+//	                          attenuation.x, attenuation.y, DEC_FMT.format(attenuation.z),
+//	                          strength, lightPos.z);
+//	        font.drawMultiLine(batch, str, 10, Gdx.graphics.getHeight()-10);
+//            batch.end();
+    		Delta += delta;
     		Camera cam = new OrthographicCamera();
     		Matrix4 transform_FG = new Matrix4();
     		transform_FG = cam.combined.cpy();
@@ -380,40 +388,91 @@ public class Illumination2D implements Screen {
     		transform_FG.rotate(1, 0, 0, -10);
     		transform_FG.rotate(0, 1, 0, Delta*10f);
     		transform_FG.rotate(0, 1, 0, -Gdx.input.getX()/2f);
-    		program.begin();
+    		
+    		
+
+            
+
+            final int IMG_Y = 500;
+        
+//            // start our FX batch, which will bind our shader program
             lightPos.x = Gdx.input.getX();
             lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
-            program.setUniformf("ambientIntensity", ambientIntensity);
-            program.setUniformf("attenuation", attenuation);
+            fxBatch.begin();   
+            // update our uniforms
             program.setUniformf("light", lightPos);
-            program.setUniformi("useNormals", useNormals ? 1 : 0);
-            program.setUniformi("useShadow", useShadow ? 1 : 0);
-            program.setUniformf("strength", strength);
-            program.setUniformMatrix("u_projTrans", transform_FG);
-            texShader.setUniformMatrix("u_projView", transform_FG);
-    		texShader.setUniformi("u_diffuse", 0);
+            texture_n.bind(1);
+            texture.bind(0);
+            fxBatch.draw(texture, texWidth*2 + 20, IMG_Y);
+            fxBatch.end();		
+            
 
-            worldNormal.bind(1);
-            worldTexture.bind(0);
-//    		earthTexture.bind();
+         
+            //TESTING HERE! //XXX
+            
+    		GLCommon gl = Gdx.gl;
+//
+//    		gl.glEnable(GL20.GL_DEPTH_TEST);
+    		gl.glEnable(GL20.GL_CULL_FACE);
+//    		gl.glEnable(GL20.GL_TEXTURE_2D);
+
+            //third render
+
+    		program.begin();
+           // program.setUniformf("light", lightPos);
+ 
+//          //program.setUniformMatrix("u_projView", transform_FG);
+//          // program.setUniformi("u_diffuse", 0);
+            texture_n.bind(1);
+            texture.bind(0);
+    		
+            program.setUniformMatrix("u_projTrans", transform_FG);
+            program.setUniformi("u_texture", 0);
+
             sphereMesh.render(program, GL20.GL_TRIANGLES);
             program.end();
 //    		gl.glDisable(GL20.GL_DEPTH_TEST);
-    		gl.glDisable(GL20.GL_CULL_FACE);
 //    		gl.glDisable(GL20.GL_TEXTURE_2D);
+    		
+    		transform_FG = new Matrix4();
+    		transform_FG = cam.combined.cpy();
+    		transform_FG.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
+    		transform_FG.translate(+400, -60, 0);
+    		//transform_FG.rotate(0, 0, 1, 180);
+    		transform_FG.rotate(1, 0, 0, -10);
+    		transform_FG.rotate(0, 1, 0, Delta*10f);
+    		transform_FG.rotate(0, 1, 0, -Gdx.input.getX()/2f);
+    		
+    		texShader.begin();
+            texture_n.bind(1);
+            texture.bind(0);
+    		texShader.setUniformMatrix("u_projView", transform_FG);
+    		texShader.setUniformi("u_normals", 1);
+            sphereMesh.render(texShader, GL20.GL_TRIANGLES);
+            texShader.end();
             
-            batch.begin();
-            String str = MessageFormat.format(TEXT, ambientIntensity,
-                            attenuation.x, attenuation.y, DEC_FMT.format(attenuation.z),
-                            strength, lightPos.z);
-            font.drawMultiLine(batch, str, 10, Gdx.graphics.getHeight()-10);
-           
-            //font.draw(batch, "Diffuse Color", 10, IMG_Y+texHeight + 30);
-            //font.draw(batch, "Normal Map", texWidth+20, IMG_Y+texHeight + 30);
-            //font.draw(batch, "Final Color", texWidth*2+30, IMG_Y+texHeight + 30);
-            batch.end();
-           
+    		gl.glDisable(GL20.GL_CULL_FACE);
 
+//    		
+//    		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);      
+//    		Gdx.gl20.glBlendFunc(GL20.GL_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+//    		Gdx.gl20.glEnable(GL20.GL_BLEND);
+    		
+//          gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);
+//          gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
+//
+//          gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
+//          gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
+//          
+//   		gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE);
+//   		gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE);
+  		
+//          
+    		
+    		//Gdx.app.log("OPENGL1", ""+gl.glGetError() );
+    		//Gdx.app.log("OPENGL2", ""+gl.glGetError() );
+
+  
 		}
 		
 		@Override
@@ -426,37 +485,66 @@ public class Illumination2D implements Screen {
 		public void show() {
 			
             // load our textures
-            rock = new Texture(Gdx.files.internal("data/teapot.png"));
-            rock_n = new Texture(Gdx.files.internal("data/teapot_n.png"));
             teapot = new Texture(Gdx.files.internal("data/rock.png"));
             teapot_n = new Texture(Gdx.files.internal("data/rock_n.png"));
-            
-            if (Gdx.app.getType() == ApplicationType.Android) {
-            	maxU = 512;
-            	maxV = 256;
-            } else {
-            	maxU = 1024;
-            	maxV = 512;
-            }
-           
+
             texture = teapot;
             texture_n = teapot_n;
-            flipY = texture==rock;
             
     		InputStream in = Gdx.files.internal("data/sphereMesh.obj").read();
     		sphereMesh = ObjLoader.loadObj(in);
-    		try {
-    			in.close();
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}
-    		//sphereMesh.scale(0.35f, 0.5f, 0.35f);
-    		sphereMesh.scale(300f, 350f, 300f);
-    		//sphereMesh.
-    		System.out.println(sphereMesh.getNumVertices()+" "+ sphereMesh.getNumIndices());
+    		try { in.close(); }
+    		catch (IOException e) { e.printStackTrace(); }
+//    		
+//    		sphereMeshLoad.setAutoBind(true);
+////    		
+////
+//    		sphereMeshLoad.scale(300f, 350f, 300f);
+//    		System.out.println(sphereMeshLoad.getMaxVertices()+" "+ sphereMeshLoad.getNumIndices());
+//    		
+//    		int size = 1;
+//    		sphereMesh = new Mesh(
+//    				VertexDataType.VertexArray,
+//    				false, 
+//    				sphereMeshLoad.getNumVertices(), 
+//    				sphereMeshLoad.getNumIndices(),
+//    				new VertexAttribute(Usage.Position, 4, ShaderProgram.POSITION_ATTRIBUTE),
+//    				new VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
+//    				new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"));
+//    		
+//    		short[] indices = new short[ sphereMeshLoad.getNumIndices() ];
+//    		float[] verticies = new float[ 30720 ];
+//    		
+//    		sphereMeshLoad.getIndices(indices);
+//    		sphereMeshLoad.getVertices(verticies);
+//    		
+//    		sphereMesh.setIndices( indices );
+//    		sphereMesh.setVertices( verticies );
+////    		
+//    		System.out.println(sphereMesh.getNumVertices()+" "+ sphereMesh.getNumIndices());
+
+
+//    		InputStream in = Gdx.files.internal("data/sphere.obj").read();
+//    		sphereMesh = ObjLoaderTan.loadObj(in);
+//    		Gdx.app.log("dbg","mesh:"+sphereMesh);
+//    		sphereMesh.getVertexAttribute(Usage.Position).alias = "a_vertex";
+//    		sphereMesh.getVertexAttribute(Usage.Normal).alias = "a_normal";
+//    		sphereMesh.getVertexAttribute(10).alias = "a_tangent";
+//    		sphereMesh.getVertexAttribute(11).alias = "a_binormal";
+//    		sphereMesh.getVertexAttribute(Usage.TextureCoordinates).alias = "a_texcoord0";
+//    		try {
+//    			in.close();
+//    		} catch (IOException e) {
+//    			// TODO Auto-generated catch block
+//    			e.printStackTrace();
+//    		}
     		
-    		texShader = new ShaderProgram(Gdx.files.internal("data/tex-vs.glsl"),
-    				Gdx.files.internal("data/tex-fs.glsl"));
+    		sphereMesh.scale(300f, 350f, 300f);
+            
+            
+            
+    		texShader =workingShader(); //new ShaderProgram(Gdx.files.internal("data/tex-vs.glsl"),
+    				//Gdx.files.internal("data/tex-fs.glsl"));
            
             //we only use this to show what the strength-adjusted normal map looks like on screen
             Pixmap pix = new Pixmap(1, 1, Format.RGB565);
@@ -472,6 +560,7 @@ public class Illumination2D implements Screen {
             cam.setToOrtho(false);
 
             // create our shader program...
+        //    program = createShader();
             program = createShader();
 
             // now we create our sprite batch for our shader
@@ -483,9 +572,9 @@ public class Illumination2D implements Screen {
 
             // usually we would just use a single batch for our application,
             // but for demonstration let's also show the un-affected image
-            batch = new SpriteBatch(100);
-            batch.setProjectionMatrix(cam.combined);
-            batch.setTransformMatrix(transform);
+//            batch = new SpriteBatch(100);
+//            batch.setProjectionMatrix(cam.combined);
+//            batch.setTransformMatrix(transform);
 
             // quick little input for debugging -- press S to toggle shadows, N to
             // toggle normals
@@ -542,231 +631,9 @@ public class Illumination2D implements Screen {
             });
            
             font = new BitmapFont();
-            
-
-
-            
-    		earthTexture = new Texture(Gdx.files.internal("data/sphereMesh.jpg"), Format.RGB565, true);
-    		earthTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
-
-            //Do noise!
-            //http://stackoverflow.com/questions/4753055/perlin-noise-generation-for-terrain
-//            float min=999;
-//            float max=-999;
-//            
-//
-//            float[][] data, dataTmp;
-//            data = new float[(int) maxU][(int) maxV];
-
-            
-//            float theta = 0 ;
-//            float r = maxV;
-//            float phi = 0;
-//            for (int _y = (int) (-maxV/2); _y < maxV/2; ++_y) {
-//                for (int _x = 0; _x < maxU; ++_x) {
-//                  	//float _x2 = mapToSphere(_x, _y);
-//                	//at 1, x goes from 0 to maxU
-//                	//at 0, x goes from maxV to maxV
-//                	
-//                	phi = (float) (((float)_x / maxU) * 2 * Math.PI);
-//                	
-//                	//float _Y = _y - maxV/2;
-//                    theta = (float) (2 * Math.atan( Math.exp((float)(_y) / (maxV/Math.PI)) ) - (Math.PI/2f));
-//
-//                	
-//                	
-//                	
-////                	if (_y < maxV/2) {
-////                   	 theta = (float) (2 * Math.atan( Math.exp((float)(_y*2) / (r/Math.PI)) ) - (Math.PI/2f));
-////                	} else {
-////                		float _Y = _y - maxV/2f;
-////                      	 theta = (float) (2 * Math.atan( Math.exp((float)((_Y*2) - maxV) / (r/Math.PI)) ) );
-////                      	 theta +=  (Math.PI/2f);
-////                	}
-//                	
-//                	
-//                	float X = (float) (r * Math.sin(theta) * Math.cos(phi));
-//                	float Y = (float) (r * Math.cos(theta));
-//                	float Z = (float) (r * Math.sin(theta) * Math.sin(phi));
-//            	
-//      
-//                	
-//                	float h = getHeight(X,Y,Z);
-//                	min = Math.min(min, theta);
-//                	max = Math.max(max,theta);
-//                	if (h > 1) h = 1;
-//                	if (h < -1) h = -1;
-//                	
-//                	int y_coord = (int) (_y +  maxV);
-//                	if (y_coord >= maxV) y_coord -= maxV;
-//                	data[_x][y_coord] = h;
-//                }
-//        		Gdx.app.log("toSphere", "V:"+_y+" -> theta:"+Math.toDegrees(theta)+" phi:"+Math.toDegrees(phi));
-//
-//            }
-            
-            
-
-            
-//            for (int _y = 0; _y < maxV; ++_y) {
-//                for (int _x = 0; _x < maxU; ++_x) {
-//                	                	
-//                	//Gdx.app.log("Noise",""+h);
-//                	
-//                	float h = data[_x][_y];
-//                	float height = toHeight(h); //map 0 to 1
-//                	worldPixHeight.setColor(height, height, height, 1f);
-//                	worldPixHeight.drawPixel(_x, _y);
-//                	
-//                	
-//                	Color world = getWorldColor();
-//                	Color ocean = getWorldColor();
-//                	
-//                	worldPixLand.setColor(world.r * height, world.g * height, world.b * height, 1f);
-//                	worldPixLand.drawPixel(_x, _y);
-//
-//                	
-//                	float opaque = 1f;
-//        			if (height > waterHeight) opaque = 1f;
-//                	else if (height > -waterHeight) opaque = ((height + waterHeight)/2f) * 10f;
-//                	else opaque = 0;
-//                	worldPixOcean.setColor(ocean.r, ocean.g, ocean.b, opaque);
-//                	worldPixOcean.drawPixel(_x, _y);
-                	
-                	
-//               	 theta = (float) Math.toRadians(70);
-//                	if (Math.toDegrees(theta) > 140 || Math.toDegrees(theta) < 40) {
-//                		worldPixLand.setColor(1f*green, 1f*green, 1f*green, greenAlpha);
-//                	} else if (Math.toDegrees(theta) < 95 && Math.toDegrees(theta) > 85) {
-//                    		worldPixLand.setColor(1f*green, 1f*green, 0f, greenAlpha);
-//                	} else if (Math.toDegrees(theta) < 100 && Math.toDegrees(theta) > 80) {
-//                		if (Math.toDegrees(theta) < 90) {
-//                    		float amount =  (float)Math.toDegrees(theta) - 80;
-//                    		if (Utility.getRandChance(amount * 0.2f) == true) {
-//                        		worldPixLand.setColor(1f*green, 1f*green, 0f, greenAlpha);
-//                    		} else {
-//                        		worldPixLand.setColor(0f, green, 0f, greenAlpha);
-//                    		}
-//                		} else {
-//                    		float amount =  100 - (float)Math.toDegrees(theta);
-//                    		if (Utility.getRandChance(amount * 0.2f) == true) {
-//                        		worldPixLand.setColor(1f*green, 1f*green, 0f, greenAlpha);
-//                    		} else {
-//                        		worldPixLand.setColor(0f, green, 0f, greenAlpha);
-//                    		}
-//                		} 
-//                	} else if (Math.toDegrees(theta) > 130) {
-//                		float amount = (float) Math.abs(Math.toDegrees(theta)) - 130;
-//                		if (Utility.getRandChance(amount * 0.1f) == true) {
-//                    		worldPixLand.setColor(1f*green, 1f*green, 1f*green, greenAlpha);
-//                		} else {
-//                    		worldPixLand.setColor(0f, green, 0f, greenAlpha);
-//                		}
-//                	} else if (Math.toDegrees(theta) < 50) {
-//                		float amount = (float) 50 - (float)Math.toDegrees(theta);
-//                		if (Utility.getRandChance(amount * 0.1f) == true) {
-//                			worldPixLand.setColor(1f*green, 1f*green, 1f*green, greenAlpha);
-//                		} else {
-//                			worldPixLand.setColor(0f, green, 0f, greenAlpha);
-//                		}
-//                	} else {
-//                		worldPixLand.setColor(0f, green, 0f, greenAlpha);
-//                	}
-                	
-                	
-                	
-//                }
-//            }
-            
-            
-
-            
-//            for (int _y = 0; _y < 64; ++_y) {
-//                for (int _x = 0; _x < maxU; ++_x) {
-//                	float h = iceTop[_x][_y];
-//                	float height = toHeight(h);
-//                	if (height > 0) {
-//	                	worldPixHeight.setColor(height, height, height, 1f);
-//	                	worldPixHeight.drawPixel(_x, _y);
-//                	}
-//                	float white = toLand(h);
-//                	white *= (1f/64f) * (64 - _y);
-//                	worldPixIce.setColor(1f, 1f, 1f, white);
-//                	worldPixIce.drawPixel(_x, _y);
-//                	
-////                	h = iceBottom[_x][_y];
-////                	height = toHeight(h);
-////                	if (height > 0) {
-////	                	worldPixHeight.setColor(height, height, height, 1f);
-////	                	worldPixHeight.drawPixel(_x, _y);
-////                	}
-////                	white = toLand(h);
-////                	worldPixIce.setColor(1f, 1f, 1f, white);
-////                	//worldPixIce.drawPixel(_x, maxU-_y);
-//                }
-//            }
-//            
-//            worldPixOcean.drawPixmap(worldPixLand, 0, 0);
-////            worldPixOcean.drawPixmap(worldPixIce, 0, 0);
-//
-//            
-//        	Gdx.app.log("Noise","Min:"+Math.toDegrees(min)+" max:"+Math.toDegrees(max)+" dif"+Math.toDegrees(max-min));
-//
-//            
-//            //make normal map
-//        	//http://www.gamedev.net/topic/586973-how-to-generate-normal-map-from-texture/
-//            for (int _x = 1; _x < (maxU)-1; ++_x) {
-//                for (int _y = 1; _y < (maxV)-1; ++_y) {
-//                	float z1=toNormHeight(data[_x][_y])-toNormHeight(data[_x-1][_y]);
-//                	float z2=toNormHeight(data[_x][_y])-toNormHeight(data[_x][_y+1]);
-//                	
-//                	
-//                	float hxm = toNormHeight(data[_x - 1][_y]);
-//                	float hxp = toNormHeight(data[_x + 1][_y]);
-//                	float hym = toNormHeight(data[_x][_y - 1]);
-//                	float hyp = toNormHeight(data[_x][_y + 1]);
-//
-////                	Vector3 vx = new Vector3(0, 1, z1);
-////                	Vector3 vy = new Vector3(1, 0, z2);
-//                	
-//                	Vector3 vx = new Vector3(0, 1, hxm - hxp);
-//                	Vector3 vy = new Vector3(1, 0, hym - hyp);
-//                	
-//                	vx.crs(vy); //normal = vx X vy
-//                	vx.nor(); //normalise
-//                	
-//                	float R= ((vx.x + 1f)/2f);  
-//                	float g = ((vx.y + 1f)/2f);  
-//                	float b = 1 - ((vx.z + 1f)/2f);  
-//                	
-//                	//if (Utility.getRandChance(0.01f) == true) {
-//                	//	Gdx.app.log("toSphere", "R:"+r+" G:"+g+" B:"+b);
-//                	//}
-//                	
-//                    worldPixNormal.setColor(R, g, b, 1f);
-//                    worldPixNormal.drawPixel(_x, _y);
-//                }
-//            }
-            
-
-           // worldPix.fillRectangle(50, 50, 100, 100);
-//            worldTexture = new Texture(worldPixOcean);
-//            worldHeight = new Texture(worldPixHeight);
-//            worldNormal = new Texture(worldPixNormal);
-//            
-//            worldTexture = new Texture(worldPixOcean);
-//            //worldTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-//
-//            worldNormal = new Texture(worldPixNormal);
-//            worldNormal.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-//
-//
-//            worldPixOcean.dispose();
-//            worldPixLand.dispose();
-//            worldPixHeight.dispose();
-//            worldPixNormal.dispose();
-//            worldPixIce.dispose();
+         
+    		//earthTexture = new Texture(Gdx.files.internal("data/moonTex.jpg"), Format.RGB565, false);
+    		//earthTexture.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 
     		genWorld();
 			

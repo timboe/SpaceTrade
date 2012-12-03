@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.ShipClass;
-import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.ship.Ship;

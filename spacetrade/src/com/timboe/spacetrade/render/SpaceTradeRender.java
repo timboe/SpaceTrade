@@ -7,11 +7,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.timboe.spacetrade.NormalMapShader;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.player.Player;
@@ -41,31 +42,33 @@ public class SpaceTradeRender implements Screen {
 	protected SpriteBatch spriteBatchFade = new SpriteBatch();
 
 	protected Camera screenCam = new OrthographicCamera();
+	protected Camera planetCam = new OrthographicCamera();
 	private Image blackSquare;
 	
 	protected Matrix4 transform_BG;
 	protected Matrix4 transform_FX;
+	protected Vector3 lightPos = new Vector3(750,-700,0.005f);
 	
 	protected ShaderProgram shader;
 	
-	protected DistanceFieldShader distanceFieldShader;
-	public static class DistanceFieldShader extends ShaderProgram {
-		public DistanceFieldShader () {
-			super(
-				Gdx.files.internal("data/skin/distanceField.vert"),
-				Gdx.files.internal("data/skin/distanceField.frag"));
-			if (!isCompiled()) {
-				throw new RuntimeException("Shader compilation failed:\n" + getLog());
-			}
-		}
-		
-		/** @param smoothing a value between 0 and 1 */
-		public void setSmoothing(float smoothing) {
-			float delta = 0.5f * MathUtils.clamp(smoothing, 0, 1);
-			setUniformf("u_lower", 0.5f - delta);
-			setUniformf("u_upper", 0.5f + delta);
-		}
-	}
+//	protected DistanceFieldShader distanceFieldShader;
+//	public static class DistanceFieldShader extends ShaderProgram {
+//		public DistanceFieldShader () {
+//			super(
+//				Gdx.files.internal("data/skin/distanceField.vert"),
+//				Gdx.files.internal("data/skin/distanceField.frag"));
+//			if (!isCompiled()) {
+//				throw new RuntimeException("Shader compilation failed:\n" + getLog());
+//			}
+//		}
+//		
+//		/** @param smoothing a value between 0 and 1 */
+//		public void setSmoothing(float smoothing) {
+//			float delta = 0.5f * MathUtils.clamp(smoothing, 0, 1);
+//			setUniformf("u_lower", 0.5f - delta);
+//			setUniformf("u_upper", 0.5f + delta);
+//		}
+//	}
 
 	public Image getBlackSquare() {
 		return blackSquare;
@@ -76,11 +79,8 @@ public class SpaceTradeRender implements Screen {
 		masterTable.debug();
 		masterTable.align(Align.bottom | Align.left);
 		masterTable.setSize(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT);
-		
-		//distanceFieldShader = new DistanceFieldShader();
-		//distanceFieldShader.setSmoothing((1/8f) / 2f);
+
 		stage = new Stage();
-		//stage.getSpriteBatch().setShader(distanceFieldShader);
 
 		leftTable = new Table();
 		if (SpaceTrade.debug == true) leftTable.debug();
@@ -92,7 +92,13 @@ public class SpaceTradeRender implements Screen {
 		blackSquare.act(1);
 		blackSquare.setSize(500, 500);
 		
-		shader = Meshes.createShader();	
+		shader = new ShaderProgram(NormalMapShader.mVertexShader, NormalMapShader.mFragmentShader);
+		if (shader.isCompiled() == false) {
+            Gdx.app.log("ShaderTest", shader.getLog());
+            System.exit(0);
+		}
+		
+		planetCam.translate(0,100,0);
 		
 		//init(); should be caller after superclass constructor
 	}
@@ -121,20 +127,52 @@ public class SpaceTradeRender implements Screen {
 		renderFade(delta);
 	}
 	
-	protected void renderPlanet(float delta) {
+	protected void renderPlanet(float delta, Texture _t0, Texture _t1, WorldSize _ws) {
+		
+		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl20.glEnable(GL20.GL_TEXTURE);
 		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
-		transform_FX.rotate(0, 1, 0, delta);
-		shader.begin();
-        Vector3 lightPos = new Vector3(0,0,0.005f);
-        lightPos.x = Gdx.input.getX();
-        lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
-        shader.setUniformf("light", lightPos);
-        shader.setUniformMatrix("u_projTrans", transform_FX);
-        PlanetFX.getNormals(Player.getPlanetID()).bind(1);
-        PlanetFX.getTexture(Player.getPlanetID()).bind(0);
-        Meshes.getPlanet(Player.getPlanet().getSize()).render(shader, GL20.GL_TRIANGLES);
-        shader.end();
-        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
+		
+		_t1.bind(1);
+		_t0.bind(0);
+
+		//lightPos.x = Gdx.input.getX();
+		transform_FX.rotate(0, 1, 0, delta*3);
+		
+		shader.begin();	
+		shader.setUniformi("s_baseMap", 0);		
+		shader.setUniformi("s_bumpMap", 1);
+		shader.setUniformMatrix("u_matViewProjection", transform_FX);//model
+		shader.setUniformf("u_lightPosition", lightPos.x, lightPos.y, lightPos.z);
+		shader.setUniformf("u_eyePosition", planetCam.position.x, planetCam.position.y, planetCam.position.z);
+		shader.setUniformf("u_ambient", 1f,1f,1f,1f);
+		shader.setUniformf("u_specular", 0.4f,0.4f,0.4f,1f);
+		shader.setUniformf("u_diffuse",0.5f,0.5f,0.5f,1f);
+		shader.setUniformf("u_specularPower",200);
+		Meshes.getPlanet(_ws).render(shader, GL20.GL_TRIANGLES);
+		shader.end();
+				
+		Gdx.gl20.glDisable(GL20.GL_DEPTH_TEST);
+		Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
+		Gdx.gl20.glDisable(GL20.GL_TEXTURE);
+		
+//		IntBuffer maxTextureSize = new IntBuffer();
+//		Gdx.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, maxTextureSize);
+//		Gdx.app.log("log",""+maxTextureSize);
+		
+//		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
+//		transform_FX.rotate(0, 1, 0, delta);
+//		shader.begin();
+//        Vector3 lightPos = new Vector3(0,0,0.005f);
+//        lightPos.x = Gdx.input.getX();
+//        lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
+//        shader.setUniformf("light", lightPos);
+//        shader.setUniformMatrix("u_projTrans", transform_FX);
+//        PlanetFX.getNormals(Player.getPlanetID()).bind(1);
+//        PlanetFX.getTexture(Player.getPlanetID()).bind(0);
+//        Meshes.getPlanet(Player.getPlanet().getSize()).render(shader, GL20.GL_TRIANGLES);
+//        shader.end();
+//        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
 	}
 	
 	protected void renderPlanetBackdrop() {
@@ -189,7 +227,7 @@ public class SpaceTradeRender implements Screen {
 
 	protected void renderClear(float delta) {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);		
+		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
 	}
 	
 	public Stage getStage() {
@@ -198,21 +236,27 @@ public class SpaceTradeRender implements Screen {
 	
 	public void resize (int width, int height) {
 		Gdx.app.log("Resize", "ReSize in Render ["+this+"] ("+width+","+height+")");
-		stage.setViewport(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT, true);
-		stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
+		//Constrain
+//		stage.setViewport(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT, true);
+//		stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
+		//Dont cnstrain
+		stage.setViewport(SpaceTrade.CAMERA_WIDTH, SpaceTrade.CAMERA_HEIGHT, false);
+
 		
 		blackSquare.setWidth(Gdx.graphics.getWidth()*10);
 		blackSquare.setHeight(Gdx.graphics.getHeight()*10);
-		screenCam = new OrthographicCamera();
 		
+		//screenCam = new OrthographicCamera();
 		transform_BG = screenCam.combined.cpy();
 		transform_BG.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
 		transform_BG.translate(-SpaceTrade.CAMERA_WIDTH/2f, -SpaceTrade.CAMERA_HEIGHT/2f, 0f);
 		
-		transform_FX = screenCam.combined.cpy();
+		//planetCam = new OrthographicCamera();
+		
+		transform_FX = planetCam.combined.cpy();
 		transform_FX.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
 		transform_FX.translate(200, 0, 0);
-		transform_FX.rotate(1, 0, 0, -15f);
+		transform_FX.rotate(1, 0, 0, -10);
 	
 		if (secondaryStage != null) {
 			secondaryStage.setCamera(stage.getCamera());

@@ -1,9 +1,6 @@
 package com.timboe.spacetrade.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -14,7 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.SpaceTrade;
-import com.timboe.spacetrade.render.Meshes;
+import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.PlanetFX;
 import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
@@ -31,7 +29,7 @@ public class ShipScreen extends SpaceTradeRender {
 	private TextButton viewShopButton;
 	private boolean viewShip = false;
 
-	private float Delta;
+	//private float Delta;
 
 	
 	public ShipScreen() {
@@ -77,27 +75,30 @@ public class ShipScreen extends SpaceTradeRender {
 	
 	@Override
 	protected void renderFX(float delta) {
-		renderPlanet(delta);
+		renderPlanet(delta, 
+				PlanetFX.getTexture(Player.getPlanetID()),
+				PlanetFX.getNormals(Player.getPlanetID()),
+				Player.getPlanet().getSize());
 		
-		//Ship test
-		Delta += delta;
-		Matrix4 transform_FX2 = screenCam.combined.cpy();
-		transform_FX2.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
-		transform_FX2.translate(-400, 0, 0);
-		transform_FX2.rotate(1, 0, 0, -15f);
-		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
-		transform_FX2.rotate(1, 1, 1, Delta*10);
-		shader.begin();
-        Vector3 lightPos = new Vector3(0,0,0.005f);
-        lightPos.x = Gdx.input.getX();
-        lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
-        shader.setUniformf("light", lightPos);
-        shader.setUniformMatrix("u_projTrans", transform_FX2);
-        //PlanetFX.getNormals(Player.getPlanetID()).bind(1);
-        Textures.getPink().bind(0);
-        Meshes.getPinkTube().render(shader, GL20.GL_TRIANGLES);
-        shader.end();
-        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
+//		//Ship test
+//		Delta += delta;
+//		Matrix4 transform_FX2 = screenCam.combined.cpy();
+//		transform_FX2.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
+//		transform_FX2.translate(-400, 0, 0);
+//		transform_FX2.rotate(1, 0, 0, -15f);
+//		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
+//		transform_FX2.rotate(1, 1, 1, Delta*10);
+//		shader.begin();
+//        Vector3 lightPos = new Vector3(0,0,0.005f);
+//        lightPos.x = Gdx.input.getX();
+//        lightPos.y = Gdx.graphics.getHeight() - Gdx.input.getY();
+//        shader.setUniformf("light", lightPos);
+//        shader.setUniformMatrix("u_projTrans", transform_FX2);
+//        //PlanetFX.getNormals(Player.getPlanetID()).bind(1);
+//        Textures.getPink().bind(0);
+//        Meshes.getPinkTube().render(shader, GL20.GL_TRIANGLES);
+//        shader.end();
+//        Gdx.gl20.glDisable(GL20.GL_CULL_FACE);
 	}
 	
 	@Override 

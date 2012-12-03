@@ -5,10 +5,12 @@ import java.io.InputStream;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.timboe.spacetrade.ObjLoaderTan;
 import com.timboe.spacetrade.enumerator.WorldSize;
 
 public class Meshes {
@@ -49,36 +51,88 @@ public class Meshes {
 	}
 	
 	private static void init() {
-		InputStream in = Gdx.files.internal("data/sphereMesh.obj").read();
-		planetMedium = ObjLoader.loadObj(in);
+		InputStream in = Gdx.files.internal("data/sphere.obj").read();
+		planetMedium = ObjLoaderTan.loadObj(in);
+		planetMedium.getVertexAttribute(Usage.Position).alias = "a_vertex";
+		planetMedium.getVertexAttribute(Usage.Normal).alias = "a_normal";
+		planetMedium.getVertexAttribute(10).alias = "a_tangent";
+		planetMedium.getVertexAttribute(11).alias = "a_binormal";
+		planetMedium.getVertexAttribute(Usage.TextureCoordinates).alias = "a_texcoord0";
 		try {
 			in.close();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		planetMedium.scale(300f, 350f, 300f);	
 		
-		in = Gdx.files.internal("data/sphereMesh.obj").read();
-		planetSmall = ObjLoader.loadObj(in);
+		in = Gdx.files.internal("data/sphere.obj").read();
+		planetSmall = ObjLoaderTan.loadObj(in);
+		planetSmall.getVertexAttribute(Usage.Position).alias = "a_vertex";
+		planetSmall.getVertexAttribute(Usage.Normal).alias = "a_normal";
+		planetSmall.getVertexAttribute(10).alias = "a_tangent";
+		planetSmall.getVertexAttribute(11).alias = "a_binormal";
+		planetSmall.getVertexAttribute(Usage.TextureCoordinates).alias = "a_texcoord0";
 		try {
 			in.close();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		in = Gdx.files.internal("data/sphere.obj").read();
+		planetLarge = ObjLoaderTan.loadObj(in);
+		planetLarge.getVertexAttribute(Usage.Position).alias = "a_vertex";
+		planetLarge.getVertexAttribute(Usage.Normal).alias = "a_normal";
+		planetLarge.getVertexAttribute(10).alias = "a_tangent";
+		planetLarge.getVertexAttribute(11).alias = "a_binormal";
+		planetLarge.getVertexAttribute(Usage.TextureCoordinates).alias = "a_texcoord0";
+		try {
+			in.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		planetSmall.scale(300f * WorldSize.Small.getSizeMod(), 
-				350f * WorldSize.Small.getSizeMod(), 
-				300f * WorldSize.Small.getSizeMod());		
+		350f * WorldSize.Small.getSizeMod(), 
+		300f * WorldSize.Small.getSizeMod());	
+		
+		planetMedium.scale(300f, 350f, 300f);	
 
-		in = Gdx.files.internal("data/sphereMesh.obj").read();
-		planetLarge = ObjLoader.loadObj(in);
-		try {
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		planetLarge.scale(300f * WorldSize.Large.getSizeMod() * 0.9f, 
-				350f * WorldSize.Large.getSizeMod() * 0.9f, 
-				300f * WorldSize.Large.getSizeMod() * 0.9f); //reduce this a bit
+		350f * WorldSize.Large.getSizeMod() * 0.9f, 
+		300f * WorldSize.Large.getSizeMod() * 0.9f); //reduce this a bit
+		
+//		InputStream in = Gdx.files.internal("data/sphere.obj").read();
+//		planetMedium = ObjLoader.loadObj(in);
+//		try {
+//			in.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		planetMedium.scale(300f, 350f, 300f);	
+//		
+//		in = Gdx.files.internal("data/sphere.obj").read();
+//		planetSmall = ObjLoader.loadObj(in);
+//		try {
+//			in.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		planetSmall.scale(300f * WorldSize.Small.getSizeMod(), 
+//				350f * WorldSize.Small.getSizeMod(), 
+//				300f * WorldSize.Small.getSizeMod());		
+//
+//		in = Gdx.files.internal("data/sphere.obj").read();
+//		planetLarge = ObjLoader.loadObj(in);
+//		try {
+//			in.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		planetLarge.scale(300f * WorldSize.Large.getSizeMod() * 0.9f, 
+//				350f * WorldSize.Large.getSizeMod() * 0.9f, 
+//				300f * WorldSize.Large.getSizeMod() * 0.9f); //reduce this a bit
 	}
 	
     public static ShaderProgram createShader() {

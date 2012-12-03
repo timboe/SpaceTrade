@@ -1,6 +1,7 @@
 package com.timboe.spacetrade.screen;
 
-import com.timboe.spacetrade.render.Meshes;
+import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.PlanetFX;
 import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.windows.PlanetWindow;
 
@@ -8,7 +9,6 @@ public class PlanetScreen extends SpaceTradeRender {
 
 
 	public PlanetScreen() {
-		shader = Meshes.createShader();	
 		init();
 	}
 	
@@ -19,8 +19,10 @@ public class PlanetScreen extends SpaceTradeRender {
 	
 	@Override
 	protected void renderFX(float delta) {
-		renderPlanet(delta);
-	}
+		renderPlanet(delta, 
+				PlanetFX.getTexture(Player.getPlanetID()),
+				PlanetFX.getNormals(Player.getPlanetID()),
+				Player.getPlanet().getSize());	}
 	
 	@Override
 	public void show() {

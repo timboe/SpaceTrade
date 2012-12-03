@@ -16,6 +16,7 @@ public class SpaceTrade extends Game {
 	public ShipScreen theShipScreen;
 	public PlanetScreen thePlanetScreen;
 	public BuySellScreen theBuySellScreen;
+	public NormalMapTest nmt;
 	
 	public static final float CAMERA_WIDTH = 1280;
 	public static final float CAMERA_HEIGHT = 800;
@@ -36,14 +37,16 @@ public class SpaceTrade extends Game {
 	@Override
 	public void create() {
 		self = this;
-		
+//		
 		theTitle = new TitleScreen();
 		theStarmap = new StarmapScreen();
 		theShipScreen = new ShipScreen();
 		thePlanetScreen = new PlanetScreen();
 		theBuySellScreen = new BuySellScreen();
-		
+//		
 		//Illumination2D i2d = new Illumination2D();
+		
+		//NormalMapTest nmt = new NormalMapTest();
 		
 		setScreen(theTitle);
 	}
