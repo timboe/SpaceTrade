@@ -107,24 +107,13 @@ public class StarmapScreen extends SpaceTradeRender {
 		}
 
 		@Override
-		public boolean tap(float x, float y, int count, int button) {
-			return false;
-		}
-
+		public boolean tap(float x, float y, int count, int button) {return false;}
 		@Override
-		public boolean longPress(float x, float y) {
-			return false;
-		}
-
+		public boolean longPress(float x, float y) {return false;}
 		@Override
-		public boolean zoom(float initialDistance, float distance) {
-			return false;
-		}
-
+		public boolean zoom(float initialDistance, float distance) {return false;}
 		@Override
-		public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-			return false;
-		}
+		public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {return false;}
 	}
 	
 	public StarmapScreen() {
@@ -194,19 +183,21 @@ public class StarmapScreen extends SpaceTradeRender {
 		final float _r = Player.getShip().getRange();
 		final int _stepSize = 36; //degree
 		final float _miniStep = (float)_stepSize/8f;
-		for (int _step = 0; _step <= 360; _step += _stepSize) {
-			 offset += delta;
-			final float _offset = _step + offset;
-			g2.begin(ShapeType.Curve);
-			g2.curve(_sx + (float)(_r * Math.cos( Math.toRadians( _offset + (0 * _miniStep) ) )),
-					 _sy + (float)(_r * Math.sin( Math.toRadians( _offset + (0 * _miniStep) ) )),
-					 _sx + (float)(_r * Math.cos( Math.toRadians( _offset + (1 * _miniStep) ) )),
-					 _sy + (float)(_r * Math.sin( Math.toRadians( _offset + (1 * _miniStep) ) )),
-					 _sx + (float)(_r * Math.cos( Math.toRadians( _offset + (2 * _miniStep) ) )),
-					 _sy + (float)(_r * Math.sin( Math.toRadians( _offset + (2 * _miniStep) ) )),
-					 _sx + (float)(_r * Math.cos( Math.toRadians( _offset + (3 * _miniStep) ) )),
-					 _sy + (float)(_r * Math.sin( Math.toRadians( _offset + (3 * _miniStep) ) ))  );
-			g2.end();
+		 offset += delta*5;
+		for (float S = 0; S < 5; S+=0.5f) {
+			for (int _step = 0; _step <= 360; _step += _stepSize) {
+				final float _offset = _step + offset;
+				g2.begin(ShapeType.Curve);
+				g2.curve(_sx + (float)((_r+S) * Math.cos( Math.toRadians( _offset + (0 * _miniStep) ) )),
+						 _sy + (float)((_r+S) * Math.sin( Math.toRadians( _offset + (0 * _miniStep) ) )),
+						 _sx + (float)((_r+S) * Math.cos( Math.toRadians( _offset + (1 * _miniStep) ) )),
+						 _sy + (float)((_r+S) * Math.sin( Math.toRadians( _offset + (1 * _miniStep) ) )),
+						 _sx + (float)((_r+S) * Math.cos( Math.toRadians( _offset + (2 * _miniStep) ) )),
+						 _sy + (float)((_r+S) * Math.sin( Math.toRadians( _offset + (2 * _miniStep) ) )),
+						 _sx + (float)((_r+S) * Math.cos( Math.toRadians( _offset + (3 * _miniStep) ) )),
+						 _sy + (float)((_r+S) * Math.sin( Math.toRadians( _offset + (3 * _miniStep) ) ))  );
+				g2.end();
+			}
 		}
 	}
 	

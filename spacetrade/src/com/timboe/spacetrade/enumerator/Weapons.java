@@ -7,26 +7,28 @@ import java.util.List;
 import com.timboe.spacetrade.utility.Rnd;
 
 public enum Weapons {
-	PewPew 			(WeaponClass.Missile,		1,	1000,	"Pew Pew Missile"),
-	Cannon			(WeaponClass.MassDriver,	1,	1000,	"A Cannon"),
-	Twinkler		(WeaponClass.Laser,			1,	1000,	"Twinkler"),
-	Stinger			(WeaponClass.Missile,		2,	10000,	"Stinger Missile"),
-	Slugger			(WeaponClass.MassDriver,	2,	10000,	"Slugger"),
-	ChemicalLaser	(WeaponClass.Laser,			2,	10000,	"Chem Later"),
-	UberBoom		(WeaponClass.Missile,		3,	100000,	"3rd Missile"),
-	Railgun			(WeaponClass.MassDriver,	3,	100000,	"Rail Gun"),
-	Sunbeam			(WeaponClass.Laser,			3,	100000,	"Sunbeam");
+	PewPew 			(WeaponClass.Missile,		1,	2,		1000,	"Pew Pew Missile"),
+	Cannon			(WeaponClass.MassDriver,	1,	10,		1000,	"A Cannon"),
+	Twinkler		(WeaponClass.Laser,			1,	7,		1000,	"Twinkler"),
+	Stinger			(WeaponClass.Missile,		2,	12,		10000,	"Stinger Missile"),
+	Slugger			(WeaponClass.MassDriver,	2,	25,		10000,	"Slugger"),
+	ChemicalLaser	(WeaponClass.Laser,			2,	24,		10000,	"Chem Later"),
+	UberBoom		(WeaponClass.Missile,		3,	16,		100000,	"3rd Missile"),
+	Railgun			(WeaponClass.MassDriver,	3,	60,		100000,	"Rail Gun"),
+	Sunbeam			(WeaponClass.Laser,			3,	42,		100000,	"Sunbeam");
 	
 	WeaponClass weaponClass;
 	String name;
 	int cost;
 	int level;
+	int heat;
 	
-	private Weapons(WeaponClass _c, int _l, int _cst, String _n) {
+	private Weapons(WeaponClass _c, int _l, int _heat, int _cst, String _n) {
 		weaponClass = _c;
 		name = _n;
 		cost = _cst;
 		level = _l;
+		heat = _heat;
 	}
 	
 	public int getCost() {
@@ -67,5 +69,9 @@ public enum Weapons {
 			Weapons _w = content.get( rnd.getRandI(size) );
 			if (_w.getLevel() == _level) return _w;
 		}
+	}
+
+	public int getHeat() {
+		return heat;
 	}
 }

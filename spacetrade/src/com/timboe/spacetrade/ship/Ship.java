@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.timboe.spacetrade.enumerator.Equipment;
+import com.timboe.spacetrade.enumerator.OpponentStance;
 import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipProperty;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.utility.Rnd;
 
 public class Ship {
 	
@@ -17,11 +19,15 @@ public class Ship {
 	private ShipClass shipClass;
 	private ArrayList<Weapons> weaponLoadout = new ArrayList<Weapons>();
 	private ArrayList<Equipment> techLoadout = new ArrayList<Equipment>();
+	private Rnd rnd = new Rnd();
 
 	private int hull;
 	private int heat;
 	private float sheilding;
 	private float age;
+	
+	private boolean isAttacking;
+	private OpponentStance stance;
 	
 	private float acceleration = 5;
 	
@@ -77,6 +83,28 @@ public class Ship {
 				_chosen = true;
 			}
 		}
+		//add some damage
+		hull = shipClass.getMaxHull();
+		int dmg = rnd.getRandI( hull/4 );
+		hull -= dmg;
+		
+		if (template == ShipTemplate.Pirate) {
+			//TODO check if feared and not attack then
+			stance = OpponentStance.Attack;
+		} else if (template == ShipTemplate.Police) {
+			if (rnd.getRandChance(0.5f) == true) {
+				stance = OpponentStance.RequestInspect; //TODO put reputation here
+			} else {
+				stance = OpponentStance.Ignore;
+			}
+		} else if (template == ShipTemplate.Trader) {
+			if (rnd.getRandChance(0.5f) == true) {
+				stance = OpponentStance.OfferTrade; 
+			} else {
+				stance = OpponentStance.Ignore;
+			}
+		}
+		
 		print();
 	}
 	
@@ -263,4 +291,45 @@ public class Ship {
 	public ArrayList<Equipment> getEquipment() {
 		return techLoadout;
 	}
+
+	public ShipTemplate getTemplate() {
+		return template;
+	}
+
+	public OpponentStance getStance() {
+		return stance;
+	}
+	
+	public int getHeatPerFire() {
+		int _h = 0;
+		for (Weapons _w : weaponLoadout) {
+			_h += _w.getHeat();
+		}
+		return _h;
+	}
+	
+	public int getMinHeatPerFire() {
+		int _h = getHeatPerFire();
+		for (Weapons _w : weaponLoadout) {
+			if (_w.getHeat() < _h) {
+				_h = _w.getHeat();
+			}
+		}
+		return _h;
+	}
+
+//	public String getAction() {
+//		if (template == null) return null;
+//		switch (template) {
+//		case Pirate: 
+//			if (hull / getMaxHull() > 0.1f) return "ATTACK";
+//			else return "FLEE";
+//		case Police:
+//			return "FLEE";
+//		case Trader:
+//			return "FLEE";
+//			
+//		}
+//		return null;
+//	}
 }

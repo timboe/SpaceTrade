@@ -51,7 +51,7 @@ public class Meshes {
 	}
 	
 	private static void init() {
-		InputStream in = Gdx.files.internal("data/sphere.obj").read();
+		InputStream in = Gdx.files.internal("data/sphereB3D.obj").read();
 		planetMedium = ObjLoaderTan.loadObj(in);
 		planetMedium.getVertexAttribute(Usage.Position).alias = "a_vertex";
 		planetMedium.getVertexAttribute(Usage.Normal).alias = "a_normal";
@@ -65,7 +65,7 @@ public class Meshes {
 			e.printStackTrace();
 		}
 		
-		in = Gdx.files.internal("data/sphere.obj").read();
+		in = Gdx.files.internal("data/sphereB3D.obj").read();
 		planetSmall = ObjLoaderTan.loadObj(in);
 		planetSmall.getVertexAttribute(Usage.Position).alias = "a_vertex";
 		planetSmall.getVertexAttribute(Usage.Normal).alias = "a_normal";
@@ -79,7 +79,7 @@ public class Meshes {
 			e.printStackTrace();
 		}
 		
-		in = Gdx.files.internal("data/sphere.obj").read();
+		in = Gdx.files.internal("data/sphereB3D.obj").read();
 		planetLarge = ObjLoaderTan.loadObj(in);
 		planetLarge.getVertexAttribute(Usage.Position).alias = "a_vertex";
 		planetLarge.getVertexAttribute(Usage.Normal).alias = "a_normal";

@@ -32,11 +32,6 @@ public class TitleScreen extends SpaceTradeRender {
 		Starmap.populate();
 		Player.getPlayer().refresh();
 		Player.setCredz(250000);
-		Ship s = new Ship(ShipTemplate.Pirate);
-		s = new Ship(ShipTemplate.Pirate);
-		s = new Ship(ShipTemplate.Pirate);
-		s = new Ship(ShipTemplate.Pirate);
-		s = new Ship(ShipTemplate.Pirate);
 
 		ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theStarmap );
 		RightBar.getRightBarTable().addAction(Actions.delay(ScreenFade.speed));
@@ -76,16 +71,6 @@ public class TitleScreen extends SpaceTradeRender {
 		spriteBatch.draw(Textures.getStarscape( 0 ),0,0);
 		spriteBatch.end();
 	}
-	
-	public void render(float delta) {
-		renderClear(delta);
-		renderBackground(delta);
-		renderFX(delta);
-		renderForeground(delta);
-		renderFade(delta);
-	}
-	
-	
 	
 	@Override
 	protected void renderFX(float delta) {

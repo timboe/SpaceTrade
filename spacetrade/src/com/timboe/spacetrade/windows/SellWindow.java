@@ -57,29 +57,29 @@ public class SellWindow {
 			if (curPlanet.getSells(_g) == false) {
 				labelName.get(_g).setText(_g.toDisplayString());
 				labelPrice.get(_g).setText( "---" );
-				sliderStock.get(_g).setRange(0, 1);
-				sliderStock.get(_g).setTouchable(Touchable.disabled);
-				sliderStock.get(_g).setVisible(false);
+				//sliderStock.get(_g).setRange(0, 1);
+				//sliderStock.get(_g).setTouchable(Touchable.disabled);
+				//sliderStock.get(_g).setVisible(false);
 				labelPricePaid.get(_g).setText("---");
 				labelStock.get(_g).setText( Integer.toString(Player.getStock(_g)) );
-				buttonSell.get(_g).setTouchable(Touchable.disabled);
-				buttonSell.get(_g).setVisible(false);
-				continue;
+				buttonSell.get(_g).setText("DUMP");
+				//buttonSell.get(_g).setTouchable(Touchable.disabled);
+				//buttonSell.get(_g).setVisible(false);
 			} else {
-				if (Player.getStock(_g) == 0) {
-					sliderStock.get(_g).setTouchable(Touchable.disabled);
-				} else {
-					sliderStock.get(_g).setTouchable(Touchable.enabled);
-				}
-				buttonSell.get(_g).setTouchable(Touchable.enabled);
-				buttonSell.get(_g).setVisible(true);
-				sliderStock.get(_g).setVisible(true);
+				buttonSell.get(_g).setText("SELL");
 			}
+
+			
+			if (Player.getStock(_g) == 0) {
+				sliderStock.get(_g).setTouchable(Touchable.disabled);
+			} else {
+				sliderStock.get(_g).setTouchable(Touchable.enabled);
+			}
+	
 			
 			labelName.get(_g).setText(_g.toDisplayString() + "[" + curPlanet.getStock(_g)  + "]");
 			
 			int cost = curPlanet.getPriceSell(_g);
-			labelPrice.get(_g).setText( "$" + Integer.toString(cost) );
 			
 			if (_intial == true) {
 				int toSell = Player.getStock(_g);
@@ -96,6 +96,8 @@ public class SellWindow {
 			int chosen = (int) sliderStock.get(_g).getValue();
 			labelStock.get(_g).setText( Integer.toString(chosen) );
 			
+			if (curPlanet.getSells(_g) == false) continue;
+			
 			int avPaid = Player.getAvPaidPrice(_g);
 			if (avPaid == 0) {
 				labelPricePaid.get(_g).setColor(1f, 1f, 1f, 1f);
@@ -108,6 +110,9 @@ public class SellWindow {
 				}
 				labelPricePaid.get(_g).setText("$" + Integer.toString((cost - avPaid)* chosen) );
 			}
+			
+			labelPrice.get(_g).setText( "$" + Integer.toString(cost) );
+			
 		}
 
 	}
@@ -183,16 +188,16 @@ public class SellWindow {
 			
 			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
 			sliderStock.put(_g, sliderTemp);
-			sellWindow.add(sliderTemp);
+			sellWindow.add(sliderTemp).height(50);
 			
 			temp = new Label( "1000", _skin );
 			labelStock.put(_g, temp);
-			sellWindow.add( temp ).width(50);	
+			sellWindow.add( temp ).width(30);	
 			
 			TextButtonGoods buttonTemp = new TextButtonGoods("SELL", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(sellClik);
 			buttonSell.put(_g, buttonTemp);
-			sellWindow.add( buttonTemp );	
+			sellWindow.add( buttonTemp ).height(50).width(120);
 			
 			temp = new Label( "1", _skin.get("background", LabelStyle.class) );
 			labelCargo.put(_g, temp);

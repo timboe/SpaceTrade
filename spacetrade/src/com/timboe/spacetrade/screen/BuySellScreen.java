@@ -54,6 +54,11 @@ public class BuySellScreen extends SpaceTradeRender {
 	
 	@Override
 	protected void renderBackground(float delta) {
+		if (doBuy == false) {
+			SellWindow.updateList(false);
+		} else {
+			BuyWindow.updateList(false);
+		}
 		renderPlanetBackdrop();
 	}
 	
@@ -71,8 +76,8 @@ public class BuySellScreen extends SpaceTradeRender {
 		Table topButtons = new Table(Textures.getSkin());
 		topButtons.defaults().pad(10);
 		topButtons.debug();
-		topButtons.add(doSellButton);
-		topButtons.add(doBuyButton);
+		topButtons.add(doSellButton).width(350).height(50);
+		topButtons.add(doBuyButton).width(350).height(50);
 		leftTable.align(Align.top);
 		leftTable.add(topButtons).width( leftTable.getWidth() );
 		leftTable.row();
@@ -82,14 +87,14 @@ public class BuySellScreen extends SpaceTradeRender {
 			Window bottomContainer = new Window("", Textures.getSkin().get("transparent", WindowStyle.class));
 			bottomContainer.debug();
 			bottomContainer.defaults().pad(10);
-			bottomContainer.add(SellWindow.getWindow()).width(980).height(650);
+			bottomContainer.add(SellWindow.getWindow()).width(980).height(700);
 			leftTable.add(bottomContainer);
 		} else {
 			BuyWindow.updateList(true);
 			Window bottomContainer = new Window("", Textures.getSkin().get("transparent", WindowStyle.class));
 			bottomContainer.debug();
 			bottomContainer.defaults().pad(10);
-			bottomContainer.add(BuyWindow.getWindow()).width(980).height(650);
+			bottomContainer.add(BuyWindow.getWindow()).width(980).height(700);
 			leftTable.add(bottomContainer);
 		}
 			

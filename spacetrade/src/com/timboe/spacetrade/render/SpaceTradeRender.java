@@ -51,6 +51,11 @@ public class SpaceTradeRender implements Screen {
 	
 	protected ShaderProgram shader;
 	
+	//moving
+	protected static float xOffset=0;
+	protected static float xTarget=0;
+	protected float deltaTot;
+	
 //	protected DistanceFieldShader distanceFieldShader;
 //	public static class DistanceFieldShader extends ShaderProgram {
 //		public DistanceFieldShader () {
@@ -120,6 +125,7 @@ public class SpaceTradeRender implements Screen {
 	}
 	
 	public void render(float delta) {
+		deltaTot += delta;
 		renderClear(delta);
 		renderBackground(delta);
 		renderFX(delta);
@@ -135,14 +141,17 @@ public class SpaceTradeRender implements Screen {
 		
 		_t1.bind(1);
 		_t0.bind(0);
-
-		//lightPos.x = Gdx.input.getX();
-		transform_FX.rotate(0, 1, 0, delta*3);
+		
+		transform_FX = planetCam.combined.cpy();
+		transform_FX.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
+		transform_FX.translate(200+xOffset, 0, 0);
+		transform_FX.rotate(1, 0, 0, -20);
+		transform_FX.rotate(0, 1, 0, deltaTot*3);
 		
 		shader.begin();	
 		shader.setUniformi("s_baseMap", 0);		
 		shader.setUniformi("s_bumpMap", 1);
-		shader.setUniformMatrix("u_matViewProjection", transform_FX);//model
+		shader.setUniformMatrix("u_matViewProjection", transform_FX);
 		shader.setUniformf("u_lightPosition", lightPos.x, lightPos.y, lightPos.z);
 		shader.setUniformf("u_eyePosition", planetCam.position.x, planetCam.position.y, planetCam.position.z);
 		shader.setUniformf("u_ambient", 1f,1f,1f,1f);
@@ -179,14 +188,14 @@ public class SpaceTradeRender implements Screen {
 		spriteBatch.setProjectionMatrix(transform_BG);
 		spriteBatch.begin();
 		spriteBatch.setColor( Color.WHITE );
-		spriteBatch.draw(Textures.getStarscape( Player.getPlanetID() ),0,0);
+		spriteBatch.draw(Textures.getStarscape( Player.getPlanetID() ),-500+xOffset,0);
 		spriteBatch.setColor( PlanetFX.getLandColor( Player.getPlanetID() ) ); //TODO put proper colour back in here
 		if (Player.getPlanet().getSize() == WorldSize.Small) { //image is 705x800
-			spriteBatch.draw(Textures.getPlanetBlur(),550,80,580,635);
+			spriteBatch.draw(Textures.getPlanetBlur(),550+xOffset,80,580,635);
 		} else if (Player.getPlanet().getSize() == WorldSize.Medium) {
-			spriteBatch.draw(Textures.getPlanetBlur(),490,0);
+			spriteBatch.draw(Textures.getPlanetBlur(),490+xOffset,0);
 		} else if (Player.getPlanet().getSize() == WorldSize.Large) {
-			spriteBatch.draw(Textures.getPlanetBlur(),455,-20,765,840);
+			spriteBatch.draw(Textures.getPlanetBlur(),455+xOffset,-20,765,840);
 		}
 		spriteBatch.setColor( Color.WHITE );
 		spriteBatch.draw(Textures.getBlackSquare(),-500,-500, 1, 1); //BUG need to draw something to reset colour
@@ -252,11 +261,7 @@ public class SpaceTradeRender implements Screen {
 		transform_BG.translate(-SpaceTrade.CAMERA_WIDTH/2f, -SpaceTrade.CAMERA_HEIGHT/2f, 0f);
 		
 		//planetCam = new OrthographicCamera();
-		
-		transform_FX = planetCam.combined.cpy();
-		transform_FX.scale(2f/SpaceTrade.CAMERA_WIDTH, 2f/SpaceTrade.CAMERA_HEIGHT, 0f);
-		transform_FX.translate(200, 0, 0);
-		transform_FX.rotate(1, 0, 0, -10);
+
 	
 		if (secondaryStage != null) {
 			secondaryStage.setCamera(stage.getCamera());

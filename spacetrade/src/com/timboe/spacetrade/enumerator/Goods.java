@@ -1,5 +1,11 @@
 package com.timboe.spacetrade.enumerator;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import com.timboe.spacetrade.utility.Rnd;
+
 public enum Goods {
 	Grain		(50,	 25,	"Grain"),
 	Textiles	(100,	 30,	"Textiles"),
@@ -11,6 +17,10 @@ public enum Goods {
 	MedicalGel	(1000,	 30,	"Medical Gel"),
 	AI			(1500,	 20,	"Artificial Intelgence"),
 	Singularity	(3000,	 25,	"Singularities");
+	
+	private static final List<Goods> content = Collections.unmodifiableList(Arrays.asList(values()));
+	private static final int size = content.size();
+	private static final Rnd rnd = new Rnd();
 	
 	private int basePrice;
 	private int baseAmount;
@@ -31,6 +41,10 @@ public enum Goods {
 	
 	public String toDisplayString() {
 		return displayText;
+	}
+
+	public static Goods random() {
+		return content.get( rnd.getRandI(size) );
 	}
 	
 	

@@ -177,7 +177,7 @@ public class BuyWindow {
 			
 			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
 			sliderStock.put(_g, sliderTemp);
-			buyWindow.add(sliderTemp);
+			buyWindow.add(sliderTemp).height(50);
 			
 			temp = new Label( "1000", _skin );
 			labelStock.put(_g, temp);
@@ -186,7 +186,7 @@ public class BuyWindow {
 			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(buyClick);
 			buttonBuy.put(_g, buttonTemp);
-			buyWindow.add( buttonTemp );	
+			buyWindow.add( buttonTemp ).height(50);	
 			
 			temp = new Label( "1", _skin.get("background", LabelStyle.class) );
 			labelCargo.put(_g, temp);

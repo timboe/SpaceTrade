@@ -48,6 +48,8 @@ public class PlanetWindow {
 	private static Image divider1;
 	private static Image divider2;
 
+	public static boolean doFadeIn = false;
+
 	
 	public static Window getWindow() {
 		populateWindow();
@@ -247,6 +249,11 @@ public class PlanetWindow {
 		});
 		planetWindow.add( quest ).colspan(2);
 		planetWindow.row();
+		
+		if (doFadeIn == true) {
+			doFadeIn = false;
+			fadeIn();
+		}
 		
 	}
 	

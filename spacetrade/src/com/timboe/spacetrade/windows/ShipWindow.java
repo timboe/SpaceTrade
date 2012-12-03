@@ -104,10 +104,9 @@ public class ShipWindow {
 		shipWindow.setMovable(false);
 		shipWindow.debug();
 		
-		
 		Label temp =  new Label( "Model: "+Player.getShip().getFullName() , _skin );
 		temp.setAlignment(Align.center);
-		shipWindow.add(temp).colspan(4).left();
+		shipWindow.add(temp).colspan(4).left().top();
 		
 		shipWindow.row();
 		priceLabel = new Label( "Current Value: $" + Player.getShip().getTradeInPrice() , _skin );

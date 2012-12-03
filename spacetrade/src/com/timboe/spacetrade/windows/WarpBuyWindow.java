@@ -26,6 +26,7 @@ import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.screen.PlanetScreen;
 import com.timboe.spacetrade.screen.StarmapScreen;
 import com.timboe.spacetrade.utility.Help;
 import com.timboe.spacetrade.utility.ScreenFade;
@@ -200,6 +201,7 @@ public class WarpBuyWindow {
 				moveSequence.addAction( Actions.run(new Runnable() {
 			        public void run () {
 						Player.getPlayer().move( Starmap.getPlanet( StarmapScreen.getPlanetClickedID() ) );
+						PlanetScreen.newDestination();
 						ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().thePlanetScreen );
 						StarmapScreen.setPlanetClickedID(-1);
 			        }
