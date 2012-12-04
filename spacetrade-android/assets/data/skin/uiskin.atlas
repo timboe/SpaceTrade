@@ -464,3 +464,19 @@ x-down
   orig: 40, 40
   offset: 0, 0
   index: -1
+green-bar
+  rotate: false
+  xy: 99, 8
+  size: 12, 20
+  split: 5, 5, 5, 4
+  orig: 12, 20
+  offset: 0, 0
+  index: -1
+red-bar
+  rotate: false
+  xy: 112, 8
+  size: 12, 20
+  split: 5, 5, 5, 4
+  orig: 12, 20
+  offset: 0, 0
+  index: -1
