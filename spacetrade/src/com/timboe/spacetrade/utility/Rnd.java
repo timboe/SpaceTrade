@@ -10,6 +10,10 @@ public class Rnd  {
 	public Rnd() {
 	}
 	
+	public Rnd(int i) {
+		setSeed(i);
+	}
+
 	public float getRandF() {
 		return rand.nextFloat();
 	}

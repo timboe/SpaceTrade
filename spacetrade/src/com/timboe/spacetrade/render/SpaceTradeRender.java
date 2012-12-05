@@ -7,8 +7,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
@@ -55,6 +58,10 @@ public class SpaceTradeRender implements Screen {
 	protected static float xOffset=0;
 	protected static float xTarget=0;
 	protected float deltaTot;
+	
+	protected boolean textureBuffer = false;
+	protected FrameBuffer frameBuffer;
+	protected TextureRegion frameTexRegion;
 	
 //	protected DistanceFieldShader distanceFieldShader;
 //	public static class DistanceFieldShader extends ShaderProgram {
@@ -125,12 +132,29 @@ public class SpaceTradeRender implements Screen {
 	}
 	
 	public void render(float delta) {
+		if (textureBuffer == true) {
+			 if(frameBuffer == null) {
+				 // m_fboScaler increase or decrease the antialiasing quality
+				 frameBuffer = new FrameBuffer(Format.RGB888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+				 frameTexRegion = new TextureRegion(frameBuffer.getColorBufferTexture());
+		         frameTexRegion.flip(false, true);
+			 }
+			 frameBuffer.begin();
+		}
 		deltaTot += delta;
 		renderClear(delta);
 		renderBackground(delta);
 		renderFX(delta);
 		renderForeground(delta);
 		renderFade(delta);
+		if (textureBuffer == true) {
+			 if(frameBuffer != null) {
+				 frameBuffer.end();
+			     spriteBatch.begin();         
+			     spriteBatch.draw(frameTexRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());               
+			     spriteBatch.end();
+			 }
+		}
 	}
 	
 	protected void renderPlanet(float delta, Texture _t0, Texture _t1, WorldSize _ws) {
@@ -147,6 +171,7 @@ public class SpaceTradeRender implements Screen {
 		transform_FX.translate(200+xOffset, 0, 0);
 		transform_FX.rotate(1, 0, 0, -20);
 		transform_FX.rotate(0, 1, 0, deltaTot*3);
+		lightPos.set(750 + (xOffset/2), -700f, 0.005f);;
 		
 		shader.begin();	
 		shader.setUniformi("s_baseMap", 0);		

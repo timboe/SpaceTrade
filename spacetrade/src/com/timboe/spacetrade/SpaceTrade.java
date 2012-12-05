@@ -1,7 +1,9 @@
 package com.timboe.spacetrade;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Screen;
 import com.timboe.spacetrade.screen.BuySellScreen;
+import com.timboe.spacetrade.screen.GameOverScreeen;
 import com.timboe.spacetrade.screen.PlanetScreen;
 import com.timboe.spacetrade.screen.ShipScreen;
 import com.timboe.spacetrade.screen.StarmapScreen;
@@ -16,6 +18,7 @@ public class SpaceTrade extends Game {
 	public ShipScreen theShipScreen;
 	public PlanetScreen thePlanetScreen;
 	public BuySellScreen theBuySellScreen;
+	public GameOverScreeen theGameOver;
 	public NormalMapTest nmt;
 	
 	public static final float CAMERA_WIDTH = 1280;
@@ -43,6 +46,7 @@ public class SpaceTrade extends Game {
 		theShipScreen = new ShipScreen();
 		thePlanetScreen = new PlanetScreen();
 		theBuySellScreen = new BuySellScreen();
+		theGameOver = new GameOverScreeen();
 //		
 		//Illumination2D i2d = new Illumination2D();
 		
@@ -58,8 +62,10 @@ public class SpaceTrade extends Game {
 		if (theShipScreen != null) theShipScreen.dispose();
 		if (thePlanetScreen != null) thePlanetScreen.dispose();
 		if (theBuySellScreen != null) theBuySellScreen.dispose();
+		if (theGameOver != null) theGameOver.dispose();
 		Textures.dispose();
 		Meshes.dispose();
 	}
+
 
 }

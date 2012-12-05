@@ -28,7 +28,7 @@ public class PlanetScreen extends SpaceTradeRender {
 			xTarget = 0;
 		}
 		if ( xOffset > xTarget ) {
-			velX = 0.05f * Math.abs(xOffset - xTarget);
+			velX = 0.01f * Math.abs(xOffset - xTarget);
 		} else {
 			velX = 0f;
 		}

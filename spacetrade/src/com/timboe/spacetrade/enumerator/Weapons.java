@@ -7,28 +7,32 @@ import java.util.List;
 import com.timboe.spacetrade.utility.Rnd;
 
 public enum Weapons {
-	PewPew 			(WeaponClass.Missile,		1,	2,		1000,	"Pew Pew Missile"),
-	Cannon			(WeaponClass.MassDriver,	1,	10,		1000,	"A Cannon"),
-	Twinkler		(WeaponClass.Laser,			1,	7,		1000,	"Twinkler"),
-	Stinger			(WeaponClass.Missile,		2,	12,		10000,	"Stinger Missile"),
-	Slugger			(WeaponClass.MassDriver,	2,	25,		10000,	"Slugger"),
-	ChemicalLaser	(WeaponClass.Laser,			2,	24,		10000,	"Chem Later"),
-	UberBoom		(WeaponClass.Missile,		3,	16,		100000,	"3rd Missile"),
-	Railgun			(WeaponClass.MassDriver,	3,	60,		100000,	"Rail Gun"),
-	Sunbeam			(WeaponClass.Laser,			3,	42,		100000,	"Sunbeam");
+											//Lev	Heat	Dmg		Cst		
+	PewPew 			(WeaponClass.Missile,		1,	2,		3,		2500,	"Pew Pew Missile"),
+	Cannon			(WeaponClass.MassDriver,	1,	12,		12,		1100,	"A Cannon"),
+	Twinkler		(WeaponClass.Laser,			1,	6,		7,		1700,	"Twinkler"),
+	Stinger			(WeaponClass.Missile,		2,	6,		13,		26000,	"Stinger Missile"),
+	Slugger			(WeaponClass.MassDriver,	2,	27,		18,		15000,	"Slugger"),
+	ChemicalLaser	(WeaponClass.Laser,			2,	18,		15,		21000,	"Chem Later"),
+	UberBoom		(WeaponClass.Missile,		3,	14,		25,		41000,	"3rd Missile"),
+	Railgun			(WeaponClass.MassDriver,	3,	61,		35,		32000,	"Rail Gun"),
+	Sunbeam			(WeaponClass.Laser,			3,	37,		27,		37000,	"Sunbeam");
 	
 	WeaponClass weaponClass;
 	String name;
 	int cost;
 	int level;
 	int heat;
+	int damage;
+	float bonus = 0.25f; //TODO, tweak me?
 	
-	private Weapons(WeaponClass _c, int _l, int _heat, int _cst, String _n) {
+	private Weapons(WeaponClass _c, int _l, int _heat, int _dmg, int _cst, String _n) {
 		weaponClass = _c;
 		name = _n;
 		cost = _cst;
 		level = _l;
 		heat = _heat;
+		damage = _dmg;
 	}
 	
 	public int getCost() {
@@ -73,5 +77,15 @@ public enum Weapons {
 
 	public int getHeat() {
 		return heat;
+	}
+
+	public int getDamage(ShipProperty _sp) {
+		return Math.round( damage * getDamageMod(_sp) );
+	}
+	
+	public float getDamageMod(ShipProperty _sp) {
+		if (weaponClass.getStrongAgainst(_sp)	== true) return (1.f + bonus);
+		if (weaponClass.getWeakAgainst(_sp)		== true) return (1.f - bonus);
+		return 1f;
 	}
 }

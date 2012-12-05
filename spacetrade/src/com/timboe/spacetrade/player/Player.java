@@ -25,6 +25,7 @@ public class Player extends Actor {
 	private static int totalCargo;
 	private static int currentLocationID;
 	private static Rnd rnd = new Rnd();
+	private static boolean dead = false;
 
 	private static Player singleton = new Player();
 	public static final Player getPlayer () {
@@ -151,5 +152,15 @@ public class Player extends Actor {
 
 	public static void setShip(Ship _newShip) {
 		ship = _newShip;
+	}
+
+	public static boolean getCarryIllegal() {
+		if (getStock(Goods.SpaceCrack) > 0 || getStock(Goods.AI) > 0) return true;
+		return false;
+	}
+
+	public static void setDead(boolean d) {
+		dead  = d;
+		
 	}
 }

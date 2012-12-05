@@ -13,20 +13,21 @@ import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.utility.Rnd;
 
 public class Ship {
+	static int shipCount = 0;
 	
 	private ShipProperty property;
 	private ShipTemplate template;
 	private ShipClass shipClass;
 	private ArrayList<Weapons> weaponLoadout = new ArrayList<Weapons>();
 	private ArrayList<Equipment> techLoadout = new ArrayList<Equipment>();
-	private Rnd rnd = new Rnd();
+	private Rnd rnd = new Rnd(++shipCount);
 
 	private int hull;
 	private int heat;
-	private float sheilding;
+	private int sheilding;
 	private float age;
 	
-	private boolean isAttacking;
+	//private boolean isAttacking;
 	private OpponentStance stance;
 	
 	private float acceleration = 5;
@@ -108,6 +109,19 @@ public class Ship {
 		print();
 	}
 	
+	public void doCooldown() {
+		heat -= getCooldown();
+		//TODO add equipment;
+		heat = Math.max(heat, 0);
+		Gdx.app.log("Cooldown", this+" cooling down "+getCooldown()+" to heat "+heat);
+
+	}
+	
+	private int getCooldown() {
+		//TODO add equipmnt
+		return shipClass.getCooldown();
+	}
+
 	public void print() {
 		Gdx.app.log("ShipDebug", template.toString() +" "+ property.toString() + " " + shipClass.getName()+ ", value:"+getWorth());
 		for (Weapons _w : weaponLoadout) {
@@ -124,7 +138,7 @@ public class Ship {
 		property = ShipProperty.random();
 		hull = shipClass.getMaxHull();
 		heat = 0;
-		sheilding = 0f;
+		sheilding = 0;
 	}
 	
 	public int getFreeWeaponSlots() {
@@ -133,14 +147,6 @@ public class Ship {
 	
 	public int getFreeEquipmentSlots() {
 		return shipClass.getTechSlots() - techLoadout.size();
-	}
-	
-
-	
-	public void fireAt(Ship _s) {
-		for (Weapons _w : weaponLoadout) {
-			//_w.attackShip(_s);
-		}
 	}
 	
 	public int getRange() {
@@ -205,8 +211,7 @@ public class Ship {
 	}
 
 	public int getShields() {
-		// TODO shields!
-		return 0;
+		return sheilding;
 	}
 
 	public void arm(Weapons weapons) {
@@ -316,6 +321,43 @@ public class Ship {
 			}
 		}
 		return _h;
+	}
+
+	public int getRemainingHeat() {
+		return getMaxHeat() - getHeat(); 
+	}
+
+	public boolean sendAttack(Ship _shipToAttack) {
+		int _dmg = 0;
+		int _heat = 0; //debug
+		for (Weapons _w : weaponLoadout) {
+			if (getRemainingHeat() > _w.getHeat()) {
+				//TODO check if hits etc.
+				_dmg += _w.getDamage(_shipToAttack.getMod()); //contains modifying code
+				_heat += _w.getHeat();
+				heat += _w.getHeat();
+			}
+		}
+		Gdx.app.log("Attack", "Attacking for damage "+_dmg+" at heat cost "+_heat);
+		return _shipToAttack.recieveAttack(_dmg);
+	}
+	
+	public boolean recieveAttack(int _dmg) {
+		if (sheilding >= _dmg) {
+			sheilding -= _dmg;
+			return false;
+		} else if (getShields() > 0) {
+			_dmg -= sheilding;
+			sheilding = 0;
+		}
+		
+		if (hull >= _dmg) {
+			hull -= _dmg;
+			return false;
+		} else { //Uh-oh!
+			hull = 0;
+			return true;
+		}
 	}
 
 //	public String getAction() {
