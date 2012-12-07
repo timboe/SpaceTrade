@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.enumerator.Civilisation;
 import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.ShipScreen;
 import com.timboe.spacetrade.utility.Help;
@@ -66,6 +67,7 @@ public class EquipmentWindow {
 					Player.getShip().arm( ((ImageButtonEquipment)actor).getEquipment() );
 				}
 				ShipScreen.updateAll = true;	
+				RightBar.update();
 			}
 		};
 		

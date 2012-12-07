@@ -10,6 +10,8 @@ import com.timboe.spacetrade.enumerator.ShipProperty;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.screen.PlanetScreen;
+import com.timboe.spacetrade.screen.ShipScreen;
 import com.timboe.spacetrade.utility.Rnd;
 
 public class Ship {
@@ -26,20 +28,24 @@ public class Ship {
 	private int heat;
 	private int sheilding;
 	private float age;
+	private boolean surrendered = false; //only surrender once
+	private boolean hasEscapePod = false;
 	
 	//private boolean isAttacking;
 	private OpponentStance stance;
+	private String logStart;
 	
 	private float acceleration = 5;
 	
 	public Ship(ShipTemplate _st) { //Others ship constructor
 		final int _cash = Player.getWorth(); //How much do we have to spend?
 		
+		logStart = "Your opponent ";
 		template = _st;
 		property = ShipProperty.random();
 		
 		boolean _chosen = false;
-		final ShipClass[] values = ShipClass.values();
+		final ShipClass[] values = ShipClass.values(); //TODO should favour prefered classes
 		final int _length = values.length - 1;
 		int _loop = 0;
 		while (_chosen == false) {
@@ -86,8 +92,9 @@ public class Ship {
 		}
 		//add some damage
 		hull = shipClass.getMaxHull();
-		int dmg = rnd.getRandI( hull/4 );
-		hull -= dmg;
+		if (rnd.getRandChance(0.50f) == true) hull -= rnd.getRandI( hull/4 );
+		sheilding = getMaxShields();		
+		if (rnd.getRandChance(0.25f) == true) sheilding -= rnd.getRandI( sheilding/4 );
 		
 		if (template == ShipTemplate.Pirate) {
 			//TODO check if feared and not attack then
@@ -109,17 +116,42 @@ public class Ship {
 		print();
 	}
 	
-	public void doCooldown() {
-		heat -= getCooldown();
-		//TODO add equipment;
-		heat = Math.max(heat, 0);
-		Gdx.app.log("Cooldown", this+" cooling down "+getCooldown()+" to heat "+heat);
-
+	public void doCooldown(boolean _quiet) {
+		int _toCool = getCooldown();
+		int _cooled = 0;
+		if (_toCool > heat) {
+			_cooled = heat;
+			heat = 0;
+		} else {
+			_cooled = _toCool;
+			heat -= _toCool;
+		}
+		String _Stxt = "";
+		if (template != ShipTemplate.Player) _Stxt = "s";
+		if (_quiet == false && _cooled > 0) {
+			PlanetScreen.combatLog.add(Player.name+"["+PlanetScreen.turn+"]"+ logStart+" vent"+_Stxt+" "+_cooled+" heat into space.");
+		}
 	}
 	
-	private int getCooldown() {
-		//TODO add equipmnt
-		return shipClass.getCooldown();
+	public void doMaintenance() {
+		int _s = 0;
+		int _h = 0;
+		for (Equipment _e : techLoadout) {
+			_s += _e.getShieldRegen();
+			_h += _e.getHullRegen();
+		}
+		sheilding += _s;
+		sheilding = Math.min(sheilding, getMaxShields());
+		hull += _h;
+		hull = Math.min(hull, getMaxHull());
+	}
+	
+	public int getCooldown() {
+		int _cd = shipClass.getCooldown();
+		for (Equipment _e : techLoadout) {
+			_cd += _e.getHeatLoss();
+		}
+		return _cd;
 	}
 
 	public void print() {
@@ -133,8 +165,9 @@ public class Ship {
 	}
 	
 	public Ship(ShipClass _sc) { //Player ship constructor
+		logStart = "You ";
 		shipClass = _sc;
-		template = null;
+		template = ShipTemplate.Player;
 		property = ShipProperty.random();
 		hull = shipClass.getMaxHull();
 		heat = 0;
@@ -150,7 +183,11 @@ public class Ship {
 	}
 	
 	public int getRange() {
-		return shipClass.getRange();
+		int _r = shipClass.getRange();
+		for (Equipment _e : techLoadout) {
+			_r += _e.getExtraRange();
+		}
+		return _r;
 	}
 	
 	public float getAcc() {
@@ -158,7 +195,11 @@ public class Ship {
 	}
 	
 	public int getMaxCargo() {
-		return shipClass.getMaxCargo();
+		int _mc = shipClass.getMaxCargo();
+		for (Equipment _e : techLoadout) {
+			_mc += _e.getExtraCargo();
+		}
+		return _mc;
 	}
 
 	public int getWorth() {
@@ -166,7 +207,7 @@ public class Ship {
 		for (Weapons _w : weaponLoadout) {
 			worth += _w.getCost();
 		}
-		for (Equipment _e : Equipment.values()) {
+		for (Equipment _e : techLoadout) {
 			worth += _e.getCost();
 		}
 		return worth;
@@ -196,18 +237,27 @@ public class Ship {
 	}
 	
 	public int getMaxHull() {
-		//TODO add equipment
-		return shipClass.getMaxHull();
+		int _mh = shipClass.getMaxHull();
+		for (Equipment _e : techLoadout) {
+			_mh += _e.getExtraHull();
+		}
+		return _mh;
 	}
 	
 	public int getMaxHeat() {
-		//TODO add equipment
-		return shipClass.getMaxHeat();
+		int _mh = shipClass.getMaxHeat();
+		for (Equipment _e : techLoadout) {
+			_mh += _e.getHeatCapacity();
+		}
+		return _mh;
 	}
 
 	public int getMaxShields() {
-		// TODO shields!
-		return 0;
+		int _s = 0;
+		for (Equipment _e : techLoadout) {
+			_s += _e.getShielding();
+		}
+		return _s;
 	}
 
 	public int getShields() {
@@ -222,6 +272,8 @@ public class Ship {
 	public void arm(Equipment _e) {
 		assert(getFreeEquipmentSlots() > 0);
 		techLoadout.add(_e);
+		hull += _e.getExtraHull();
+		sheilding += _e.getShielding();
 	}
 	
 	public int getNumberInstalled(Weapons _comp) {
@@ -248,6 +300,10 @@ public class Ship {
 	public void disarm(Equipment _e) {
 		assert(getNumberInstalled(_e) > 0);
 		techLoadout.remove(_e);	
+		hull -= _e.getExtraHull();
+		sheilding -= _e.getShielding();
+		if (hull <= 0) hull = 1;
+		if (sheilding <= 0) sheilding = 0;
 	}
 
 	public ShipProperty getMod() {
@@ -274,11 +330,7 @@ public class Ship {
 		//clone loadout
 		weaponLoadout.addAll( _oldShip.weaponLoadout  );
 		techLoadout.addAll( _oldShip.techLoadout );
-	}
-
-	public int getHeatLoss() {
-		//TODO
-		return 0;
+		hull = getMaxHull();
 	}
 
 	public int getTotalWeaponSlots() {
@@ -329,23 +381,34 @@ public class Ship {
 
 	public boolean sendAttack(Ship _shipToAttack) {
 		int _dmg = 0;
-		int _heat = 0; //debug
 		for (Weapons _w : weaponLoadout) {
 			if (getRemainingHeat() > _w.getHeat()) {
 				//TODO check if hits etc.
-				_dmg += _w.getDamage(_shipToAttack.getMod()); //contains modifying code
-				_heat += _w.getHeat();
-				heat += _w.getHeat();
+				int _wDmg = _w.getDamage(_shipToAttack.getMod()); //contains modifying code
+				int _wHeat = _w.getHeat();
+				_dmg += _wDmg;
+				heat += _wHeat;
+				String _e = "";
+				if (_w.getDamageMod(_shipToAttack.getMod()) > 1f) {
+					_e = "It's super effective!";
+				} else if (_w.getDamageMod(_shipToAttack.getMod()) < 1f) {
+					_e = "It's not very effective.";
+				}
+				PlanetScreen.combatLog.add(Player.name+"["+PlanetScreen.turn+"]"+ logStart +" attacks with "+_w.getName()+" for "+_wDmg+" damage and "+_wHeat+" heat. "+_e);
+			} else if (template == ShipTemplate.Player) { //Only if player
+				PlanetScreen.combatLog.add(Player.name+"["+PlanetScreen.turn+"]"+ "WARNING: You cannot fire your "+_w.getName()+", this turn insufficient heat capacity onboard!");
 			}
 		}
-		Gdx.app.log("Attack", "Attacking for damage "+_dmg+" at heat cost "+_heat);
+		//Gdx.app.log("Attack", "Attacking for damage "+_dmg+" at heat cost "+_heat);
 		return _shipToAttack.recieveAttack(_dmg);
 	}
 	
 	public boolean recieveAttack(int _dmg) {
+		boolean _dead = false;
+		
 		if (sheilding >= _dmg) {
 			sheilding -= _dmg;
-			return false;
+			_dmg = 0;
 		} else if (getShields() > 0) {
 			_dmg -= sheilding;
 			sheilding = 0;
@@ -353,25 +416,95 @@ public class Ship {
 		
 		if (hull >= _dmg) {
 			hull -= _dmg;
-			return false;
+			_dmg = 0;
 		} else { //Uh-oh!
 			hull = 0;
-			return true;
+			_dead = true;
 		}
+		
+		if (template != ShipTemplate.Player) {
+			//change stance.
+			if (template == ShipTemplate.Pirate || template == ShipTemplate.Police) { 
+				stance = OpponentStance.Attack;
+			} else if (template == ShipTemplate.Trader) { //TODO trader may attack
+				stance = OpponentStance.Flee;
+			}
+			
+			if ((float)hull / (float)getMaxHull() < 0.25f) { //TODO tweak
+				if((template == ShipTemplate.Pirate || template == ShipTemplate.Trader)
+						&& rnd.getRandChance(0.5f) == true //TODO tweak
+						&& surrendered == false) {
+					stance = OpponentStance.Surrender;
+					surrendered = true;
+				} else {
+					stance = OpponentStance.Flee;
+				}
+			}
+			
+			if (hull == 0) {
+				stance = OpponentStance.Dead;
+			}
+		}
+		
+		return _dead;
 	}
 
-//	public String getAction() {
-//		if (template == null) return null;
-//		switch (template) {
-//		case Pirate: 
-//			if (hull / getMaxHull() > 0.1f) return "ATTACK";
-//			else return "FLEE";
-//		case Police:
-//			return "FLEE";
-//		case Trader:
-//			return "FLEE";
-//			
-//		}
-//		return null;
-//	}
+	public void maxShields() {
+		sheilding = getMaxShields();		
+	}
+
+	public boolean getEscapePod() {
+		return hasEscapePod;
+	}
+
+	public void doScanOf(Ship encounter) {
+		if (hasScanners() == false) return;
+		PlanetScreen.combatLog.add(Player.name +"./activateScanners("+encounter.getShipClass().getName()+") ");		
+		String _msg = Player.name +"<Weapons Scan>: ";
+		boolean someDetected = false;
+		for (Weapons _w : encounter.getWeapons()) {
+			int _l = _w.getLevel();
+			boolean isDetected = false;
+			for (Equipment _e : techLoadout) {
+				if (rnd.getRandChance( _e.getScanChance(_l) ) == true) {
+					isDetected = true;
+					someDetected = true;
+				}
+			}
+			if (isDetected == true) {
+				_msg += "L" + _w.getLevel() + " " + _w.getName() + " | ";
+			}
+		}
+		if (someDetected == false) _msg += "None Detected";
+		PlanetScreen.combatLog.add(_msg);		
+		someDetected = false;
+		_msg = Player.name +"<Equipment Scan>: ";
+		for (Equipment _E : encounter.getEquipment()) {
+			int _l = _E.getLevel();
+			boolean isDetected = false;
+			for (Equipment _e : techLoadout) {
+				if (rnd.getRandChance( _e.getScanChance(_l) ) == true) {
+					isDetected = true;
+					someDetected = true;
+				}
+			}
+			if (isDetected == true) {
+				_msg += "L" + _E.getLevel() + " " + _E.getName() + " | ";
+			}
+		}
+		if (someDetected == false) _msg += "None Detected";
+		PlanetScreen.combatLog.add(_msg);		
+	}
+
+	private boolean hasScanners() {
+		for (Equipment _e : techLoadout) {
+			if (_e.getScanChance(1) > 0f) return true;
+		}
+		return false;
+	}
+
+	public void resetHeat() {
+		heat = 0;
+	}
+
 }

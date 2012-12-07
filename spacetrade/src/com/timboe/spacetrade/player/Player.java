@@ -26,8 +26,11 @@ public class Player extends Actor {
 	private static int currentLocationID;
 	private static Rnd rnd = new Rnd();
 	private static boolean dead = false;
+	public static String name = "Tim:~$ ";
 
 	private static Player singleton = new Player();
+	private static boolean isInsured;
+	private static float noClaimBonus;
 	public static final Player getPlayer () {
 		return singleton;
 	}
@@ -162,5 +165,31 @@ public class Player extends Actor {
 	public static void setDead(boolean d) {
 		dead  = d;
 		
+	}
+
+	public static boolean getInsured() {
+		return isInsured; //TODO
+	}
+
+	public static int getInsurancePayout() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public static void setNoClaim(float _f) {
+		noClaimBonus = _f;
+		
+	}
+
+	public static void removeAllStock() {
+		for (Goods _g : Goods.values()) {
+			stock.get(_g).set(0);
+			avPrice.get(_g).set(0);
+		}
+		updateTotals();
+	}
+
+	public static boolean getDead() {
+		return dead;
 	}
 }

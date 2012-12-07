@@ -1,9 +1,9 @@
 package com.timboe.spacetrade.windows;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.enumerator.OpponentStance;
+import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.SpaceTradeRender;
@@ -75,21 +76,37 @@ public class TravelWindow {
 			populateWindow();
 			isGenerated = true;
 		}
-		//travelWindow.addAction(Actions.fadeIn(0));
-		//travelWindow.act(1);
+		travelWindow.addAction(Actions.fadeIn(0));
+		travelWindow.act(1);
 		return travelWindow;
 	}
 	
-//	public static void fadeOut() {
-//		travelWindow.addAction(Actions.fadeOut(0.5f));
-//	}
+	public static void fadeOut() {
+		SequenceAction fadeSequence = new SequenceAction();
+		fadeSequence.addAction( Actions.fadeOut(0.5f) );
+		fadeSequence.addAction( Actions.run(new Runnable() {
+	        public void run () {
+				PlanetScreen.triggerRefresh = true;
+				PlanetWindow.doFadeIn = true;
+	        }
+		}
+	    ));
+		travelWindow.addAction( fadeSequence );
+	}
 	
-	public static void attack(boolean isPlayerAttacking) {
+	public static void attack() {
 		String _msg = " ";
 		String _title = "";
-		if (isPlayerAttacking == true 
-				//TODO add if clean police record
-				) {
+		if (Player.getShip().getFilledWeaponSlots() == 0) {
+			new Dialog("No Weapons", Textures.getSkin(), "dialog") {
+				protected void result (Object object) {
+				}
+			}.text("\nYou do not have any weapons to attack with!")
+				.button("  OK  ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+			return;
+		} else if (true) {	//TODO add if clean police record
 			if (PlanetScreen.getEncounter().getTemplate() == ShipTemplate.Police) {
 				_msg = "\nAre you sure you want to do this?";
 				if (Player.getCarryIllegal() == false) { 
@@ -108,6 +125,8 @@ public class TravelWindow {
 			new Dialog(_title, Textures.getSkin(), "dialog") {
 				protected void result (Object object) {
 					if ((Boolean)object == true) {
+						++PlanetScreen.turn;
+						maintenance();
 						doAttack(true);
 					}
 				}
@@ -115,9 +134,11 @@ public class TravelWindow {
 				.button(" Attack! ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.button(" Stand Down  ", false, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 		} else {
-			doAttack(isPlayerAttacking);
+			++PlanetScreen.turn;
+			maintenance();
+			doAttack(true);
 		}		
 	}
 	
@@ -129,32 +150,139 @@ public class TravelWindow {
 			them = Player.getShip();
 		}
 		
-		//attack with all?
-		if (me.getHeatPerFire() < me.getRemainingHeat()) { //attack with all!
-			
-		} else { //attack with some!
-			
-		}
-		
 		boolean isKilled = me.sendAttack( them );
 		
 		if (isKilled == true && isPlayerAttacking == true) {
-			//TODO Check for debris
-			//TODO message
-			PlanetScreen.endEncounter();
+			int _bonus = 0;
+			final Goods _bonusG = Goods.random();
+			if (rnd.getRandChance(0.75f) == true) { //TODO tweak
+				_bonus = 2 + rnd.getRandI(4);
+			}
+			String _msg = "Your opponents ship has been destroyed!";
+			if (_bonus > 0) {
+				_msg += "\n\n" + _bonus + " crates of " + _bonusG.toDisplayString() + " drift within range of your grapple.";
+			}
+			
+			if (_bonus > 0 && Player.getFreeCargo() == 0) {
+				_bonus = 0;
+				_msg += "\n\nYou have no free cargo bays however! So you can only watch them drift off into space.";
+			} else if (_bonus > 0 && Player.getFreeCargo() >= _bonus) {
+				_msg += "\n\nDo you want to bring them aboard?";
+			} else if (_bonus > 0) {
+				_bonus = Player.getFreeCargo();
+				_msg += "\n\nYou do not have enough free cargo bays to store them all, but could collect "+_bonus+".";
+				_msg += "\n\nDo you want to bring them aboard?";
+			}
+			
+			final int _bonusFinal = _bonus;
+			new Dialog("Victory", Textures.getSkin(), "dialog") {
+				protected void result (Object object) {
+					if ((Boolean)object == true) Player.addStock(_bonusG, _bonusFinal, 0);
+					PlanetScreen.endEncounter();
+				}
+			}.text(_msg)
+				.button("   YES   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+				.button("   NO   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+				.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+			
 		} else if (isKilled == true && isPlayerAttacking == false) {
-			//TODO message to say you's dead, dude
-			Player.setDead(true);
-			ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theGameOver );
+			
+			String _msg = "Your ship explodes!";
+			//do we have escape pod?
+			if (Player.getShip().getEscapePod() == true) {
+				_msg += "\n\nYou just have time to make it into your escape pod"
+						+"\na few hours later you crash land into "+Player.getPlanet().getName()
+						+"\n\nOver the course of two days you convert your escape pod into a "+ShipClass.Tiny.getName()+"\n ";
+				if (Player.getInsured() == true) {
+					_msg += "\nThe bank pays out $"+Player.getInsurancePayout()+" in insurance, your no-claims bonus is reset to 0%\n ";
+				}
+			} else {
+				_msg += "\n\nAs you have no escape pod, you too are vaporised into a puff of carbon."
+						+"\n\nYour adventure ends here.\n ";
+			}
+			
+			new Dialog("BOOM!", Textures.getSkin(), "dialog") {
+				protected void result (Object object) {
+					if (Player.getShip().getEscapePod() == false) {
+						Player.setDead(true);
+						ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theGameOver );
+					} else if (Player.getInsured() == true) {
+						PlanetScreen.setTocks(0);
+						Player.modCredz( Player.getInsurancePayout() );
+						Player.setNoClaim( 0f );
+						Player.setShip( new Ship(ShipClass.Tiny) );
+						Player.removeAllStock();
+					}
+				}
+			}.text(_msg)
+				.button("   OK   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+			
+		} else if (isPlayerAttacking == true) {
+			//Enemy's turn
+			doEnemyCounter();
 		}
 		
 	}
 	
-	public static void flee(boolean isPlayer) {
-		Gdx.app.log("TravelClick", "In Flee");
+	private static void doEnemyCounter() {
+		Ship enemy = PlanetScreen.getEncounter();
+		if (enemy == null) return;
+
+		if (enemy.getStance() == OpponentStance.Attack) {
+			if (enemy.getMinHeatPerFire() <= enemy.getRemainingHeat()) {
+				doAttack(false);
+			}
+		} else if (enemy.getStance() == OpponentStance.Flee) {
+			//do I escape?
+			//TODO tweak chance
+			if (rnd.getRandChance(0.5f) == true) {
+				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your oponent has fled from battle!");
+				new Dialog("Early Exit", Textures.getSkin(), "dialog") {
+					protected void result (Object object) {
+						PlanetScreen.endEncounter();
+					}
+				}.text("\nYour opponent has fled.\n ")
+					.button("  OK   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+					.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
+					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+			} else {
+				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your oponent FAILS to flee from battle.");
+			}
+		}
 		
-		PlanetScreen.endEncounter();
-		
+		//all actions done,
+		cooldown();		
+	}
+
+	public static void flee() {
+		++PlanetScreen.turn;
+		maintenance();
+		if (rnd.getRandChance(0.5f) == true) { //flee true //TODO more sophisticated
+			String _msg = "";
+			if (rnd.getRandChance(0.5f) == true) { //TODO more sophisticated
+				doEnemyCounter();
+				if (Player.getDead() == true) return;
+				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your attempt to flee SUCEEDED but you were hit.");
+				_msg = "\nYou were hit, but you managed to get away.\n ";
+			} else {
+				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your attempt to flee SUCEEDED.");
+				_msg = "\nYou manage to escape.";
+			}
+			new Dialog("Early Exit", Textures.getSkin(), "dialog") {
+				protected void result (Object object) {
+					PlanetScreen.endEncounter();
+				}
+			}.text(_msg)
+				.button("  OK   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+		} else { //flee fail 
+			PlanetScreen.combatLog.add(Player.name+"[Piloting] Your attempt to flee FAILED.");
+			doEnemyCounter();
+		}		
 	}
 	
 	public static void submit() {
@@ -183,7 +311,7 @@ public class TravelWindow {
 			}.text(_msg)
 				.button("  OK  ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 			
 		} else {
 			String _msg  = "\nThe officers find nothing untoward in your cargo bays.\n\nThey appologise for your inconvienience and let you continue your journey.\n ";
@@ -194,7 +322,7 @@ public class TravelWindow {
 			}.text(_msg)
 				.button("  OK   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 			}
 	}
 	
@@ -240,7 +368,7 @@ public class TravelWindow {
 				.button(" Buy "+_fAmount+" ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.button("   Decline   ", false, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 		} else {
 			new Dialog("Buisness Dealings", Textures.getSkin(), "dialog") {
 				protected void result (Object object) {
@@ -249,7 +377,7 @@ public class TravelWindow {
 			}.text(_msg)
 				.button("  OK  ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());	
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);	
 		}
 	}
 	
@@ -261,7 +389,7 @@ public class TravelWindow {
 			}.text(_msg)
 				.button("   OK   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 		} else {
 			final int _bribe = Math.round( Player.getCredz() * Player.getPlanet().getGov().getBribeRate() );
 			String _msg = "\nThe police could be persuaded to look the other way just this once, for $"+_bribe+".\n ";
@@ -277,15 +405,15 @@ public class TravelWindow {
 				.button(" Pay The Bribe ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.button("   Don't Pay   ", false, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage());
+				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 		}
 	}
 	
-	public static void surrender() {
+	public static void surrender() { //TODO
 		
 	}
 	
-	public static void plunder() {
+	public static void plunder() { //TODO
 		
 	}
 
@@ -362,12 +490,18 @@ public class TravelWindow {
 			buttonSubmit.setVisible(true);
 			buttonBribe.setVisible(false);
 			break;
+		case Dead:
+			action.setText("Your opponent is dead!");
+
+			buttonAttack.setVisible(false);
+			buttonFlee.setVisible(false);
+			buttonSubmit.setVisible(false);
+			buttonBribe.setVisible(false);	
 		}
 		
 		if (Player.getShip().getRemainingHeat() < Player.getShip().getMinHeatPerFire()) {
 			buttonAttack.setText("COOLDOWN");
 		}
-
 		
 		youHullPerc.setText(toPerc(Player.getShip().getHull(), Player.getShip().getMaxHull()));
 		youHullGreen.setScale(0.1f + (0.9f*(float)Player.getShip().getHull()/ (float)Player.getShip().getMaxHull()), 1f);
@@ -377,7 +511,7 @@ public class TravelWindow {
 			youShieldPerc.setVisible(true);
 			youShieldGreen.setVisible(true);
 			youShieldRed.setVisible(true);
-			youShield.setText(toPerc(Player.getShip().getShields(), Player.getShip().getMaxShields()));
+			youShieldPerc.setText(toPerc(Player.getShip().getShields(), Player.getShip().getMaxShields()));
 			youShieldGreen.setScale(0.1f + (0.9f* (float)Player.getShip().getShields()/ (float)Player.getShip().getMaxShields()), 1f);
 		} else {
 			youShieldPerc.setVisible(false);
@@ -393,30 +527,40 @@ public class TravelWindow {
 			opponentShieldPerc.setVisible(true);
 			opponentShieldGreen.setVisible(true);
 			opponentShieldRed.setVisible(true);
-			opponentShield.setText(toPerc(PlanetScreen.getEncounter().getShields(), PlanetScreen.getEncounter().getMaxShields()));
+			opponentShieldPerc.setText(toPerc(PlanetScreen.getEncounter().getShields(), PlanetScreen.getEncounter().getMaxShields()));
 			opponentShieldGreen.setScale(0.1f + (0.9f* (float)PlanetScreen.getEncounter().getShields()/ (float)PlanetScreen.getEncounter().getMaxShields()), 1f);
 		} else {
 			opponentShieldPerc.setVisible(false);
 			opponentShieldGreen.setVisible(false);
 			opponentShieldRed.setVisible(false);
 		}
-		
 
 	}
 	
 	private static String toPerc(float _n, float _d) {
 		return String.format("%2.0f", 100*(_n/_d)) + "%";
 	}
+	
+	private static void cooldown() {
+		Player.getShip().doCooldown(false);
+		if (PlanetScreen.getEncounter() != null) {
+			PlanetScreen.getEncounter().doCooldown(false);				
+		}
+	}	
 	 
+	private static void maintenance() {
+		Player.getShip().doMaintenance();
+		if (PlanetScreen.getEncounter() != null) {
+			PlanetScreen.getEncounter().doMaintenance();				
+		}
+	}	
+	
 	private static void populateWindow() {
 		final Skin _skin = Textures.getSkin();
 
 		clickListener = new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				if (PlanetScreen.getEncounter() == null) return;
-				//do enemy move then player
-				OpponentStance stance = PlanetScreen.getEncounter().getStance();
-				//int enemyAction = PlanetScreen.encounter.getAction().hashCode();
 				int playerAction = ((TextButton)actor).getText().toString().hashCode();
 
 				//Cover actions which end encounter first
@@ -430,49 +574,21 @@ public class TravelWindow {
 					trade();
 				} else if (playerAction == "SURRENDER".hashCode()) {
 					surrender();
+				} else if (playerAction == "SURRENDER".hashCode()) {
+					plunder();
 				} else if (playerAction == "FLEE".hashCode()) {
-					PlanetScreen.endEncounter(); //TODO
-//					if (stance == OpponentStance.Attack) {
-//						attack(false);
-//						flee(true);
-//					} else if (stance == OpponentStance.Flee) {
-//						endEncounter();
-//					} else if (stance == )
-					
-					cooldown();
+					flee();
 				} else if (playerAction == "ATTACK".hashCode()) {
-					attack(true);
-					
-					//TODO check if enemy attacks/flees/surrenderes
-					
-					cooldown();
+					attack();	
 				} else if (playerAction == "COOLDOWN".hashCode()) {
-					//TODO check if enemy attacks/flees
+					++PlanetScreen.turn; //no player action
 					
-					cooldown();
+					doEnemyCounter(); //followed by cooldown
 				}
-				
-				
-				
-//				else if (playerAction == "TRADE".hashCode()) trade(true);
-//
-//				
-//				if (_txt.hashCode() == "ATTACK".hashCode()) attack(true);
-//				else if (playerAction == "COOLDOWN".hashCode()) cooldown(true);
-//				else if (playerAction == "FLEE".hashCode()) flee(true);
-//				
-//				else if (playerAction == "TRADE".hashCode()) trade(true);
-//				else if (playerAction == "BRIBE".hashCode()) bribe(true);
-//				else if (playerAction == "PLUNDER".hashCode()) plunder(true);
 			}
-
-			private void cooldown() {
-				Player.getShip().doCooldown();
-				if (PlanetScreen.getEncounter() != null) {
-					PlanetScreen.getEncounter().doCooldown();				
-				}
-			}	
 		};
+		
+
 	
 		travelWindow = new Window("", _skin.get("transparent", WindowStyle.class));
 		travelWindow.defaults().pad(5);
@@ -497,13 +613,13 @@ public class TravelWindow {
 		youHeatStack.add(youHeatPerc);
 		//
 		youWindow.add(youHull).right();
-		youWindow.add(youHullStack).left().width(200);
-		youWindow.row();
+		youWindow.add(youHullStack).left().width(150);
+		//youWindow.row();
 		youWindow.add(youHeat).right();
-		youWindow.add(youHeatStack).left().width(200);
+		youWindow.add(youHeatStack).left().width(150);
 		youWindow.row();
-		youWindow.add(youShield).right();
-		youWindow.add(youShieldStack).left().width(200);
+		youWindow.add(youShield).colspan(2).right();
+		youWindow.add(youShieldStack).colspan(2).left().width(150);
 
 		opponentWindow = new Window("Opponent", _skin);
 		opponentWindow.defaults().pad(5);
@@ -523,13 +639,13 @@ public class TravelWindow {
 		opponentHeatStack.add(opponentHeatPerc);
 		//
 		opponentWindow.add(opponentHull).right();
-		opponentWindow.add(opponentHullStack).left().width(200);
-		opponentWindow.row();
+		opponentWindow.add(opponentHullStack).left().width(150);
+		//opponentWindow.row();
 		opponentWindow.add(opponentHeat).right();
-		opponentWindow.add(opponentHeatStack).left().width(200);
+		opponentWindow.add(opponentHeatStack).left().width(150);
 		opponentWindow.row();
-		opponentWindow.add(opponentShield).right();
-		opponentWindow.add(opponentShieldStack).left().width(200);
+		opponentWindow.add(opponentShield).colspan(2).right();
+		opponentWindow.add(opponentShieldStack).colspan(2).left().width(150);
 		
 		optionsWindow = new Window("ENCOUNTER", _skin);
 		optionsWindow.defaults().pad(5);
@@ -551,7 +667,7 @@ public class TravelWindow {
 		buttonBribe.addListener(clickListener);
 		
 	
-		travelWindow.add(optionsWindow).colspan(2).width(1050);
+		travelWindow.add(optionsWindow).colspan(2).width(PlanetScreen.width);
 		travelWindow.row();
 		travelWindow.add(youWindow);
 		travelWindow.add(opponentWindow);

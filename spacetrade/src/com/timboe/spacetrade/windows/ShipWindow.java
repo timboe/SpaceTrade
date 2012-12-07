@@ -121,7 +121,7 @@ public class ShipWindow {
 		shipWindow.add(hullLabel).colspan(4).left();
 		
 		shipWindow.row();
-		heatLabel = new Label( "Heat Capacity: " + Player.getShip().getMaxHeat() +", Heat Loss:"+Player.getShip().getHeatLoss()  , _skin );
+		heatLabel = new Label( "Heat Capacity: " + Player.getShip().getMaxHeat() +", Heat Loss:"+Player.getShip().getCooldown(), _skin );
 		shipWindow.add(heatLabel).colspan(4).left();
 		
 		shipWindow.row();

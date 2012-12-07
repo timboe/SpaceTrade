@@ -1,21 +1,37 @@
 package com.timboe.spacetrade.screen;
 
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.PlanetFX;
+import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.SpaceTradeRender;
+import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.ship.Ship;
 import com.timboe.spacetrade.utility.Rnd;
 import com.timboe.spacetrade.windows.PlanetWindow;
 import com.timboe.spacetrade.windows.TravelWindow;
+import com.timboe.spacetrade.world.Starmap;
 
 public class PlanetScreen extends SpaceTradeRender {
 	
 	private static int tocks = 0;
+	public static int turn = 0;
 	private static float velX = 0f;
 	private static Ship encounter = null;
 	private Rnd rnd = new Rnd();
-	private static boolean triggerRefresh = false;
+	public static boolean triggerRefresh = false;
+	
+	//combat log
+	public static Array<String> combatLog = new Array<String>();
+	public static int combatLogSize = 0;
+	private static List combatList = new List (combatLog.toArray(), Textures.getSkin());
+	private static ScrollPane combatPane = new ScrollPane(combatList, Textures.getSkin());
+	
+	public static final int width = 1050;
 
 	public PlanetScreen() {
 		init();
@@ -38,19 +54,26 @@ public class PlanetScreen extends SpaceTradeRender {
 	private void checkForEncounter() {
 		while (tocks > 0) {
 			if (rnd.getRandChance( Player.getPlanet().getActivity(ShipTemplate.Pirate).getChance() ) == true ) {
-				encounter = new Ship(ShipTemplate.Pirate);
+				encounter(ShipTemplate.Pirate);
 				return;
 			}
 			if (rnd.getRandChance( Player.getPlanet().getActivity(ShipTemplate.Police).getChance() ) == true ) {
-				encounter = new Ship(ShipTemplate.Police);
+				encounter(ShipTemplate.Police);
 				return;
 			}
 			if (rnd.getRandChance( Player.getPlanet().getActivity(ShipTemplate.Trader).getChance() ) == true ) {
-				encounter = new Ship(ShipTemplate.Trader);
+				encounter(ShipTemplate.Trader);
 				return;
 			}
 			endEncounter();
 		}
+	}
+	
+	private void encounter(ShipTemplate _st) {
+		encounter = new Ship(_st);
+		combatLog.add(Player.name+"INFO: "+encounter.getMod().toString() + " " + _st.toString() + " " + encounter.getShipClass().getName() 
+				+ " encountered  at " + tocks + " tocks from " + Player.getPlanet().getName());
+		Player.getShip().doScanOf(encounter);
 	}
 	
 	public static String getTocksStr() {
@@ -67,10 +90,11 @@ public class PlanetScreen extends SpaceTradeRender {
 	
 	public static void endEncounter() {
 		encounter = null;
+		turn = 0;
+		Player.getShip().doCooldown(true);
+		Player.getShip().doMaintenance();
 		if (--tocks == 0) {
-			PlanetWindow.doFadeIn = true;
-			//TravelWindow.fadeOut();
-			triggerRefresh = true;
+			arrived(); //sets triggerRefresh=true and PlanetWindow.doFadeIn=true on completion
 		}
 	}
 	
@@ -85,6 +109,13 @@ public class PlanetScreen extends SpaceTradeRender {
 		}
 		doApproach();
 		if (tocks > 0) {
+			if (combatLogSize != combatLog.size) {
+				combatLogSize = combatLog.size;
+				combatList.setItems( combatLog.toArray() );
+				combatList.invalidateHierarchy();
+				combatPane.validate();
+				combatPane.setScrollPercentY(100);
+			}
 			TravelWindow.updateList();
 		}
 		renderPlanetBackdrop();
@@ -105,6 +136,10 @@ public class PlanetScreen extends SpaceTradeRender {
 		if (tocks > 0) {
 			leftTable.center().top();
 			leftTable.add(TravelWindow.getWindow());
+			leftTable.row();
+			leftTable.add(combatPane).width(width).height(200);
+			combatPane.addAction(Actions.fadeIn(0));
+			combatPane.act(1);
 		} else {
 			leftTable.center().left();
 			leftTable.add(PlanetWindow.getWindow());
@@ -116,7 +151,23 @@ public class PlanetScreen extends SpaceTradeRender {
 	public static void newDestination() {
 		tocks = 20;
 		xOffset = 20 * 25;
-//		checkForEncounter();
+		combatLog.clear();
+		combatLog.add(Player.name+" "+tocks+" tocks from "+Player.getPlanet().getName()+" / Initiating Approach Shell");
+	}
+
+	public static void setTocks(int i) {
+		tocks = i;
+		if (tocks == 0) {
+			arrived();
+		}
+	}
+	
+	public static void arrived() {
+		Player.getShip().maxShields();
+		Player.getShip().resetHeat();
+		TravelWindow.fadeOut();
+		RightBar.update();
+		combatPane.addAction(Actions.fadeOut(0.5f));
 	}
 	
 }
