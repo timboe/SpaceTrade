@@ -480,3 +480,31 @@ red-bar
   orig: 12, 20
   offset: 0, 0
   index: -1
+right-arrow-up
+  rotate: false
+  xy: 243, 309
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+right-arrow-down
+  rotate: false
+  xy: 284, 309
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+left-arrow-up
+  rotate: false
+  xy: 325, 309
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+left-arrow-down
+  rotate: false
+  xy: 366, 309
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1

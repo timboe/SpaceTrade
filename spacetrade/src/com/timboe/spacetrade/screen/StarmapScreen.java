@@ -37,6 +37,14 @@ public class StarmapScreen extends SpaceTradeRender {
 	}
 	static boolean fullRefresh = false;
 	
+	private static int planetHighlighID = -1;
+	public static void setPlanetHighlightID(int _id) {
+		planetHighlighID = _id;
+	}
+	public static int getPlanetHighlightID() {
+		return planetHighlighID;
+	}
+	
 	class CameraController implements GestureListener {
 		float velX, velY;
 		boolean flinging = false;
@@ -58,7 +66,7 @@ public class StarmapScreen extends SpaceTradeRender {
 
 		@Override
 		public boolean pan (float x, float y, float deltaX, float deltaY) {
-			Gdx.app.log("Backdrop", "In PAN X:"+x+" Y:"+y+" dX:"+deltaX+" dY:"+deltaY);
+			//Gdx.app.log("Backdrop", "In PAN X:"+x+" Y:"+y+" dX:"+deltaX+" dY:"+deltaY);
 			gestureCam.position.add(-deltaX * gestureCam.zoom, deltaY * gestureCam.zoom, 0);
 			return false;
 		}
@@ -180,7 +188,7 @@ public class StarmapScreen extends SpaceTradeRender {
 		//Draw range
 		final float _sx = Player.getPlayer().getX();
 		final float _sy = Player.getPlayer().getY();
-		final float _r = Player.getShip().getRange();
+		final float _r = Player.getShip().getRangePixels();
 		final int _stepSize = 36; //degree
 		final float _miniStep = (float)_stepSize/8f;
 		 offset += delta*5;
@@ -226,7 +234,9 @@ public class StarmapScreen extends SpaceTradeRender {
 		gestureControler.flinging = false;
 		gestureControler.constrain(true);
 
-		WarpBuyWindow.addToTable(leftTable);
+		leftTable.clear();
+		leftTable.add(WarpBuyWindow.getWindow());
+		
 		WarpBuyWindow.updateList(true, planetClickedID);
 		if (secondaryStage.getActors().size == 0) {
 			for (Planet _p : Starmap.getPlanets()) {

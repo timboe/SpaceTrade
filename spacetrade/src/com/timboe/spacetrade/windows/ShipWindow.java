@@ -113,7 +113,7 @@ public class ShipWindow {
 		shipWindow.add(priceLabel).colspan(4).left();
 		
 		shipWindow.row();
-		rangeLabel = new Label( "Range: " + Player.getShip().getRange() + " units." , _skin );//TODO units
+		rangeLabel = new Label( "Range: " + Player.getShip().getRangeLightYears() + " ly." , _skin );//TODO units
 		shipWindow.add(rangeLabel).colspan(4).left();
 		
 		shipWindow.row();

@@ -29,7 +29,9 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 	engage: { down: engage-image-button-down, up: engage-image-button-up, over: engage-image-button-hover },
 	minus: { down: minus-down, up: minus-up },
 	plus: { down: plus-down, up: plus-up },
-	cancel: { down: x-down, up: x-up }
+	cancel: { down: x-down, up: x-up },
+	right: { down: right-arrow-down, up: right-arrow-up },
+	left: { down: left-arrow-down, up: left-arrow-up }
 },
 com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: { down: default-round-down, up: default-round, font: default-font, fontColor: white },

@@ -25,6 +25,7 @@ import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.screen.StarmapScreen;
 import com.timboe.spacetrade.utility.AdLib;
 import com.timboe.spacetrade.utility.Modifiers;
 import com.timboe.spacetrade.utility.Rnd;
@@ -33,6 +34,7 @@ public class Planet extends Actor {
 		
 	private Vector2 v2 = new Vector2();
 	private String name = AdLib.getAdLib().planets.getStr();
+	private int nameLen = name.length();
 	private Color colour =  AdLib.getAdLib().starColour.getCol();
 	private Government govType = Government.random();
 	private Civilisation civType = Civilisation.random();
@@ -40,14 +42,15 @@ public class Planet extends Actor {
 	private int diameter = (int) (Textures.getStar().getRegionWidth());
 	public int radius = Math.round(diameter/2f);
 	private int ID;
-	
+	private boolean isVisited = false;
+
 	private final EnumMap<Goods, Boolean> goodsSold = new EnumMap<Goods, Boolean>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> stockTarget = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, AtomicInteger> volitility = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private final EnumMap<Goods, Array<AtomicInteger> > price = new EnumMap<Goods, Array<AtomicInteger> >(Goods.class);
-	private final float buyMod = 1.02f; //TODO tweak these 
-	private final float sellMod = 0.98f;
+	private final float buyMod = 1f;//1.02f; //TODO tweak these 
+	private final float sellMod = 1f;//0.98f;
 	private final float techMod = 1f;
 	private final EnumMap<ShipClass, ShipProperty > shipsSold = new EnumMap<ShipClass, ShipProperty >(ShipClass.class);
 	private final EnumMap<Weapons, Boolean > weaponsSold = new EnumMap<Weapons, Boolean >(Weapons.class);
@@ -57,7 +60,6 @@ public class Planet extends Actor {
 	private PlanetActivity police = PlanetActivity.Some;
 	private PlanetActivity pirates = PlanetActivity.Some;
 	private PlanetActivity traders = PlanetActivity.Some;
-
 
 	private final Rnd rnd = new Rnd();
 
@@ -167,7 +169,14 @@ public class Planet extends Actor {
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		Sprites.getSprites().getPlanetSprite(ID).draw(batch, parentAlpha);
-		Textures.getOutlineFont().draw(batch, name, getX() - radius/2, getY() + (1.2f*diameter));
+		if (StarmapScreen.getPlanetHighlightID() == ID) {
+			Textures.getOutlineFont().setColor(1f,0.078f,0.576f,1f); //Hot pink
+		} else if (isVisited == true) {
+			Textures.getOutlineFont().setColor(0f,0.75f,1f,1f); //Cool blue
+		} else {
+			Textures.getOutlineFont().setColor(Color.WHITE);
+		}
+		Textures.getOutlineFont().draw(batch, name, getX() - (nameLen*4f), getY() + (1.2f*diameter));
 	}
 	
 	public void drawBasic(ShapeRenderer g2) {
@@ -189,7 +198,11 @@ public class Planet extends Actor {
 			for (Goods _g : Goods.values()) {
 				final int current = getPrice(_g);
 				final float sigma = (float)current * ((float)volitility.get(_g).get() / 100f);
-				final int _new = Math.abs( Math.round( rnd.getRandG(current, sigma) ) );
+				int _new = Math.abs( Math.round( rnd.getRandG(current, sigma) ) );
+				//DEBUG
+				if (SpaceTrade.priceVariation == false) {
+					_new = current; //Don't vary price
+				}				
 				price.get(_g).add( new AtomicInteger(_new) );
 				//Mod stock
 				final int _stock = getStock(_g);
@@ -356,12 +369,18 @@ public class Planet extends Actor {
 	}
 
 	public PlanetActivity getActivity(ShipTemplate _template) {
+		assert(_template != ShipTemplate.Player);
 		switch (_template) {
 		case Pirate: return pirates;
 		case Police: return police;
 		case Trader: return traders;
+		case Player: return PlanetActivity.Some;
+		default: return PlanetActivity.Some;
 		}
-		return PlanetActivity.Some;
+	}
+
+	public void setVisited() {
+		isVisited = true;
 	}
 
 

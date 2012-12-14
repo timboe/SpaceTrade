@@ -29,6 +29,7 @@ public class SpaceTrade extends Game {
 	public static final float GAME_WIDTH = CAMERA_WIDTH - GUI_WIDTH;
 	
 	public static boolean debug = false;
+	public static boolean priceVariation = false;
 	
 	public static final int masterSeed = 2;
 	

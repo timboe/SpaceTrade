@@ -56,7 +56,7 @@ public enum ShipClass {
 	}
 	
 	public int getRange() {
-		return (int) (range * Starmap.travelScale);
+		return range;
 	}
 	
 	public int getMaxHull() {

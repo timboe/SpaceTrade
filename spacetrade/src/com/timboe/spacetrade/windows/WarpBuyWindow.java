@@ -3,6 +3,7 @@ package com.timboe.spacetrade.windows;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -20,10 +21,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
+import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.PlanetScreen;
@@ -37,12 +40,15 @@ import com.timboe.spacetrade.world.TextButtonGoods;
 public class WarpBuyWindow {
 
 	private static ChangeListener buyClick;
-	private static Window buyWindow;
-	private static Label disclaimer;
-	private static TextButton prevPlanet;
-	private static TextButton nextPlanet;
-	private static ImageButton warp;
-	private static Label warpInfo;
+	private static Window buyWindow = new Window("", Textures.getSkin());
+	private static Window warpWindow = new Window("Select Destination", Textures.getSkin());
+	private static Window containerWindow = new Window("", Textures.getSkin().get("transparent",WindowStyle.class));;
+	private static Label disclaimer = new Label("", Textures.getSkin());
+	private static final ImageButton prevPlanet = new ImageButton(Textures.getSkin().get("left",ImageButtonStyle.class));
+	private static final ImageButton close = new ImageButton(Textures.getSkin().get("cancel",ImageButtonStyle.class));
+	private static final ImageButton nextPlanet = new ImageButton(Textures.getSkin().get("right",ImageButtonStyle.class));
+	private static final ImageButton warp = new ImageButton(Textures.getSkin().get("engage",ImageButtonStyle.class));
+	private static final Label warpInfo = new Label("", Textures.getSkin());
 	private static final EnumMap<Goods, Label> labelName = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelLocalPrice = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelRemotePrice = new EnumMap<Goods, Label>(Goods.class);
@@ -50,13 +56,24 @@ public class WarpBuyWindow {
 	private static final EnumMap<Goods, Label> labelStock = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelCargo = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, TextButtonGoods> buttonBuy = new EnumMap<Goods, TextButtonGoods>(Goods.class);
-	private static boolean buyWindowPopulated = false;
 	private static int planetClickedID;
 	
 	private static Planet curPlanet;
 	private static Planet targetPlanet;
+	
+	private static boolean windowPopulated = false;
+	
+	private static final int width = 1050;
+	
+	public static Window getWindow() {
+		if (windowPopulated == true) return containerWindow;
+		windowPopulated = true;
+		populateWindow();
+		return containerWindow;
+	}
+	
 
-	private static void populateBuyWindow() {
+	private static void populateWindow() {
 		
 		final Skin _skin = Textures.getSkin();
 		
@@ -69,11 +86,11 @@ public class WarpBuyWindow {
 				final int _price = _price_per_unit * _amount;
 				if (_price > Player.getCredz()) {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
-					Help.errorOK("You don't have enough Credz for that!\nCost: $"+_price+"\nCredz: $"+Player.getCredz());
+					Help.errorOK("\nYou don't have enough Credz for that!\nCost: $"+_price+"\nCredz: $"+Player.getCredz()+"\n ");
 					return;
 				}
 				if (_amount > Player.getFreeCargo()) {
-					Help.errorOK("You don't have enough cargo space to store all that!\nRequired Space:"+_amount+"\nAvailable Space:"+Player.getFreeCargo()+"\nConsider purchasing a larger ship.");
+					Help.errorOK("\nYou don't have enough cargo space to store all that!\nRequired Space:"+_amount+"\nAvailable Space:"+Player.getFreeCargo()+"\nConsider purchasing a larger ship.\n ");
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient cargo holds!");
 					return;
 				}
@@ -85,100 +102,39 @@ public class WarpBuyWindow {
 			}
 		};
 		
-		buyWindow = new Window("MyWindow", _skin);
-		if (SpaceTrade.debug == true) buyWindow.debug();
-		Table innerTable = new Table();
-		if (SpaceTrade.debug == true) innerTable.debug();
-		innerTable.defaults().pad(5);
+
+		///////////////////
 		
-		Label titleLabelA = new Label("GOODS", _skin);
-		Label titleLabelB = new Label("LOCAL PRICE\nPER UNIT", _skin);
-		titleLabelB.setAlignment(Align.center);
-		Label titleLabelC = new Label("REMOTE PRICE\nPER UNIT", _skin);
-		titleLabelC.setAlignment(Align.center);
-		Label titleLabelD = new Label("STOCK", _skin);
-		Label titleLabelE = new Label("CARGO", _skin);
-		Label titleLabelF = new Label("BUY", _skin);
-		disclaimer = new Label("", _skin);
-		disclaimer.setAlignment(Align.center);
+		warpWindow.debug();
+		warpWindow.defaults().pad(5);
 		
-		innerTable.add(disclaimer).colspan(8);
-		innerTable.row();
-		innerTable.add(titleLabelA).colspan(2);
-		innerTable.add(titleLabelB);
-		innerTable.add(titleLabelC);
-		innerTable.add(titleLabelD).colspan(2);
-		innerTable.add(titleLabelE);
-		innerTable.add(titleLabelF);
-		innerTable.row();
-		for (final Goods _g : Goods.values()) {
-			ImageButton tempIButton = new ImageButton(_skin.get("info", ImageButtonStyle.class));
-			tempIButton.addCaptureListener( new  ChangeListener() {
-				public void changed (ChangeEvent event, Actor actor) {
-					Gdx.app.log("InfoButton","Interact:"+event.toString());
-					Help.help(_g);
-				}
-			});
-			innerTable.add( tempIButton );
-			
-			Label temp = new Label( _g.toDisplayString(), _skin );
-			labelName.put(_g, temp);
-			innerTable.add(temp);
-			
-			temp = new Label( "10", _skin.get("background", LabelStyle.class) );
-			labelLocalPrice.put(_g, temp);
-			innerTable.add( temp );
-			
-			temp = new Label( "101", _skin.get("background", LabelStyle.class) );
-			labelRemotePrice.put(_g, temp);
-			innerTable.add( temp );
-			
-			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
-			sliderStock.put(_g, sliderTemp);
-			innerTable.add(sliderTemp);
-			
-			temp = new Label( "1000", _skin );
-			labelStock.put(_g, temp);
-			innerTable.add( temp ).width(50);	
-			
-			temp = new Label( "1000", _skin.get("background", LabelStyle.class) );
-			labelCargo.put(_g, temp);
-			innerTable.add( temp );	
-			
-			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin.get("large", TextButtonStyle.class), _g);
-			buttonTemp.addListener(buyClick);
-			buttonBuy.put(_g, buttonTemp);
-			innerTable.add( buttonTemp );	
-			
-			innerTable.row();
-		}
-		
-		buyWindow.add(innerTable).colspan(4);
-		buyWindow.row();
-		
-		prevPlanet = new TextButton("<---", _skin);
 		prevPlanet.addListener(new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				Gdx.app.log("PrevButton","Click");
 				StarmapScreen.setPlanetClickedID( Starmap.prevNearbyPlanet() );
 			}
 		});
-		buyWindow.add(prevPlanet).left();
+		warpWindow.add(prevPlanet).left();
 		
-		nextPlanet = new TextButton("--->", _skin);
+		close.addListener(new  ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				Gdx.app.log("closeButton","Click"); 
+				StarmapScreen.setPlanetClickedID( -1 );
+			}
+		});
+		warpWindow.add(close).left();
+		
 		nextPlanet.addListener(new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				Gdx.app.log("nextButton","Click");
 				StarmapScreen.setPlanetClickedID( Starmap.nextNearbyPlanet() );
 			}
 		});
-		buyWindow.add(nextPlanet).left();
+		warpWindow.add(nextPlanet).left();
 
-		warpInfo = new Label("", _skin);
 		warpInfo.setAlignment(Align.center);
-		buyWindow.add(warpInfo).center();
+		warpWindow.add(warpInfo).center().width(640);
 		
-		warp = new ImageButton(_skin.get("engage", ImageButtonStyle.class));
 		warp.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				Gdx.app.log("WARP", "NativeHeap:"+Gdx.app.getNativeHeap()/1048576+" MB " +
@@ -210,14 +166,93 @@ public class WarpBuyWindow {
 				Player.getPlayer().addAction(moveSequence);
 			}
 		});
-		buyWindow.add(warp).right();
+		warpWindow.add(warp).right();
 		
-		buyWindow.addListener( new InputListener() {
+		warpWindow.addListener( new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				//catch
-				return true;
+				return true; //catch
 			}
 		});
+		
+		///////////////////
+		
+		buyWindow.debug();
+		buyWindow.defaults().pad(5);
+		
+		Label titleLabelA = new Label("GOODS", _skin);
+		Label titleLabelB = new Label("PRICE/UNIT", _skin);
+		titleLabelB.setAlignment(Align.center);
+		Label titleLabelC = new Label("PROFIT*", _skin);
+		titleLabelC.setAlignment(Align.center);
+		Label titleLabelD = new Label("STOCK", _skin);
+		Label titleLabelE = new Label("CARGO", _skin);
+		Label titleLabelF = new Label("BUY", _skin);
+		disclaimer.setAlignment(Align.center);
+		
+
+		buyWindow.add(titleLabelA).colspan(2);
+		buyWindow.add(titleLabelB);
+		buyWindow.add(titleLabelC);
+		buyWindow.add(titleLabelD).colspan(2);
+		buyWindow.add(titleLabelE);
+		buyWindow.add(titleLabelF);
+		buyWindow.row();
+		for (final Goods _g : Goods.values()) {
+			ImageButton tempIButton = new ImageButton(_skin.get("info", ImageButtonStyle.class));
+			tempIButton.addCaptureListener( new  ChangeListener() {
+				public void changed (ChangeEvent event, Actor actor) {
+					Gdx.app.log("InfoButton","Interact:"+event.toString());
+					Help.help(_g);
+				}
+			});
+			buyWindow.add( tempIButton );
+			
+			Label temp = new Label( _g.toDisplayString(), _skin );
+			labelName.put(_g, temp);
+			buyWindow.add(temp);
+			
+			temp = new Label( "10", _skin.get("background", LabelStyle.class) );
+			labelLocalPrice.put(_g, temp);
+			buyWindow.add( temp );
+			
+			temp = new Label( "101", _skin.get("background", LabelStyle.class) );
+			labelRemotePrice.put(_g, temp);
+			buyWindow.add( temp );
+			
+			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
+			sliderStock.put(_g, sliderTemp);
+			buyWindow.add(sliderTemp);
+			
+			temp = new Label( "1000", _skin );
+			labelStock.put(_g, temp);
+			buyWindow.add( temp ).width(50);	
+			
+			temp = new Label( "1000", _skin.get("background", LabelStyle.class) );
+			labelCargo.put(_g, temp);
+			buyWindow.add( temp );	
+			
+			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin.get("large", TextButtonStyle.class), _g);
+			buttonTemp.addListener(buyClick);
+			buttonBuy.put(_g, buttonTemp);
+			buyWindow.add( buttonTemp );	
+			
+			buyWindow.row();
+		}
+		buyWindow.add(disclaimer).colspan(8);
+
+		buyWindow.addListener( new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true; //catch
+			}
+		});
+	
+		//////////
+		
+		containerWindow.defaults().padTop(10);
+		containerWindow.debug();
+		containerWindow.add(warpWindow).width(width);
+		containerWindow.row();
+		containerWindow.add(buyWindow).width(width);
 
 	}
 	
@@ -232,19 +267,39 @@ public class WarpBuyWindow {
 		curPlanet = Player.getPlanet();
 		targetPlanet = Starmap.getPlanet(planetClickedID);
 		
-		final String _titleStr = "Buying from "+curPlanet.getFullName();
+		final String _titleStr = "Buy Before you Fly from "+curPlanet.getName();
 		buyWindow.setTitle(_titleStr);
-		buyWindow.setMovable(true);
+		buyWindow.setMovable(false);
+		
+		warpWindow.setTitle("Selected Destination: "+targetPlanet.getFullName());
+		warpWindow.setMovable(false);
+		
 		final float acceleration = Player.getShip().getAcc();
 		final int _ly = (int) Math.floor( Starmap.getDistanceLightyear(curPlanet, targetPlanet) );
-		disclaimer.setText("Comparing prices to "+targetPlanet.getFullName()
-				+".\n Caution: Prices correct as of Stardate "+(Starmap.getStarDate() - _ly) 
+		disclaimer.setText("*Caution: Prices on "+targetPlanet.getName()+" correct as of Stardate "+(Starmap.getStarDate() - _ly) 
 				+" (" + _ly + " years ago).");
 		
-		warpInfo.setText(targetPlanet.getName() + " is " + _ly + " lightyears away from " + curPlanet.getName()
-				+".\nTravel will take "+String.format("%.2f",Starmap.getTravelTimeGalactic(curPlanet,targetPlanet,acceleration))
-				+" GalacticYears and "+String.format("%.2f",Starmap.getTravelTimeShip(curPlanet,targetPlanet,acceleration))
-				+" ShipYears.");
+//		warpInfo.setText(targetPlanet.getName() + " is " + _ly + " lightyears away from " + curPlanet.getName()
+//				+".\nTravel will take "+String.format("%.2f",Starmap.getTravelTimeGalactic(curPlanet,targetPlanet,acceleration))
+//				+" GalacticYears and "+String.format("%.2f",Starmap.getTravelTimeShip(curPlanet,targetPlanet,acceleration))
+//				+" ShipYears.");
+		
+		String _range;
+		if (_ly > Player.getShip().getRangeLightYears()) {
+			_range = "Your ship is unable to travel this far!";
+			warpInfo.setColor(Color.RED);
+			warp.setDisabled(true);
+		} else {
+			_range = "Flight Time: "+String.format("%.2f",Starmap.getTravelTimeShip(curPlanet,targetPlanet,acceleration)) + " years.";
+			warpInfo.setColor(Color.WHITE);
+			warp.setDisabled(false);
+		}
+		
+		warpInfo.setText("Pirates: "+targetPlanet.getActivity(ShipTemplate.Pirate).toString()
+				+", Police: "+targetPlanet.getActivity(ShipTemplate.Police).toString()
+				+", Traders: "+targetPlanet.getActivity(ShipTemplate.Trader).toString() + "\n" + _range);
+
+		
 		for (Goods _g : Goods.values()) {
 
 			final int _localPrice = curPlanet.getPriceBuy(_g);
@@ -314,13 +369,6 @@ public class WarpBuyWindow {
 				labelStock.get(_g).setColor(1f, 1f, 1f, 1f);
 			}
 		}
-	}
-
-	public static void addToTable(Table leftTable) {
-		if (buyWindowPopulated == true) return;
-		buyWindowPopulated = true;
-		populateBuyWindow();
-		leftTable.add(buyWindow);
 	}
 	
 }

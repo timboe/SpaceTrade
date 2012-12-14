@@ -21,7 +21,7 @@ public class Player extends Actor {
 	private static EnumMap<Goods, AtomicInteger> stock = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private static EnumMap<Goods, AtomicInteger> avPrice = new EnumMap<Goods, AtomicInteger>(Goods.class);
 	private static int credz;
-	private static Ship ship;
+	private static Ship ship = null;
 	private static int totalCargo;
 	private static int currentLocationID;
 	private static Rnd rnd = new Rnd();
@@ -40,9 +40,8 @@ public class Player extends Actor {
 		return true;
 	}
 	
-	public Player() { //Only to be called externally when loading a game!
-		ship = new Ship(ShipClass.FightC);
-		currentLocationID = rnd.getRandI( Starmap.getNPlanets() );
+	public Player() { //Only to be called externally when loading a game! 
+		currentLocationID = 0;
 		setOrigin(Sprites.getSprites().getPlayerSprite().getWidth()/2f, Sprites.getSprites().getPlayerSprite().getHeight()/2f);
 		
 		//Setup maps
@@ -70,6 +69,7 @@ public class Player extends Actor {
 	public void move(Planet _p) {
 		currentLocationID = _p.getID();
 		setPosition(_p.getX() + _p.radius, _p.getY() + _p.radius);
+		_p.setVisited();
 	}
 	
 	public static int getPlanetID() {

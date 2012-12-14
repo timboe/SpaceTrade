@@ -101,7 +101,7 @@ public class TravelWindow {
 			new Dialog("No Weapons", Textures.getSkin(), "dialog") {
 				protected void result (Object object) {
 				}
-			}.text("\nYou do not have any weapons to attack with!")
+			}.text("\nYou do not have any weapons to attack with!\n ")
 				.button("  OK  ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
 				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
@@ -116,7 +116,7 @@ public class TravelWindow {
 				_title = "Messing With The Law";
 			} else if (PlanetScreen.getEncounter().getTemplate() == ShipTemplate.Trader) {
 				_msg = "\nAre you sure you want to do this?";
-				_msg += "\n\nAttacking a trader will attract Intergal police attention.\n ";
+				_msg += "\n\nAttacking a trader will attract InterGal police attention.\n ";
 				_title = "Avast!";
 			}
 		}
@@ -158,7 +158,7 @@ public class TravelWindow {
 			if (rnd.getRandChance(0.75f) == true) { //TODO tweak
 				_bonus = 2 + rnd.getRandI(4);
 			}
-			String _msg = "Your opponents ship has been destroyed!";
+			String _msg = "\n Your opponents ship has been destroyed!";
 			if (_bonus > 0) {
 				_msg += "\n\n" + _bonus + " crates of " + _bonusG.toDisplayString() + " drift within range of your grapple.";
 			}
@@ -180,7 +180,7 @@ public class TravelWindow {
 					if ((Boolean)object == true) Player.addStock(_bonusG, _bonusFinal, 0);
 					PlanetScreen.endEncounter();
 				}
-			}.text(_msg)
+			}.text(_msg+"\n ")
 				.button("   YES   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.button("   NO   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
@@ -188,7 +188,7 @@ public class TravelWindow {
 			
 		} else if (isKilled == true && isPlayerAttacking == false) {
 			
-			String _msg = "Your ship explodes!";
+			String _msg = "\nYour ship explodes!";
 			//do we have escape pod?
 			if (Player.getShip().getEscapePod() == true) {
 				_msg += "\n\nYou just have time to make it into your escape pod"
@@ -269,7 +269,7 @@ public class TravelWindow {
 				_msg = "\nYou were hit, but you managed to get away.\n ";
 			} else {
 				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your attempt to flee SUCEEDED.");
-				_msg = "\nYou manage to escape.";
+				_msg = "\nYou manage to escape.\n ";
 			}
 			new Dialog("Early Exit", Textures.getSkin(), "dialog") {
 				protected void result (Object object) {

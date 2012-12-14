@@ -14,8 +14,11 @@ import com.timboe.spacetrade.utility.Rnd;
 
 public class Starmap {
 	
-	private static final int starBuffer = (int) Math.round((Textures.getStar().getRegionWidth()/2f) * Math.sqrt(2)) * 3 ;
-	public static final int travelScale = (int) (starBuffer * 0.1f);
+	private static final int starBuffer = (int) Math.round((Textures.getStar().getRegionWidth()/2f) * Math.sqrt(2)) * 3 ; 
+	private static final float lowerStarRange = 1.25f;
+	public static final float upperStarRange = 1.5f;
+	
+	//public static final int travelScale = (int) (starBuffer * 0.1f);
 	private static final int nPlanets = 128;
 	public static final float toLightYears = 4.2f; //Average solar separation in lightyears
 	private static final Array<Planet> thePlanets = new Array<Planet>();
@@ -73,8 +76,8 @@ public class Starmap {
 			boolean tooClose = false;
 			boolean tooFar = true;
 			for (Planet p : thePlanets) {
-				if (p.dst(_x, _y) < 1*starBuffer) tooClose = true;
-				if (p.dst(_x, _y) < ShipClass.Starting.getRange()) tooFar = false;
+				if (p.dst(_x, _y) < lowerStarRange * starBuffer) tooClose = true;
+				if (p.dst(_x, _y) < upperStarRange * starBuffer) tooFar = false;
 
 			}
 			if (thePlanets.size == 0 || (tooClose == false && tooFar == false)) {
@@ -100,6 +103,10 @@ public class Starmap {
 		final float _sep = _local.dst( _remote );
 		return  _sep * ( toLightYears / starBuffer); 
 		
+	}
+	
+	public static int getPixelsFromLightyears(float _ly) {
+		return Math.round( _ly / ( toLightYears / starBuffer) );
 	}
 	
 	public static float getTravelTimeGalactic(Planet _local, Planet _remote, float _g) {
@@ -155,7 +162,7 @@ public class Starmap {
 		localPlanets.clear();
 		for (Planet _p : thePlanets) {
 			if (_p.getID() == localPlanetID) continue;
-			if (_p.dst( getPlanet(localPlanetID) ) < Player.getShip().getRange()) {
+			if (getDistanceLightyear(_p, getPlanet(localPlanetID)) < Player.getShip().getRangeLightYears()) {
 				localPlanets.add(_p.getID());
 			}
 		}

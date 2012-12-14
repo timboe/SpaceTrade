@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.SpaceTrade;
+import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.enumerator.WorldSize;
 import com.timboe.spacetrade.player.Player;
@@ -31,7 +32,8 @@ public class TitleScreen extends SpaceTradeRender {
 		//new!
 		Starmap.populate();
 		Player.getPlayer().refresh();
-		Player.setCredz(250000);
+		Player.setShip( new Ship(ShipClass.Starting) );
+		Player.setCredz(1000);
 
 		ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theStarmap );
 		RightBar.getRightBarTable().addAction(Actions.delay(ScreenFade.speed));

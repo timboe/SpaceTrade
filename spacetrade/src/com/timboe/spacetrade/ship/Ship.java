@@ -11,8 +11,8 @@ import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.enumerator.Weapons;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.screen.PlanetScreen;
-import com.timboe.spacetrade.screen.ShipScreen;
 import com.timboe.spacetrade.utility.Rnd;
+import com.timboe.spacetrade.world.Starmap;
 
 public class Ship {
 	static int shipCount = 0;
@@ -60,6 +60,7 @@ public class Ship {
 				int _spend = _sc.getCost();
 				//choose weapons
 				while (getFreeWeaponSlots() > 0) {
+					if (rnd.getRandChance(0.2f) == true) break; //small chance to not fully arm //TODO tweak
 					Weapons _w;
 					if (getFilledWeaponSlots() == 0) {
 						_w = Weapons.randomLevel( shipClass.getLevel() ); //get at level
@@ -70,6 +71,7 @@ public class Ship {
 					_spend += _w.getCost();
 				}
 				while (getFreeEquipmentSlots() > 0) {
+					if (rnd.getRandChance(0.2f) == true) break; //small chance to not fully arm //TODO tweak
 					Equipment _e;
 					if (getFilledEquipmentSlots() == 0) {
 						_e = Equipment.randomLevel( shipClass.getLevel() ); //get at level
@@ -94,7 +96,7 @@ public class Ship {
 		hull = shipClass.getMaxHull();
 		if (rnd.getRandChance(0.50f) == true) hull -= rnd.getRandI( hull/4 );
 		sheilding = getMaxShields();		
-		if (rnd.getRandChance(0.25f) == true) sheilding -= rnd.getRandI( sheilding/4 );
+		if (rnd.getRandChance(0.25f) == true && sheilding > 0) sheilding -= rnd.getRandI( sheilding/4 );
 		
 		if (template == ShipTemplate.Pirate) {
 			//TODO check if feared and not attack then
@@ -188,6 +190,19 @@ public class Ship {
 			_r += _e.getExtraRange();
 		}
 		return _r;
+	}
+	
+	public float getRangeLightYears() {
+		//range nominally from 10 to 20
+		//take 10 as min spacing
+		float _r = getRange();
+		_r /= 10f; //now 1 to 2
+		return _r * Starmap.toLightYears * Starmap.upperStarRange;
+		
+	}
+	
+	public float getRangePixels() {
+		return Starmap.getPixelsFromLightyears( getRangeLightYears() );
 	}
 	
 	public float getAcc() {
