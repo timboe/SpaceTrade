@@ -107,8 +107,8 @@ public class ShipScreen extends SpaceTradeRender {
 		Table topButtons = new Table(Textures.getSkin());
 		topButtons.defaults().pad(10);
 		topButtons.debug();
-		topButtons.add(viewShopButton).width(350).height(50);;
-		topButtons.add(viewShipButton).width(350).height(50);;
+		topButtons.add(viewShopButton).width(350).height(50);
+		topButtons.add(viewShipButton).width(350).height(50);
 		leftTable.align(Align.top);
 		leftTable.add(topButtons).width( leftTable.getWidth() ).colspan(2);
 		leftTable.row();
@@ -119,9 +119,9 @@ public class ShipScreen extends SpaceTradeRender {
 			Window bottomRContainer = new Window("", Textures.getSkin().get("transparent", WindowStyle.class));
 			bottomLContainer.add(ShipyardWindow.getWindow()).width(500);
 			
-			bottomRContainer.add(WeaponsWindow.getWindow()).width(500);
+			bottomRContainer.add(WeaponsWindow.getWindow()).width(550);
 			bottomRContainer.row().pad(10);
-			bottomRContainer.add(EquipmentWindow.getWindow()).width(500);
+			bottomRContainer.add(EquipmentWindow.getWindow()).width(550);
 			
 			leftTable.add(bottomLContainer);
 			leftTable.add(bottomRContainer);

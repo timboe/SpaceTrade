@@ -1,6 +1,6 @@
 package com.timboe.spacetrade;
 
-
+ 
 public class NormalMapShader {
 
     public static final String mVertexShader =

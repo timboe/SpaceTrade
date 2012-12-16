@@ -95,7 +95,8 @@ public class EquipmentWindow {
 			});
 			equipmentWindow.add( tempIButton );
 			
-			equipmentWindow.add( new Image(_skin.getDrawable("Laser1") ) ); //TODO ART!
+			String drawable = _e.getEquipmentClass().toString();
+			equipmentWindow.add( new Image(_skin.getDrawable(drawable) ) );
 			
 			equipmentWindow.add( new Label( _e.getName(), _skin ) );	
 			

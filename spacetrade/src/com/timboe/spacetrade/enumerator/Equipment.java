@@ -7,23 +7,25 @@ import java.util.List;
 import com.timboe.spacetrade.utility.Rnd;
 
 public enum Equipment {
-	SmallShield		(5000,		1,	"Mini Shield"),
-	MiniRadiator	(5000,		1,	"Heat Fins"),
-	ExtraTank		(2000,		1,	"Anti Matter Tank"),
-	Window			(5000,		1,	"Window"), //TODO
-	CargoBays		(5000,		1,	"5 Extra Cargo Bays"),
-	MediumShield	(20000,		2,	"Strong Shield"),
-	MediRadiator	(20000,		2,	"Heat Banks"),
-	DuckTape		(15000,		2,	"Struck Tape"),
-	ZMRadio			(20000,		2,	"ZMRadio"), //TODO
-	LargeShield		(60000,		3,	"Giga Shield"),
-	AutoRepair		(50000,		3,	"Auto Repair Bot"),
-	MaxiRadiator	(60000,		3,	"Fractal Radiator"),
-	MaxCargoBays	(20000,		3,	"15 Extra Cargo Bays");
-	//Cloak			(60000,		3,	"Photonic Cloak"); //TODO
+					//cost		class						lvl		name
+	SmallShield		(5000,		EquipmentClass.Shield,	 	1,	"Mini Shield"),
+	MiniRadiator	(5000,		EquipmentClass.Radiator,	1,	"Heat Fins"),
+	ExtraTank		(2000,		EquipmentClass.Fuel,		1,	"Anti Matter Tank"),
+	Window			(5000,		EquipmentClass.Radar,		1,	"Window"), //TODO
+	CargoBays		(5000,		EquipmentClass.Cargo,		1,	"5 Extra Cargo Bays"),
+	MediumShield	(20000,		EquipmentClass.Shield,		2,	"Strong Shield"),
+	MediRadiator	(20000,		EquipmentClass.Radiator,	2,	"Heat Banks"),
+	DuckTape		(15000,		EquipmentClass.Hull,		2,	"Struck Tape"),
+	ZMRadio			(20000,		EquipmentClass.Radar,		2,	"ZMRadio"), //TODO
+	LargeShield		(60000,		EquipmentClass.Shield,		3,	"Giga Shield"),
+	AutoRepair		(50000,		EquipmentClass.Hull,		3,	"Auto Repair Bot"),
+	MaxiRadiator	(60000,		EquipmentClass.Radiator,	3,	"Fractal Radiator"),
+	MaxCargoBays	(20000,		EquipmentClass.Cargo,		3,	"15 Extra Cargo Bays"),
+	Cloak			(60000,		EquipmentClass.Cloak,		3,	"Photonic Cloak"); //TODO
 	//TargetingComputer;
 	
 	String name;
+	EquipmentClass equipmentClass;
 	int cost;
 	int level;
 	
@@ -51,6 +53,15 @@ public enum Equipment {
 		}
 	}
 	
+	public float getStealth() {
+		//TODO
+		switch (this) {
+		case Window: return 1f;
+		case ZMRadio: return 1f;
+		case Cloak: return 1f;
+		default: return 1f;
+		}
+	}
 	
 	public int getHeatLoss() {
 		switch (this) {
@@ -117,10 +128,11 @@ public enum Equipment {
 		}
 	}
 	
-	private Equipment (int _cst, int _l, String _n) {
+	private Equipment (int _cst, EquipmentClass _eq, int _l, String _n) {
 		name = _n;
 		cost = _cst;
 		level = _l;
+		equipmentClass = _eq;
 	}
 	
 	public int getCost() {
@@ -159,6 +171,10 @@ public enum Equipment {
 			Equipment _e = content.get( rnd.getRandI(size) );
 			if (_e.getLevel() == _level) return _e;
 		}
+	}
+
+	public EquipmentClass getEquipmentClass() {
+		return equipmentClass;
 	}
 
 
