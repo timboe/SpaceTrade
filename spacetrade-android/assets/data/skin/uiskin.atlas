@@ -508,3 +508,52 @@ left-arrow-down
   orig: 40, 40
   offset: 0, 0
   index: -1
+radar
+  rotate: false
+  xy: 243, 350
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+cloak
+  rotate: false
+  xy: 272, 350
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+radiator
+  rotate: false
+  xy: 301, 350
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+fuel
+  rotate: false
+  xy: 330, 350
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+shield
+  rotate: false
+  xy: 359 350
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+cargo
+  rotate: false
+  xy: 388, 350
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+hull
+  rotate: false
+  xy: 417, 350
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
