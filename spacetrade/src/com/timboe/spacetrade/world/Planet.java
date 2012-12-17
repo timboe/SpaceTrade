@@ -163,9 +163,7 @@ public class Planet extends Actor {
 		Sprites.getSprites().getPlanetSprite(ID).setSize(radius*scale*2, radius*scale*2);
 		Sprites.getSprites().getPlanetSprite(ID).setColor(colour);
 	}
-	
-	static boolean ONCE = false;
-	
+		
 	@Override
 	public void draw(SpriteBatch batch, float parentAlpha) {
 		Sprites.getSprites().getPlanetSprite(ID).draw(batch, parentAlpha);
