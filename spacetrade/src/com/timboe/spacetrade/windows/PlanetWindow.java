@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.timboe.spacetrade.enumerator.ShipTemplate;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.screen.PlanetScreen;
 import com.timboe.spacetrade.utility.Help;
 import com.timboe.spacetrade.utility.ScreenFade;
 
@@ -235,7 +236,8 @@ public class PlanetWindow {
 		bank = new TextButton("BANK", _skin.get("large", TextButtonStyle.class));
 		bank.addCaptureListener( new  ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				//TODO
+				PlanetScreen.showBank = true;
+				PlanetScreen.triggerRefresh = true;
 			}
 		});
 		planetWindow.add( bank ).colspan(2);

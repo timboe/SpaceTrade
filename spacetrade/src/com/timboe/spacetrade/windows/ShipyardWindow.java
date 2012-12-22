@@ -39,13 +39,12 @@ public class ShipyardWindow {
 	}
 	
 	private static void doShipSwap(ShipClass _sc, int _cost) {
-		
 		Ship newShip = new Ship(_sc);
 		newShip.setMod( Player.getPlanet().getShipMod(_sc) );
 		newShip.moveEquipment( Player.getShip() );
 		Player.setShip( newShip );
 		Player.modCredz(-_cost);
-		
+				
 		System.out.println("ShipSwapChosen: " + _sc);
 		ShipScreen.updateAll = true;	
 	}
@@ -59,7 +58,7 @@ public class ShipyardWindow {
 				Gdx.app.log("ShipButton","Interact:"+event.toString()+" "+_class);
 				int _tradeInPrice = Math.round(Player.getShip().getTradeInPrice() * Player.getPlanet().getEquipmentPriceMod());
 				final int _cost = Math.round((Player.getPlanet().getEquipmentPriceMod() * _class.getCost()) - _tradeInPrice);
-				if (_cost > Player.getCredz()) { //CHECK CREDITS
+				if (_cost > Player.getAvailableCredzIncOD()) { //CHECK CREDITS
 					Help.errorOK("\nYou cannot afford to buy this ship.\n ");
 					return;	
 				}
@@ -86,7 +85,11 @@ public class ShipyardWindow {
 				if(_cost < 0) { //DOWNGRADE
 					_CostStr = "\n\nThis will refund you $"+Integer.toString(-_cost)+".";
 				}
-					
+				
+				if (Player.getInsured() == true) {
+					_CostStr += "\n\nYour insurance & escape pod will transfer to your new ship.";
+				}
+				
 				new Dialog("Confirm Ship Purchase", _skin, "dialog") {
 					protected void result (Object object) {
 						if (((Boolean)object) == true) {
@@ -165,7 +168,7 @@ public class ShipyardWindow {
 			int _cost = Math.round((Player.getPlanet().getEquipmentPriceMod() *_s.getCost()) - _tradeInPrice);
 			doShip.get(_s).setText("EXCHANGE\n$" + Integer.toString(_cost) );
 
-			if (_cost > Player.getCredz()) {
+			if (_cost > Player.getAvailableCredzIncOD()) {
 				doShip.get(_s).setColor(Color.RED);
 //				if (_s == Player.getShip().getShipClass()) {
 //				} else {

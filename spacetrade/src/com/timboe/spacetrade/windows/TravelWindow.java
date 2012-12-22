@@ -195,7 +195,7 @@ public class TravelWindow {
 						+"\na few hours later you crash land into "+Player.getPlanet().getName()
 						+"\n\nOver the course of two days you convert your escape pod into a "+ShipClass.Tiny.getName()+"\n ";
 				if (Player.getInsured() == true) {
-					_msg += "\nThe bank pays out $"+Player.getInsurancePayout()+" in insurance, your no-claims bonus is reset to 0%\n ";
+					_msg += "\nThe bank pays out $"+Player.getInsurancePayout()+" in insurance,\nyou should take out a new insurance policy when you buy your next ship.";
 				}
 			} else {
 				_msg += "\n\nAs you have no escape pod, you too are vaporised into a puff of carbon."
@@ -211,6 +211,7 @@ public class TravelWindow {
 						PlanetScreen.setTocks(0);
 						Player.modCredz( Player.getInsurancePayout() );
 						Player.setNoClaim( 0f );
+						Player.setInsured(false);
 						Player.setShip( new Ship(ShipClass.Tiny) );
 						Player.removeAllStock();
 					}
@@ -288,7 +289,7 @@ public class TravelWindow {
 	public static void submit() {
 		//TODO check for criminal -> fine and imprison
 		if (Player.getCarryIllegal() == true) {
-			final int _fine = Math.round( Player.getCredz() * 0.05f );
+			final int _fine = Math.round( Player.getAvailableCredzIncOD() * 0.05f ); //TODO change this to worth
 			final int _nCrack = Player.getStock(Goods.SpaceCrack);
 			final int _nAI = Player.getStock(Goods.AI);
 			String _msg  = "\nUpon inspecting your cargo hold the authoraties discover illegal materials."
@@ -337,13 +338,13 @@ public class TravelWindow {
 			if (_amount == 0) {
 				_msg += "\n\nYou cannot buy any as you have no cargo bays to store them!";
 			} else {
-				_msg += "\n\nYou do not have the storage space for all these, you have room for "+_amount+".";
+				_msg += "\n\nYou do not have the storage space for all these\n, you have room for "+_amount+".";
 			}
 
 		}
 		
-		if (_price * _amount > Player.getCredz()) {
-			_amount =  Player.getCredz() / _price ;
+		if (_price * _amount > Player.getAvailableCredz()) {
+			_amount =  Player.getAvailableCredz() / _price ;
 			if (_amount == 0) {
 				_msg += "\n\nYou cannot buy any as you can't afford them!";
 			} else {
@@ -391,21 +392,32 @@ public class TravelWindow {
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
 				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 		} else {
-			final int _bribe = Math.round( Player.getCredz() * Player.getPlanet().getGov().getBribeRate() );
+			final int _bribe = Math.round( Player.getWorth() * Player.getPlanet().getGov().getBribeRate() );
 			String _msg = "\nThe police could be persuaded to look the other way just this once, for $"+_bribe+".\n ";
-			new Dialog("Bribery and Corruption", Textures.getSkin(), "dialog") {
-				protected void result (Object object) {
-					if ((Boolean)object == true) {
-						Player.modCredz( -_bribe );
-						PlanetScreen.endEncounter();
+			if (Player.getAvailableCredzIncOD() >= _bribe) {
+				new Dialog("Bribery and Corruption", Textures.getSkin(), "dialog") {
+					protected void result (Object object) {
+						if ((Boolean)object == true) {
+							Player.modCredz( -_bribe );
+							PlanetScreen.endEncounter();
+						}
+						//Else nothing happens
 					}
-					//Else nothing happens
-				}
-			}.text(_msg)
-				.button(" Pay The Bribe ", true, Textures.getSkin().get("large", TextButtonStyle.class))
-				.button("   Don't Pay   ", false, Textures.getSkin().get("large", TextButtonStyle.class))
-				.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
-				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+				}.text(_msg)
+					.button(" Pay The Bribe ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+					.button("   Don't Pay   ", false, Textures.getSkin().get("large", TextButtonStyle.class))
+					.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
+					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+			} else {
+				_msg += "\nYou do not however have access to this many funds.\n ";
+				new Dialog("Bribery and Corruption", Textures.getSkin(), "dialog") {
+					protected void result (Object object) {
+					}
+				}.text(_msg)
+					.button("  OK  ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+					.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
+					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
+			}
 		}
 	}
 	

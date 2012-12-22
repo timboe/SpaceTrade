@@ -51,6 +51,7 @@ public class WarpBuyWindow {
 	private static final Label warpInfo = new Label("", Textures.getSkin());
 	private static final EnumMap<Goods, Label> labelName = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelLocalPrice = new EnumMap<Goods, Label>(Goods.class);
+	private static final EnumMap<Goods, Label> labelRemoteDiff= new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Label> labelRemotePrice = new EnumMap<Goods, Label>(Goods.class);
 	private static final EnumMap<Goods, Slider> sliderStock = new EnumMap<Goods, Slider>(Goods.class);
 	private static final EnumMap<Goods, Label> labelStock = new EnumMap<Goods, Label>(Goods.class);
@@ -63,7 +64,7 @@ public class WarpBuyWindow {
 	
 	private static boolean windowPopulated = false;
 	
-	private static final int width = 1050;
+	private static final int width = 1100;
 	
 	public static Window getWindow() {
 		if (windowPopulated == true) return containerWindow;
@@ -84,9 +85,9 @@ public class WarpBuyWindow {
 				final int _amount = (int) sliderStock.get(_g).getValue();
 				final int _price_per_unit = curPlanet.getPriceBuy(_g);
 				final int _price = _price_per_unit * _amount;
-				if (_price > Player.getCredz()) {
+				if (_price > Player.getAvailableCredzIncOD()) {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
-					Help.errorOK("\nYou don't have enough Credz for that!\nCost: $"+_price+"\nCredz: $"+Player.getCredz()+"\n ");
+					Help.errorOK("\nYou don't have enough Credz for that!\nCost: $"+_price+"\nAvailable Credit: $"+Player.getAvailableCredzIncOD()+"\n ");
 					return;
 				}
 				if (_amount > Player.getFreeCargo()) {
@@ -181,6 +182,7 @@ public class WarpBuyWindow {
 		
 		Label titleLabelA = new Label("GOODS", _skin);
 		Label titleLabelB = new Label("PRICE/UNIT", _skin);
+		Label titleLabelB2 = new Label("+/-", _skin);
 		titleLabelB.setAlignment(Align.center);
 		Label titleLabelC = new Label("PROFIT*", _skin);
 		titleLabelC.setAlignment(Align.center);
@@ -192,6 +194,7 @@ public class WarpBuyWindow {
 
 		buyWindow.add(titleLabelA).colspan(2);
 		buyWindow.add(titleLabelB);
+		buyWindow.add(titleLabelB2);
 		buyWindow.add(titleLabelC);
 		buyWindow.add(titleLabelD).colspan(2);
 		buyWindow.add(titleLabelE);
@@ -212,12 +215,19 @@ public class WarpBuyWindow {
 			buyWindow.add(temp);
 			
 			temp = new Label( "10", _skin.get("background", LabelStyle.class) );
+			temp.setAlignment(Align.center);
 			labelLocalPrice.put(_g, temp);
-			buyWindow.add( temp );
+			buyWindow.add( temp ).width(100);
+			
+			temp = new Label( "1%", _skin.get("background", LabelStyle.class) );
+			temp.setAlignment(Align.center);
+			labelRemoteDiff.put(_g, temp);
+			buyWindow.add( temp ).width(100);
 			
 			temp = new Label( "101", _skin.get("background", LabelStyle.class) );
+			temp.setAlignment(Align.center);
 			labelRemotePrice.put(_g, temp);
-			buyWindow.add( temp );
+			buyWindow.add( temp ).width(100);
 			
 			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
 			sliderStock.put(_g, sliderTemp);
@@ -225,11 +235,12 @@ public class WarpBuyWindow {
 			
 			temp = new Label( "1000", _skin );
 			labelStock.put(_g, temp);
-			buyWindow.add( temp ).width(50);	
+			buyWindow.add( temp ).width(35);	
 			
 			temp = new Label( "1000", _skin.get("background", LabelStyle.class) );
+			temp.setAlignment(Align.center);
 			labelCargo.put(_g, temp);
-			buyWindow.add( temp );	
+			buyWindow.add( temp ).width(35);	
 			
 			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(buyClick);
@@ -238,7 +249,7 @@ public class WarpBuyWindow {
 			
 			buyWindow.row();
 		}
-		buyWindow.add(disclaimer).colspan(8);
+		buyWindow.add(disclaimer).colspan(9);
 
 		buyWindow.addListener( new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -267,7 +278,7 @@ public class WarpBuyWindow {
 		curPlanet = Player.getPlanet();
 		targetPlanet = Starmap.getPlanet(planetClickedID);
 		
-		final String _titleStr = "Buy Before you Fly from "+curPlanet.getName();
+		final String _titleStr = "`Buy Before you Fly' from "+curPlanet.getName();
 		buyWindow.setTitle(_titleStr);
 		buyWindow.setMovable(false);
 		
@@ -304,19 +315,38 @@ public class WarpBuyWindow {
 
 			final int _localPrice = curPlanet.getPriceBuy(_g);
 			final int _remotePrice = targetPlanet.getPriceSell(_g, _ly);
+			final int _chosen = (int) sliderStock.get(_g).getValue();
 			
 			if (targetPlanet.getSells(_g) == false) {
 				labelRemotePrice.get(_g).setText( "---" );
+				labelRemoteDiff.get(_g).setText( "---" );
 			} else {
-				labelRemotePrice.get(_g).setText("$"+Integer.toString(_remotePrice));
+				int _profitPerItem = _remotePrice - _localPrice;
+				labelRemotePrice.get(_g).setText("$"+Integer.toString(_profitPerItem * _chosen));
+				if (curPlanet.getSells(_g) == false) {
+					labelRemoteDiff.get(_g).setText( "---" );
+				} else {
+					float _diff = ((float)(_remotePrice-_localPrice) / (float)_localPrice) * 100f;
+					String _diffStr = "";
+					if (_diff > 0) _diffStr += "+";
+					if (Math.abs(_diff) < 10f) {
+						_diffStr += String.format("%.1f", _diff) + "%";
+					} else {
+						_diffStr += ((Integer) Math.round(_diff)).toString() + "%";
+					}
+					labelRemoteDiff.get(_g).setText( _diffStr );
+				}
 			}
 			
 			if (curPlanet.getSells(_g) == false || targetPlanet.getSells(_g) == false) {
 				labelRemotePrice.get(_g).setColor(1f, 1f, 1f, 1f);
+				labelRemoteDiff.get(_g).setColor(1f, 1f, 1f, 1f);
 			} else if (_remotePrice < _localPrice) {
 				labelRemotePrice.get(_g).setColor(1f, 0f, 0f, 1f);
+				labelRemoteDiff.get(_g).setColor(1f, 0f, 0f, 1f);
 			} else {
 				labelRemotePrice.get(_g).setColor(0f, 1f, 0f, 1f);
+				labelRemoteDiff.get(_g).setColor(0f, 1f, 0f, 1f);
 			}
 			
 			int _cargo = Player.getStock(_g);
@@ -345,7 +375,7 @@ public class WarpBuyWindow {
 				sliderStock.get(_g).setVisible(true);
 			}
 			
-			int canAffordPrice = (int)Math.floor( (float)Player.getCredz() / (float)_localPrice);
+			int canAffordPrice = (int)Math.floor( (float)Player.getAvailableCredz() / (float)_localPrice);
 			int canAffordSpace = Player.getFreeCargo();
 			int canAfford = Math.min(canAffordPrice, canAffordSpace);
 			canAfford = Math.max(canAfford, 0);
@@ -361,7 +391,6 @@ public class WarpBuyWindow {
 				}
 			}
 			
-			int _chosen = (int) sliderStock.get(_g).getValue();
 			labelStock.get(_g).setText( Integer.toString(_chosen) );
 			if (_chosen > canAfford) {
 				labelStock.get(_g).setColor(1f, 0f, 0f, 1f);

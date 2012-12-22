@@ -346,6 +346,7 @@ public class Ship {
 		weaponLoadout.addAll( _oldShip.weaponLoadout  );
 		techLoadout.addAll( _oldShip.techLoadout );
 		hull = getMaxHull();
+		hasEscapePod = _oldShip.getEscapePod();
 	}
 
 	public int getTotalWeaponSlots() {
@@ -520,6 +521,10 @@ public class Ship {
 
 	public void resetHeat() {
 		heat = 0;
+	}
+
+	public void setEscapePod(boolean _b) {
+		hasEscapePod = _b;		
 	}
 
 }

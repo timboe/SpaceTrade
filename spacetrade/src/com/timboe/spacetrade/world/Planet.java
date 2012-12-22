@@ -105,7 +105,7 @@ public class Planet extends Actor {
 			goodsSold.put(_g, Boolean.TRUE);
 			stock.put(_g, new AtomicInteger(rnd.getRandI(_g.getBaseAmount()))); //have up to base amount
 			stockTarget.put(_g, new AtomicInteger(_g.getBaseAmount())); 
-			volitility.put(_g, new AtomicInteger(20)); //base volatility in % //TODO check
+			volitility.put(_g, new AtomicInteger(5)); //base volatility in % //TODO check
 			price.put(_g, new Array<AtomicInteger>() );
 			price.get(_g).add( new AtomicInteger( _g.getBasePrice() ));
 		}
@@ -196,11 +196,7 @@ public class Planet extends Actor {
 			for (Goods _g : Goods.values()) {
 				final int current = getPrice(_g);
 				final float sigma = (float)current * ((float)volitility.get(_g).get() / 100f);
-				int _new = Math.abs( Math.round( rnd.getRandG(current, sigma) ) );
-				//DEBUG
-				if (SpaceTrade.priceVariation == false) {
-					_new = current; //Don't vary price
-				}				
+				int _new = Math.abs( Math.round( rnd.getRandG(current, sigma) ) );			
 				price.get(_g).add( new AtomicInteger(_new) );
 				//Mod stock
 				final int _stock = getStock(_g);

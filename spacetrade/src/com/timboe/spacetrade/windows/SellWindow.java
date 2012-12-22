@@ -3,11 +3,13 @@ package com.timboe.spacetrade.windows;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -16,9 +18,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.timboe.spacetrade.SpaceTrade;
 import com.timboe.spacetrade.enumerator.Goods;
 import com.timboe.spacetrade.player.Player;
+import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
+import com.timboe.spacetrade.screen.PlanetScreen;
 import com.timboe.spacetrade.utility.Help;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.TextButtonGoods;
@@ -117,6 +122,22 @@ public class SellWindow {
 
 	}
 	
+	private static void removeStock(Goods _g, int _amount) {
+		Player.removeStock(_g, _amount);
+		curPlanet.modStock(_g, _amount);
+		final int _remainingStock = Player.getStock(_g);
+		if (_remainingStock == 0) {
+			sliderStock.get(_g).setRange(0, 1);
+		} else {
+			sliderStock.get(_g).setRange(0, _remainingStock);
+			if (_amount > _remainingStock) {
+				sliderStock.get(_g).setValue(_remainingStock);
+			} else {
+				sliderStock.get(_g).setValue(_amount);
+			}
+		}
+	}
+	
 	private static void populateSellWindow() {
 		
 		Skin _skin = Textures.getSkin();
@@ -127,20 +148,24 @@ public class SellWindow {
 				Gdx.app.log("SellButton","Interact:"+event.toString()+" "+((TextButtonGoods)actor).getGoods());
 				final Goods _g = ((TextButtonGoods)actor).getGoods();
 				final int _amount = (int) sliderStock.get(_g).getValue();
-				final int _profit = curPlanet.getPriceSell(_g) * _amount;
-				Player.modCredz(_profit);
-				Player.removeStock(_g, _amount);
-				curPlanet.modStock(_g, _amount);
-				final int _remainingStock = Player.getStock(_g);
-				if (_remainingStock == 0) {
-					sliderStock.get(_g).setRange(0, 1);
+				
+				if (Player.getPlanet().getSells(_g) == false) {
+					//DUMP!
+					new Dialog("Cargo Dumo", Textures.getSkin(), "dialog") {
+						protected void result (Object object) {
+							if ((Boolean)object == true) {
+								removeStock(_g, _amount);
+							}
+						}
+					}.text("\nAre you sure you wish to dump "+_amount+" "+_g.toDisplayString()+"?\n ")
+						.button("   YES   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+						.button("   NO   ", true, Textures.getSkin().get("large", TextButtonStyle.class))
+						.key(Keys.ENTER, true).key(Keys.ESCAPE, false)
+						.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 				} else {
-					sliderStock.get(_g).setRange(0, _remainingStock);
-					if (_amount > _remainingStock) {
-						sliderStock.get(_g).setValue(_remainingStock);
-					} else {
-						sliderStock.get(_g).setValue(_amount);
-					}
+					final int _profit = curPlanet.getPriceSell(_g) * _amount;
+					Player.modCredz(_profit); //Receive money
+					removeStock(_g, _amount);
 				}
 			}
 		};
@@ -180,11 +205,13 @@ public class SellWindow {
 			
 			temp = new Label( "10", _skin.get("background", LabelStyle.class) );
 			labelPrice.put(_g, temp);
-			sellWindow.add( temp );
+			temp.setAlignment(Align.center);
+			sellWindow.add( temp ).width(100);
 			
 			temp = new Label( "100", _skin.get("background", LabelStyle.class) );
 			labelPricePaid.put(_g, temp);
-			sellWindow.add( temp ).pad(10);
+			temp.setAlignment(Align.center);
+			sellWindow.add( temp ).width(100);
 			
 			Slider sliderTemp = new Slider(0, 1, 1, false, _skin ); //set slider
 			sliderStock.put(_g, sliderTemp);
@@ -192,7 +219,7 @@ public class SellWindow {
 			
 			temp = new Label( "1000", _skin );
 			labelStock.put(_g, temp);
-			sellWindow.add( temp ).width(30);	
+			sellWindow.add( temp ).width(35);	
 			
 			TextButtonGoods buttonTemp = new TextButtonGoods("SELL", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(sellClik);
@@ -201,7 +228,8 @@ public class SellWindow {
 			
 			temp = new Label( "1", _skin.get("background", LabelStyle.class) );
 			labelCargo.put(_g, temp);
-			sellWindow.add( temp );	
+			temp.setAlignment(Align.center);
+			sellWindow.add( temp ).width(35);	
 			
 			sellWindow.row();
 		}

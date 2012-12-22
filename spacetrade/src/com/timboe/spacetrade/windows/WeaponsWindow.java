@@ -58,7 +58,7 @@ public class WeaponsWindow {
 						Help.errorOK("\nThere are no free weapon slots.\n\nTry selling a weapon to free a slot,\nor buy a bigger ship!\n ");
 						return;
 					}
-					if (_cost > Player.getCredz()) {
+					if (_cost > Player.getAvailableCredzIncOD()) {
 						Help.errorOK("\nYou cannot afford to buy this weapon!\n ");
 						return;	
 					}
@@ -138,7 +138,7 @@ public class WeaponsWindow {
 			//set price
 			int _price = _w.getCost();
 			weaponPrice.get(_w).setText("$" + Integer.toString((int) (_price * Player.getPlanet().getEquipmentPriceMod())) );
-			if (_price > Player.getCredz()) {
+			if (_price > Player.getAvailableCredzIncOD()) {
 				weaponPrice.get(_w).setColor(Color.RED);
 			} else {
 				weaponPrice.get(_w).setColor(Color.GREEN);

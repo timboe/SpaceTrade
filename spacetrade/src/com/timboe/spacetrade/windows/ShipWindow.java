@@ -36,8 +36,7 @@ public class ShipWindow {
 	private static Label cargoLabel;
 	private static Label weaponLabel;
 	private static Label equipmentLabel;
-
-	
+	private static Label escapeLabel;
 	
 	private static Window shipWindow = null;
 	
@@ -127,6 +126,12 @@ public class ShipWindow {
 		shipWindow.row();
 		cargoLabel = new Label( "Cargo Bay Use: " + Player.getTotalCargo()+"/"+Player.getTotalCargoCapacity(), _skin );
 		shipWindow.add(cargoLabel).colspan(4).left();
+		
+		shipWindow.row();
+		String escapeStr = "Escape Pod: No - Visit Bank to Purchase.";
+		if (Player.getShip().getEscapePod() == true) escapeStr = "Escape Pod: Fitted.";
+		escapeLabel = new Label( escapeStr , _skin );
+		shipWindow.add(escapeLabel).colspan(4).left();
 	
 		shipWindow.row();
 		shipWindow.add( new Image(_skin.getDrawable("default-splitpane-vertical")) ).colspan(4).fillX();
@@ -175,7 +180,7 @@ public class ShipWindow {
 			});
 			shipWindow.add( tempIButton ).right();
 			
-			String drawable = "Laser1"; //TODO
+			String drawable = _e.getEquipmentClass().toString();
 			shipWindow.add( new Image(_skin.getDrawable(drawable) ) ).right();
 			
 			shipWindow.add( new Label( _e.getName(), _skin ) ).left();	

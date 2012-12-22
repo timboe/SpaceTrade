@@ -54,7 +54,7 @@ public class BuyWindow {
 		for (Goods _g : Goods.values()) {
 			labelCargo.get(_g).setText( Integer.toString(Player.getStock(_g)) );
 			
-			int canAffordPrice = (int)Math.floor( (float)Player.getCredz() / (float)curPlanet.getPriceBuy(_g));
+			int canAffordPrice = (int)Math.floor( (float)Player.getAvailableCredz() / (float)curPlanet.getPriceBuy(_g));
 			int canAffordSpace = Player.getFreeCargo();
 			int canAfford = Math.min(canAffordPrice, canAffordSpace);
 			canAfford = Math.max(canAfford, 0);
@@ -116,9 +116,9 @@ public class BuyWindow {
 				final int _amount = (int) sliderStock.get(_g).getValue();
 				final int _price_per_unit = curPlanet.getPriceBuy(_g);
 				final int _price = _price_per_unit * _amount;
-				if (_price > Player.getCredz()) {
+				if (_price > Player.getAvailableCredzIncOD()) {
 					Gdx.app.log("BuyButton", "Buy Failed, insufficient money!");
-					Help.errorOK("You don't have enough Credz for that!\nCost: $"+_price+"\nCredz: $"+Player.getCredz());
+					Help.errorOK("You don't have enough Credz for that!\nCost: $"+_price+"\nAvailable Credit: $"+Player.getAvailableCredzIncOD());
 					return;
 				}
 				if (_amount > Player.getFreeCargo()) {
@@ -169,7 +169,8 @@ public class BuyWindow {
 			
 			temp = new Label( "10", _skin.get("background", LabelStyle.class) );
 			labelPrice.put(_g, temp);
-			buyWindow.add( temp );
+			temp.setAlignment(Align.center);
+			buyWindow.add( temp ).width(100);
 			
 //			temp = new Label( "100", _skin.get("background", LabelStyle.class) );
 //			labelPricePaid.put(_g, temp);
@@ -181,7 +182,7 @@ public class BuyWindow {
 			
 			temp = new Label( "1000", _skin );
 			labelStock.put(_g, temp);
-			buyWindow.add( temp ).width(50);	
+			buyWindow.add( temp ).width(35);	
 			
 			TextButtonGoods buttonTemp = new TextButtonGoods("BUY", _skin.get("large", TextButtonStyle.class), _g);
 			buttonTemp.addListener(buyClick);
@@ -190,7 +191,8 @@ public class BuyWindow {
 			
 			temp = new Label( "1", _skin.get("background", LabelStyle.class) );
 			labelCargo.put(_g, temp);
-			buyWindow.add( temp );	
+			temp.setAlignment(Align.center);
+			buyWindow.add( temp ).width(35);	
 			
 			buyWindow.row();
 		}

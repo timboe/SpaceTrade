@@ -59,7 +59,7 @@ public class EquipmentWindow {
 						Help.errorOK("\nThere are no free equipment slots.\n\nTry selling some equipment to free a slot,\nor buy a bigger ship!\n ");
 						return;
 					}
-					if (_cost > Player.getCredz()) {
+					if (_cost > Player.getAvailableCredzIncOD()) {
 						Help.errorOK("\nYou cannot afford to buy this pice of equipment!\n ");
 						return;	
 					}
@@ -141,7 +141,7 @@ public class EquipmentWindow {
 			//set price
 			int _price = _e.getCost();
 			equipmentPrice.get(_e).setText("$" + Integer.toString((int) (_price * Player.getPlanet().getEquipmentPriceMod())) );
-			if (_price > Player.getCredz()) {
+			if (_price > Player.getAvailableCredzIncOD()) {
 				equipmentPrice.get(_e).setColor(Color.RED);
 			} else {
 				equipmentPrice.get(_e).setColor(Color.GREEN);

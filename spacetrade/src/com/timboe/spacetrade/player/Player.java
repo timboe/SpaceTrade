@@ -13,6 +13,7 @@ import com.timboe.spacetrade.render.RightBar;
 import com.timboe.spacetrade.render.Sprites;
 import com.timboe.spacetrade.ship.Ship;
 import com.timboe.spacetrade.utility.Rnd;
+import com.timboe.spacetrade.windows.BankWindow;
 import com.timboe.spacetrade.world.Planet;
 import com.timboe.spacetrade.world.Starmap;
 
@@ -24,13 +25,15 @@ public class Player extends Actor {
 	private static Ship ship = null;
 	private static int totalCargo;
 	private static int currentLocationID;
-	private static Rnd rnd = new Rnd();
 	private static boolean dead = false;
 	public static String name = "Tim:~$ ";
 
 	private static Player singleton = new Player();
-	private static boolean isInsured;
-	private static float noClaimBonus;
+	private static boolean isInsured = false;
+	private static float noClaimBonus = 0f;
+	private static int insPaidSoFar = 0;
+	private static int overdraft = 0;
+	private static boolean useOverdraft = true;
 	public static final Player getPlayer () {
 		return singleton;
 	}
@@ -38,6 +41,10 @@ public class Player extends Actor {
 	public boolean isMoving() {
 		if (getActions().size == 0) return false;
 		return true;
+	}
+	
+	public int getPremium() {
+		return Math.round(ship.getShipClass().getCost() * BankWindow.insuranceRate * (1f - noClaimBonus));
 	}
 	
 	public Player() { //Only to be called externally when loading a game! 
@@ -172,8 +179,7 @@ public class Player extends Actor {
 	}
 
 	public static int getInsurancePayout() {
-		// TODO Auto-generated method stub
-		return 0;
+		return ship.getShipClass().getCost();
 	}
 
 	public static void setNoClaim(float _f) {
@@ -191,5 +197,35 @@ public class Player extends Actor {
 
 	public static boolean getDead() {
 		return dead;
+	}
+
+	public static int getAvailableCredzIncOD() {
+		return overdraft + getCredz();
+	}
+	
+	public static int getAvailableCredz() {
+		if (useOverdraft == true) return getAvailableCredzIncOD();
+		else if (getCredz() > 0) return getCredz();
+		else return 0;
+	}
+
+	public static void setInsured(boolean _b) {
+		isInsured = _b;
+	}
+
+	public static float getNoClaims() {
+		return noClaimBonus;
+	}
+
+	public static void setInsurancePaid(int _i) {
+		insPaidSoFar = _i;	
+	}
+
+	public static int getInsurancePaid() {
+		return insPaidSoFar;
+	}
+
+	public static int getOD() {
+		return overdraft;
 	}
 }

@@ -33,7 +33,7 @@ public class TitleScreen extends SpaceTradeRender {
 		Starmap.populate();
 		Player.getPlayer().refresh();
 		Player.setShip( new Ship(ShipClass.Starting) );
-		Player.setCredz(1000);
+		Player.setCredz(10000);
 
 		ScreenFade.changeScreen( SpaceTrade.getSpaceTrade().theStarmap );
 		RightBar.getRightBarTable().addAction(Actions.delay(ScreenFade.speed));

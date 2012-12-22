@@ -29,7 +29,7 @@ public enum Equipment {
 	int cost;
 	int level;
 	
-	//modifiers:
+	//modifiers: 
 	
 	public float getScanChance(int _l) {
 		if (_l == 1) {

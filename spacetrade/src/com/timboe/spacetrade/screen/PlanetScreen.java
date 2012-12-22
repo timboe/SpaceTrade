@@ -12,6 +12,7 @@ import com.timboe.spacetrade.render.SpaceTradeRender;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.ship.Ship;
 import com.timboe.spacetrade.utility.Rnd;
+import com.timboe.spacetrade.windows.BankWindow;
 import com.timboe.spacetrade.windows.PlanetWindow;
 import com.timboe.spacetrade.windows.TravelWindow;
 import com.timboe.spacetrade.world.Starmap;
@@ -24,6 +25,7 @@ public class PlanetScreen extends SpaceTradeRender {
 	private static Ship encounter = null;
 	private Rnd rnd = new Rnd();
 	public static boolean triggerRefresh = false;
+	public static boolean showBank = false;
 	
 	//combat log
 	public static Array<String> combatLog = new Array<String>();
@@ -117,6 +119,8 @@ public class PlanetScreen extends SpaceTradeRender {
 				combatPane.setScrollPercentY(100);
 			}
 			TravelWindow.updateList();
+		} else if (showBank == true) {
+			BankWindow.update(false);
 		}
 		renderPlanetBackdrop();
 	}
@@ -141,8 +145,13 @@ public class PlanetScreen extends SpaceTradeRender {
 			combatPane.addAction(Actions.fadeIn(0));
 			combatPane.act(1);
 		} else {
-			leftTable.center().left();
-			leftTable.add(PlanetWindow.getWindow());
+			if (showBank == false) {
+				leftTable.center().left();
+				leftTable.add(PlanetWindow.getWindow());
+			} else {
+				leftTable.center();
+				leftTable.add(BankWindow.getWindow());
+			}
 		}
 		
 		super.show();

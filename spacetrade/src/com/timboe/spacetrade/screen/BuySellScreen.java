@@ -87,14 +87,14 @@ public class BuySellScreen extends SpaceTradeRender {
 			Window bottomContainer = new Window("", Textures.getSkin().get("transparent", WindowStyle.class));
 			bottomContainer.debug();
 			bottomContainer.defaults().pad(10);
-			bottomContainer.add(SellWindow.getWindow()).width(980).height(700);
+			bottomContainer.add(SellWindow.getWindow()).width(1000).height(700);
 			leftTable.add(bottomContainer);
 		} else {
 			BuyWindow.updateList(true);
 			Window bottomContainer = new Window("", Textures.getSkin().get("transparent", WindowStyle.class));
 			bottomContainer.debug();
 			bottomContainer.defaults().pad(10);
-			bottomContainer.add(BuyWindow.getWindow()).width(980).height(700);
+			bottomContainer.add(BuyWindow.getWindow()).width(1000).height(700);
 			leftTable.add(bottomContainer);
 		}
 			
