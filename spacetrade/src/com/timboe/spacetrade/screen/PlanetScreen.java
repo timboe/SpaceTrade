@@ -73,8 +73,8 @@ public class PlanetScreen extends SpaceTradeRender {
 	
 	private void encounter(ShipTemplate _st) {
 		encounter = new Ship(_st);
-		combatLog.add(Player.name+"INFO: "+encounter.getMod().toString() + " " + _st.toString() + " " + encounter.getShipClass().getName() 
-				+ " encountered  at " + tocks + " tocks from " + Player.getPlanet().getName());
+		combatLog.add(Player.getPlayerName()+"INFO: "+encounter.getMod().toString() + " " + _st.toString() + " " + encounter.getShipClass().getName() 
+				+ " encountered at " + tocks + " tocks from " + Player.getPlanet().getName());
 		Player.getShip().doScanOf(encounter);
 	}
 	
@@ -161,7 +161,7 @@ public class PlanetScreen extends SpaceTradeRender {
 		tocks = 20;
 		xOffset = 20 * 25;
 		combatLog.clear();
-		combatLog.add(Player.name+" "+tocks+" tocks from "+Player.getPlanet().getName()+" / Initiating Approach Shell");
+		combatLog.add(Player.getPlayerName()+" "+tocks+" tocks from "+Player.getPlanet().getName()+" / Initiating Approach Shell");
 	}
 
 	public static void setTocks(int i) {

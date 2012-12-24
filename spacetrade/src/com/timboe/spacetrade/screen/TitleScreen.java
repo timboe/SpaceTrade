@@ -53,6 +53,7 @@ public class TitleScreen extends SpaceTradeRender {
 			gameButton.addListener(new ChangeListener() {
 				public void changed (ChangeEvent event, Actor actor) {
 					doNewGame();
+					SpaceTrade.saveSlot = 1;//TODO add actual slot
 				}
 			});
 			leftTable.add(gameButton).width(600);

@@ -26,7 +26,7 @@ public class Player extends Actor {
 	private static int totalCargo;
 	private static int currentLocationID;
 	private static boolean dead = false;
-	public static String name = "Tim:~$ ";
+	private static String name = "Tim:~$ ";
 
 	private static Player singleton = new Player();
 	private static boolean isInsured = false;
@@ -34,6 +34,7 @@ public class Player extends Actor {
 	private static int insPaidSoFar = 0;
 	private static int overdraft = 0;
 	private static boolean useOverdraft = true;
+	
 	public static final Player getPlayer () {
 		return singleton;
 	}
@@ -41,6 +42,10 @@ public class Player extends Actor {
 	public boolean isMoving() {
 		if (getActions().size == 0) return false;
 		return true;
+	}
+	
+	public static String getPlayerName() {
+		return name;
 	}
 	
 	public int getPremium() {
@@ -75,7 +80,7 @@ public class Player extends Actor {
 	
 	public void move(Planet _p) {
 		currentLocationID = _p.getID();
-		setPosition(_p.getX() + _p.radius, _p.getY() + _p.radius);
+		setPosition(_p.getX() + _p.getRadius(), _p.getY() + _p.getRadius());
 		_p.setVisited();
 	}
 	
@@ -209,6 +214,10 @@ public class Player extends Actor {
 		else return 0;
 	}
 
+	public static boolean getUseOD() {
+		return useOverdraft;
+	}
+	
 	public static void setInsured(boolean _b) {
 		isInsured = _b;
 	}

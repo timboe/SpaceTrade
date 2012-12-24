@@ -320,7 +320,7 @@ public class SpaceTradeRender implements Screen {
 	public void pause() {
 //		unHookStage();
 //		Starmap.unHookListners();
-		Serialiser.saveState();
+		Serialiser.getSerialiser().saveState(SpaceTrade.saveSlot);
 	}
 
 	@Override

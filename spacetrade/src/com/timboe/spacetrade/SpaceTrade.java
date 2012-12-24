@@ -1,7 +1,11 @@
 package com.timboe.spacetrade;
 
+import java.util.Random;
+
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.utils.Json;
 import com.timboe.spacetrade.screen.BuySellScreen;
 import com.timboe.spacetrade.screen.GameOverScreeen;
 import com.timboe.spacetrade.screen.PlanetScreen;
@@ -12,6 +16,7 @@ import com.timboe.spacetrade.render.Meshes;
 import com.timboe.spacetrade.render.Textures;
 
 public class SpaceTrade extends Game {
+	Random r = new Random();
 
 	public StarmapScreen theStarmap;
 	public TitleScreen theTitle;
@@ -28,6 +33,8 @@ public class SpaceTrade extends Game {
 	public static final float GAME_HEIGHT = 800;
 	public static final float GAME_WIDTH = CAMERA_WIDTH - GUI_WIDTH;
 	
+	public static int saveSlot;
+	
 	public static boolean debug = false;
 	public static boolean priceVariation = false;
 	
@@ -40,6 +47,21 @@ public class SpaceTrade extends Game {
 	
 	@Override
 	public void create() {
+//		
+//		r.setSeed(1);
+//		Json json = new Json();
+//
+//		System.out.println(json.prettyPrint(r));
+//		System.out.println(json.prettyPrint(r));
+//
+//		Gdx.app.log("r", ""+r.nextInt());
+//		System.out.println(json.prettyPrint(r));
+//		System.out.println(json.prettyPrint(r));
+//		
+//		Gdx.app.log("r", ""+r.nextInt());
+//		System.out.println(json.prettyPrint(r));
+//		System.out.println(json.prettyPrint(r));
+
 		self = this;
 //		
 		theTitle = new TitleScreen();

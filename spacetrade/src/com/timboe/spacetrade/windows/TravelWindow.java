@@ -240,7 +240,7 @@ public class TravelWindow {
 			//do I escape?
 			//TODO tweak chance
 			if (rnd.getRandChance(0.5f) == true) {
-				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your oponent has fled from battle!");
+				PlanetScreen.combatLog.add(Player.getPlayerName()+"[Piloting] Your oponent has fled from battle!");
 				new Dialog("Early Exit", Textures.getSkin(), "dialog") {
 					protected void result (Object object) {
 						PlanetScreen.endEncounter();
@@ -250,7 +250,7 @@ public class TravelWindow {
 					.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
 					.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 			} else {
-				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your oponent FAILS to flee from battle.");
+				PlanetScreen.combatLog.add(Player.getPlayerName()+"[Piloting] Your oponent FAILS to flee from battle.");
 			}
 		}
 		
@@ -266,10 +266,10 @@ public class TravelWindow {
 			if (rnd.getRandChance(0.5f) == true) { //TODO more sophisticated
 				doEnemyCounter();
 				if (Player.getDead() == true) return;
-				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your attempt to flee SUCEEDED but you were hit.");
+				PlanetScreen.combatLog.add(Player.getPlayerName()+"[Piloting] Your attempt to flee SUCEEDED but you were hit.");
 				_msg = "\nYou were hit, but you managed to get away.\n ";
 			} else {
-				PlanetScreen.combatLog.add(Player.name+"[Piloting] Your attempt to flee SUCEEDED.");
+				PlanetScreen.combatLog.add(Player.getPlayerName()+"[Piloting] Your attempt to flee SUCEEDED.");
 				_msg = "\nYou manage to escape.\n ";
 			}
 			new Dialog("Early Exit", Textures.getSkin(), "dialog") {
@@ -281,7 +281,7 @@ public class TravelWindow {
 				.key(Keys.ENTER, true).key(Keys.ESCAPE, true)
 				.show(((SpaceTradeRender)SpaceTrade.getSpaceTrade().getScreen()).getStage()).getContentTable().defaults().pad(10);
 		} else { //flee fail 
-			PlanetScreen.combatLog.add(Player.name+"[Piloting] Your attempt to flee FAILED.");
+			PlanetScreen.combatLog.add(Player.getPlayerName()+"[Piloting] Your attempt to flee FAILED.");
 			doEnemyCounter();
 		}		
 	}

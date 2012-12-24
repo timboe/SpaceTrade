@@ -6,3 +6,4 @@ http://en.wikipedia.org/wiki/File:Jerrycan.JPG
 http://libgdx.badlogicgames.com/
 http://bompo-blog.appspot.com/2011/3/OpenGL-ES-20-in-libgdx
 http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
+http://www.vendian.org/mncharity/dir3/starcolor/

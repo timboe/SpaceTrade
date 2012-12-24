@@ -142,8 +142,8 @@ public class WarpBuyWindow {
         		"JavaHeap:"+Gdx.app.getJavaHeap()/1048576+" MB");
 				//Here we go! get angle
 				final Planet _target = Starmap.getPlanet( StarmapScreen.getPlanetClickedID() );
-				final float _targetX = _target.getX() + _target.radius;
-				final float _targetY = _target.getY() + _target.radius;
+				final float _targetX = _target.getX() + _target.getRadius();
+				final float _targetY = _target.getY() + _target.getRadius();
 				final float _dY = _targetY - Player.getPlayer().getY();
 				final float _dX = _targetX - Player.getPlayer().getX();
 				final float _dist = Player.getPlanet().dst(_targetX, _targetY);

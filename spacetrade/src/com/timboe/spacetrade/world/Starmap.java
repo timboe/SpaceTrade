@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.timboe.spacetrade.SpaceTrade;
-import com.timboe.spacetrade.enumerator.ShipClass;
 import com.timboe.spacetrade.player.Player;
 import com.timboe.spacetrade.render.Textures;
 import com.timboe.spacetrade.screen.StarmapScreen;
@@ -42,6 +41,14 @@ public class Starmap {
 	
 	public static int getStarDate() {
 		return starDate;
+	}
+	
+	public static float getStarDateShip() {
+		return starDateShip;
+	}
+	
+	public static float getStarDateGalaxy() {
+		return starDateGalaxy;
 	}
 	
 	public static void doTravelTime(float _galaxyTime, float _shipTime) {
@@ -209,6 +216,10 @@ public class Starmap {
 			++i;
 		}
 		return names;
+	}
+
+	public static Rnd getRnd() {
+		return rnd;
 	}
 
 

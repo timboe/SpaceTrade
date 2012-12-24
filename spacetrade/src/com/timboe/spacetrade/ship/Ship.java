@@ -1,8 +1,7 @@
 package com.timboe.spacetrade.ship;
 
-import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 import com.timboe.spacetrade.enumerator.Equipment;
 import com.timboe.spacetrade.enumerator.OpponentStance;
 import com.timboe.spacetrade.enumerator.ShipClass;
@@ -20,22 +19,21 @@ public class Ship {
 	private ShipProperty property;
 	private ShipTemplate template;
 	private ShipClass shipClass;
-	private ArrayList<Weapons> weaponLoadout = new ArrayList<Weapons>();
-	private ArrayList<Equipment> techLoadout = new ArrayList<Equipment>();
+	private Array<Weapons> weaponLoadout = new Array<Weapons>();
+	private Array<Equipment> techLoadout = new Array<Equipment>();
 	private Rnd rnd = new Rnd(++shipCount);
 
 	private int hull;
 	private int heat;
 	private int sheilding;
 	private float age;
-	private boolean surrendered = false; //only surrender once
 	private boolean hasEscapePod = false;
-	
-	//private boolean isAttacking;
+
+	private String logStart = "You ";
+	private boolean surrendered = false; //only surrender once
 	private OpponentStance stance;
-	private String logStart;
 	
-	private float acceleration = 5;
+	private final float acceleration = 5;
 	
 	public Ship(ShipTemplate _st) { //Others ship constructor
 		final int _cash = Player.getWorth(); //How much do we have to spend?
@@ -118,6 +116,10 @@ public class Ship {
 		print();
 	}
 	
+	public float getAge() {
+		return age;
+	}
+	
 	public void doCooldown(boolean _quiet) {
 		int _toCool = getCooldown();
 		int _cooled = 0;
@@ -131,7 +133,7 @@ public class Ship {
 		String _Stxt = "";
 		if (template != ShipTemplate.Player) _Stxt = "s";
 		if (_quiet == false && _cooled > 0) {
-			PlanetScreen.combatLog.add(Player.name+"["+PlanetScreen.turn+"]"+ logStart+" vent"+_Stxt+" "+_cooled+" heat into space.");
+			PlanetScreen.combatLog.add(Player.getPlayerName()+"["+PlanetScreen.turn+"]"+ logStart+" vent"+_Stxt+" "+_cooled+" heat into space.");
 		}
 	}
 	
@@ -167,7 +169,6 @@ public class Ship {
 	}
 	
 	public Ship(ShipClass _sc) { //Player ship constructor
-		logStart = "You ";
 		shipClass = _sc;
 		template = ShipTemplate.Player;
 		property = ShipProperty.random();
@@ -177,11 +178,11 @@ public class Ship {
 	}
 	
 	public int getFreeWeaponSlots() {
-		return shipClass.getWeaponSlots() - weaponLoadout.size();
+		return shipClass.getWeaponSlots() - weaponLoadout.size;
 	}
 	
 	public int getFreeEquipmentSlots() {
-		return shipClass.getTechSlots() - techLoadout.size();
+		return shipClass.getTechSlots() - techLoadout.size;
 	}
 	
 	public int getRange() {
@@ -309,12 +310,12 @@ public class Ship {
 
 	public void disarm(Weapons _w) {
 		assert(getNumberInstalled(_w) > 0);
-		weaponLoadout.remove(_w);	
+		weaponLoadout.removeValue(_w, true);	
 	}
 	
 	public void disarm(Equipment _e) {
 		assert(getNumberInstalled(_e) > 0);
-		techLoadout.remove(_e);	
+		techLoadout. removeValue(_e, true);	
 		hull -= _e.getExtraHull();
 		sheilding -= _e.getShielding();
 		if (hull <= 0) hull = 1;
@@ -326,11 +327,11 @@ public class Ship {
 	}
 
 	public int getFilledWeaponSlots() {
-		return weaponLoadout.size();
+		return weaponLoadout.size;
 	}
 	
 	public int getFilledEquipmentSlots() {
-		return techLoadout.size();
+		return techLoadout.size;
 	}
 
 	public String getFullName() {
@@ -357,11 +358,11 @@ public class Ship {
 		return shipClass.getTechSlots();
 	}
 
-	public ArrayList<Weapons> getWeapons() {
+	public Array<Weapons> getWeapons() {
 		return weaponLoadout;
 	}
 	
-	public ArrayList<Equipment> getEquipment() {
+	public Array<Equipment> getEquipment() {
 		return techLoadout;
 	}
 
@@ -410,9 +411,9 @@ public class Ship {
 				} else if (_w.getDamageMod(_shipToAttack.getMod()) < 1f) {
 					_e = "It's not very effective.";
 				}
-				PlanetScreen.combatLog.add(Player.name+"["+PlanetScreen.turn+"]"+ logStart +" attacks with "+_w.getName()+" for "+_wDmg+" damage and "+_wHeat+" heat. "+_e);
+				PlanetScreen.combatLog.add(Player.getPlayerName()+"["+PlanetScreen.turn+"]"+ logStart +" attacks with "+_w.getName()+" for "+_wDmg+" damage and "+_wHeat+" heat. "+_e);
 			} else if (template == ShipTemplate.Player) { //Only if player
-				PlanetScreen.combatLog.add(Player.name+"["+PlanetScreen.turn+"]"+ "WARNING: You cannot fire your "+_w.getName()+", this turn insufficient heat capacity onboard!");
+				PlanetScreen.combatLog.add(Player.getPlayerName()+"["+PlanetScreen.turn+"]"+ "WARNING: You cannot fire your "+_w.getName()+", this turn insufficient heat capacity onboard!");
 			}
 		}
 		//Gdx.app.log("Attack", "Attacking for damage "+_dmg+" at heat cost "+_heat);
@@ -475,8 +476,8 @@ public class Ship {
 
 	public void doScanOf(Ship encounter) {
 		if (hasScanners() == false) return;
-		PlanetScreen.combatLog.add(Player.name +"./activateScanners("+encounter.getShipClass().getName()+") ");		
-		String _msg = Player.name +"<Weapons Scan>: ";
+		PlanetScreen.combatLog.add(Player.getPlayerName() +"./activateScanners("+encounter.getShipClass().getName()+") ");		
+		String _msg = Player.getPlayerName() +"<Weapons Scan>: ";
 		boolean someDetected = false;
 		for (Weapons _w : encounter.getWeapons()) {
 			int _l = _w.getLevel();
@@ -494,7 +495,7 @@ public class Ship {
 		if (someDetected == false) _msg += "None Detected";
 		PlanetScreen.combatLog.add(_msg);		
 		someDetected = false;
-		_msg = Player.name +"<Equipment Scan>: ";
+		_msg = Player.getPlayerName() +"<Equipment Scan>: ";
 		for (Equipment _E : encounter.getEquipment()) {
 			int _l = _E.getLevel();
 			boolean isDetected = false;
@@ -525,6 +526,10 @@ public class Ship {
 
 	public void setEscapePod(boolean _b) {
 		hasEscapePod = _b;		
+	}
+
+	public Rnd getRnd() {
+		return rnd;
 	}
 
 }

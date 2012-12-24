@@ -39,8 +39,8 @@ public class Planet extends Actor {
 	private Government govType = Government.random();
 	private Civilisation civType = Civilisation.random();
 	private WorldSize worldSize = WorldSize.random();
-	private int diameter = (int) (Textures.getStar().getRegionWidth());
-	public int radius = Math.round(diameter/2f);
+	private final int diameter = (int) (Textures.getStar().getRegionWidth());
+	private final int radius = Math.round(diameter/2f);
 	private int ID;
 	private boolean isVisited = false;
 
@@ -66,6 +66,10 @@ public class Planet extends Actor {
 	public void addShipSold(ShipClass _sc) {
 		shipsSold.put(_sc, ShipProperty.random() );
 	}
+	
+	public int getNameLen() {
+		return nameLen;
+	}
 
 	//serialiser
 	public Planet() {
@@ -90,6 +94,7 @@ public class Planet extends Actor {
 //		refresh();
 //		init();
 	}
+
 	
 	public Planet(int _x, int _y, int _ID) {
 		ID = _ID;
@@ -320,6 +325,10 @@ public class Planet extends Actor {
 		return ID;
 	}
 
+	public boolean getVisited() {
+		return isVisited;
+	}
+	
 	public String getFullName() {
 		return getName() 
 		+ ", the " 
@@ -375,6 +384,22 @@ public class Planet extends Actor {
 
 	public void setVisited() {
 		isVisited = true;
+	}
+
+	public int getDiameter() {
+		return diameter;
+	}
+	
+	public int getRadius() {
+		return radius;
+	}
+
+	public Rnd getRnd() {
+		return rnd;
+	}
+
+	public Color getPlanetColour() {
+		return colour;
 	}
 
 

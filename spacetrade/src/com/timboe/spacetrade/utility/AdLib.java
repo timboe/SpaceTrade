@@ -225,7 +225,7 @@ public class AdLib {
 		fornames.addStr("Pamela");
 		fornames.addStr("Reginald");
 		
-		//Star colours from http://www.vendian.org/mncharity/dir3/starcolor/
+		//Star colours 
 		starColour.addCol( new Color(1f/255f * 155f, 1f/255f * 176f, 1f/255f * 255f, 1f)); //O
 		starColour.addCol( new Color(1f/255f * 170f, 1f/255f * 191f, 1f/255f * 255f, 1f)); //B
 		starColour.addCol( new Color(1f/255f * 202f, 1f/255f * 215f, 1f/255f * 255f, 1f)); //A
